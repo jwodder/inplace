@@ -1,0 +1,3 @@
+- Write a README
+- Integrate with Travis
+- Fill in `description` and `keywords` in `setup.py`

@@ -37,7 +37,7 @@ All mimsy were the borogoves,
 	And the mome raths outgrabe.
 '''
 
-def test_inplace_01(tmpdir):
+def test_inplace_nobackup(tmpdir):
     assert tmpdir.listdir() == []
     p = tmpdir.join("file.txt")
     p.write(TEXT)
@@ -45,4 +45,26 @@ def test_inplace_01(tmpdir):
         for line in fp:
             fp.write(line.swapcase())
     assert tmpdir.listdir() == ['file.txt']
+    assert p.read() == TEXT.swapcase()
+
+def test_inplace_backup_ext(tmpdir):
+    assert tmpdir.listdir() == []
+    p = tmpdir.join("file.txt")
+    p.write(TEXT)
+    with InPlace(str(p), backup_ext='~') as fp:
+        for line in fp:
+            fp.write(line.swapcase())
+    assert sorted(tmpdir.listdir()) == ['file.txt', 'file.txt~']
+    assert p.new(ext='txt~').read() == TEXT
+    assert p.read() == TEXT.swapcase()
+
+def test_inplace_backup(tmpdir):
+    assert tmpdir.listdir() == []
+    p = tmpdir.join("file.txt")
+    p.write(TEXT)
+    with InPlace(str(p), backup='backup.txt') as fp:
+        for line in fp:
+            fp.write(line.swapcase())
+    assert sorted(tmpdir.listdir()) == ['backup.txt', 'file.txt']
+    assert tmpdir.join('backup.txt').read() == TEXT
     assert p.read() == TEXT.swapcase()
