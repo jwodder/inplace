@@ -1,24 +1,32 @@
 - Write a README
-- Integrate with Travis
 - Fill in `description` and `keywords` in `setup.py`
-- Test the current directory changing between calls to `__init__`, `__enter__`,
-  and `__exit__`
-- Add an option for instead creating the outfile as a temporary file and only
-  moving files around when done; cf. GNU sed
-  <http://git.savannah.gnu.org/cgit/sed.git/tree/sed/sed.c#n84>
-- Copy file mode, owner, etc.
-- Add an option for preserving the tempfile if an error was raised
-- Add options for encoding, newlines, binary vs. text mode, buffering?,
-  encoding error handling, etc.
-- Add `readhook` and `writehook` options for controlling how to open the
-  filehandles for reading & writing?
+- Integrate with Travis
+
+- Write more tests:
+    - Test the current directory changing between calls to `__init__`,
+      `__enter__`, and `__exit__`
+    - copying permissions and other file attributes
+    - encodings
+    - newlines
+    - bytes
+
+- Add options for:
+    - encoding, newlines, binary vs. text mode, buffering?, encoding error
+      handling, etc.
+    - using a tempfile for the outfile instead of the infile and only moving
+      files around when done; cf. GNU sed
+      <http://git.savannah.gnu.org/cgit/sed.git/tree/sed/sed.c#n84>
+    - preserving the tempfile if an error was raised
+    - Add `readhook` and `writehook` options for controlling how to open the
+      filehandles for reading & writing?
+    - setting the directory in which to create the tempfile
+    - forcing `backup` to be interpreted as relative to
+      `os.path.dirname(filename)`?
+
+- Copy file owner & group?
+- Support calling `discard` and `close` in the middle of a `with` context?
 - Create a separate class (`InPlaceBytes`?) for operating in binary mode?
-- Add an option for setting the directory in which to create the tempfile
-- Add an option for forcing `backup` to be interpreted as relative to
-  `os.path.dirname(filename)`?
 
 - Add the following methods:
-    - `open` — Like `__enter__`, but doesn't return `self`
-    - `close`
     - `flush`
     - `readinto` (for binary files, at least)

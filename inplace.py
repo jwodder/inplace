@@ -32,35 +32,54 @@ class InPlace(object):   ### TODO: Inherit one of the ABCs in `io`
             self.backup = self.filepath + backup_ext
         else:
             self.backup = None
-        self._editing = False
         self._infile = None
         self._outfile = None
         self._backup_path = None
 
     def __enter__(self):
-        self._editing = True
-        if self.backup is not None:
-            self._backup_path = self.backup
-        else:
-            fd, tmppath = tempfile.mkstemp(prefix='inplace')
-            os.close(fd)
-            self._backup_path = tmppath
-        shutil.copyfile(self.filepath, self._backup_path)
-        shutil.copystat(self.filepath, self._backup_path)
-        self._infile = open(self._backup_path, 'r')
-        self._outfile = open(self.filepath, 'w')
+        self.open()
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
+        if exc_type is not None:
+            self.discard()
+        else:
+            self.close()
+        return False
+
+    def open(self):
+        if self._infile is None:
+            if self.backup is not None:
+                self._backup_path = self.backup
+            else:
+                fd, tmppath = tempfile.mkstemp(prefix='inplace')
+                os.close(fd)
+                self._backup_path = tmppath
+            shutil.copyfile(self.filepath, self._backup_path)
+            shutil.copystat(self.filepath, self._backup_path)
+            self._infile = open(self._backup_path, 'r')
+            self._outfile = open(self.filepath, 'w')
+        #else: error?
+
+    def _close(self):
         self._infile.close()
         self._outfile.close()
-        if exc_type is not None:
+        self._infile = None
+        self._outfile = None
+
+    def close(self):
+        if self._infile is not None:
+            self._close()
+            if self.backup is None:
+                with ignore_enoent():
+                    os.unlink(self._backup_path)
+        #else: error?
+
+    def discard(self):
+        if self._infile is not None:
+            self._close()
             shutil.copyfile(self._backup_path, self.filepath)
-        elif self.backup is None:
-            with ignore_enoent():
-                os.unlink(self._backup_path)
-        self._editing = False
-        return False
+        #else: error?
 
     def read(self, size=-1):
         return self._infile.read(size)
