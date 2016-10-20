@@ -1,3 +1,5 @@
+__version__ = '0.1.0.dev1'
+
 # Benefits: lets you specify the complete filename of the backup file, not just
 # an extension; lets you control the encoding; doesn't redirect stdout; `read`
 # method
@@ -16,20 +18,20 @@ def ignore_enoent():
     try:
         yield
     except EnvironmentError as e:
-        if e.errno != ENOENT
+        if e.errno != ENOENT:
             raise
 
 class InPlace(object):   ### TODO: Inherit one of the ABCs in `io`
     def __init__(self, filename, backup=None, backup_ext=None):
+        self._wd = os.getcwd()
         self.filename = filename
+        self.filepath = os.path.join(self._wd, filename)
         if backup is not None:
-            self.backup = backup
+            self.backup = os.path.join(self._wd, backup)
         elif backup_ext is not None:
-            self.backup = filename + backup_ext
+            self.backup = self.filepath + backup_ext
         else:
             self.backup = None
-        self._wd = os.getcwd()
-        self.filepath = os.path.join(self._wd, filename)
         self._editing = False
         self._infile = None
         self._outfile = None
@@ -38,10 +40,10 @@ class InPlace(object):   ### TODO: Inherit one of the ABCs in `io`
     def __enter__(self):
         self._editing = True
         if self.backup is not None:
-            self._backup_path = os.path.join(self._wd, self.backup)
+            self._backup_path = self.backup
         else:
             fd, tmppath = tempfile.mkstemp(prefix='inplace')
-            os.close(fp)
+            os.close(fd)
             self._backup_path = tmppath
         shutil.copyfile(self.filepath, self._backup_path)
         shutil.copystat(self.filepath, self._backup_path)
