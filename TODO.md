@@ -14,3 +14,9 @@
   filehandles for reading & writing?
 - Create a separate class (`InPlaceBytes`?) for operating in binary mode?
 - Add an option for setting the directory in which to create the tempfile
+
+- Add the following methods:
+    - `open` — Like `__enter__`, but doesn't return `self`
+    - `close`
+    - `flush`
+    - `readinto` (for binary files, at least)

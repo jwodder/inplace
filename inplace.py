@@ -8,6 +8,8 @@ from   contextlib import contextmanager
 from   errno      import ENOENT
 import os
 import os.path
+import shutil
+import tempfile
 
 @contextmanager
 def ignore_enoent():
@@ -17,7 +19,7 @@ def ignore_enoent():
         if e.errno != ENOENT
             raise
 
-class InPlace(object):   ### Inherit one of the ABCs in `io`
+class InPlace(object):   ### TODO: Inherit one of the ABCs in `io`
     def __init__(self, filename, backup=None, backup_ext=None):
         self.filename = filename
         if backup is not None:
@@ -27,25 +29,31 @@ class InPlace(object):   ### Inherit one of the ABCs in `io`
         else:
             self.backup = None
         self._wd = os.getcwd()
+        self.filepath = os.path.join(self._wd, filename)
         self._editing = False
         self._infile = None
         self._outfile = None
+        self._backup_path = None
 
     def __enter__(self):
         self._editing = True
         if self.backup is not None:
             self._backup_path = os.path.join(self._wd, self.backup)
         else:
-            self._backup_path = os.path.join(self._wd, ??? )
-        os.rename(os.path.join(self._wd, self.filename), self._backup_path)
-        ### Open filehandles
+            fd, tmppath = tempfile.mkstemp(prefix='inplace')
+            os.close(fp)
+            self._backup_path = tmppath
+        shutil.copyfile(self.filepath, self._backup_path)
+        shutil.copystat(self.filepath, self._backup_path)
+        self._infile = open(self._backup_path, 'r')
+        self._outfile = open(self.filepath, 'w')
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
         self._infile.close()
         self._outfile.close()
         if exc_type is not None:
-            ### Delete new file and replace with backup file
+            shutil.copyfile(self._backup_path, self.filepath)
         elif self.backup is None:
             with ignore_enoent():
                 os.unlink(self._backup_path)
@@ -69,8 +77,3 @@ class InPlace(object):   ### Inherit one of the ABCs in `io`
 
     def __iter__(self):
         return iter(self._infile)
-
-    def open
-    def close
-    def flush
-    def readinto  ### for binary streams, at least
