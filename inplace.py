@@ -4,24 +4,29 @@
 
 # cf. <https://hg.python.org/cpython/file/2.7/Lib/fileinput.py#l310>
 
+from   contextlib import contextmanager
+from   errno      import ENOENT
+import os
+import os.path
+
+@contextmanager
+def ignore_enoent():
+    try:
+        yield
+    except EnvironmentError as e:
+        if e.errno != ENOENT
+            raise
+
 class InPlace(object):   ### Inherit one of the ABCs in `io`
     def __init__(self, filename, backup=None, backup_ext=None):
-        ### Add options for encoding, newlines, binary vs. text mode,
-        ### buffering?, encoding error handling, etc.
-
-        ### Add `readhook` and `writehook` options for controlling how to open
-        ### the filehandles for reading & writing?
-
-        ### Create a separate class (`InPlaceBytes`?) for operating in binary
-        ### mode?
-
         self.filename = filename
         if backup is not None:
             self.backup = backup
         elif backup_ext is not None:
             self.backup = filename + backup_ext
         else:
-            self.backup = True
+            self.backup = None
+        self._wd = os.getcwd()
         self._editing = False
         self._infile = None
         self._outfile = None
@@ -29,22 +34,21 @@ class InPlace(object):   ### Inherit one of the ABCs in `io`
     def __enter__(self):
         self._editing = True
         if self.backup is not None:
-            ### Move file to backup location
+            self._backup_path = os.path.join(self._wd, self.backup)
         else:
-            ### Move file to temporary location
+            self._backup_path = os.path.join(self._wd, ??? )
+        os.rename(os.path.join(self._wd, self.filename), self._backup_path)
         ### Open filehandles
         return self
 
-    ### Alternative: Direct _outfile to a temporary file and only move things
-    ### when done; cf. GNU sed
-    ### <http://git.savannah.gnu.org/cgit/sed.git/tree/sed/sed.c#n84>
-
     def __exit__(self, exc_type, exc_value, traceback):
-        ### Close filehandles
+        self._infile.close()
+        self._outfile.close()
         if exc_type is not None:
             ### Delete new file and replace with backup file
         elif self.backup is None:
-            ### Delete backup file
+            with ignore_enoent():
+                os.unlink(self._backup_path)
         self._editing = False
         return False
 
@@ -66,6 +70,7 @@ class InPlace(object):   ### Inherit one of the ABCs in `io`
     def __iter__(self):
         return iter(self._infile)
 
+    def open
     def close
     def flush
     def readinto  ### for binary streams, at least
