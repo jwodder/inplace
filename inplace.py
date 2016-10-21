@@ -28,7 +28,7 @@ class InPlace(object):   ### TODO: Inherit one of the ABCs in `io`
         self.filepath = os.path.join(self._wd, filename)
         if backup is not None:
             self.backup = os.path.join(self._wd, backup)
-        elif backup_ext is not None:
+        elif backup_ext is not None and backup_ext != '':
             self.backup = self.filepath + backup_ext
         else:
             self.backup = None

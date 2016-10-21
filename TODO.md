@@ -9,6 +9,7 @@
     - encodings
     - newlines
     - bytes
+    - `print`ing to an in-place file
 
 - Add options for:
     - encoding, newlines, binary vs. text mode, buffering?, encoding error
