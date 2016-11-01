@@ -6,22 +6,15 @@ __version__ = '0.1.0.dev1'
 
 # cf. <https://hg.python.org/cpython/file/2.7/Lib/fileinput.py#l310>
 
-from   contextlib import contextmanager
-from   errno      import ENOENT
+import abc
+from   errno import ENOENT
+import io
 import os
 import os.path
 import shutil
 import tempfile
 
-@contextmanager
-def ignore_enoent():
-    try:
-        yield
-    except EnvironmentError as e:
-        if e.errno != ENOENT:
-            raise
-
-class InPlace(object):   ### TODO: Inherit one of the ABCs in `io`
+class InPlaceABC(object):   ### TODO: Inherit one of the ABCs in `io`
     def __init__(self, filename, backup=None, backup_ext=None):
         self._wd = os.getcwd()
         self.filename = filename
@@ -47,19 +40,9 @@ class InPlace(object):   ### TODO: Inherit one of the ABCs in `io`
             self.close()
         return False
 
+    @abc.abstractmethod
     def open(self):
-        if self._infile is None:
-            if self.backup is not None:
-                self._backup_path = self.backup
-            else:
-                fd, tmppath = tempfile.mkstemp(prefix='inplace')
-                os.close(fd)
-                self._backup_path = tmppath
-            shutil.copyfile(self.filepath, self._backup_path)
-            shutil.copystat(self.filepath, self._backup_path)
-            self._infile = open(self._backup_path, 'r')
-            self._outfile = open(self.filepath, 'w')
-        #else: error?
+        pass
 
     def _close(self):
         self._infile.close()
@@ -71,15 +54,18 @@ class InPlace(object):   ### TODO: Inherit one of the ABCs in `io`
         if self._infile is not None:
             self._close()
             if self.backup is None:
-                with ignore_enoent():
+                try:
                     os.unlink(self._backup_path)
-        #else: error?
+                except EnvironmentError as e:
+                    if e.errno != ENOENT:
+                        raise
+        ###else: error?
 
     def discard(self):
         if self._infile is not None:
             self._close()
             shutil.copyfile(self._backup_path, self.filepath)
-        #else: error?
+        ###else: error?
 
     def read(self, size=-1):
         return self._infile.read(size)
@@ -98,3 +84,37 @@ class InPlace(object):   ### TODO: Inherit one of the ABCs in `io`
 
     def __iter__(self):
         return iter(self._infile)
+
+
+class InPlaceBytes(InPlaceABC):
+    def open(self):
+        if self._infile is None:
+            if self.backup is not None:
+                self._backup_path = self.backup
+            else:
+                fd, tmppath = tempfile.mkstemp(prefix='inplace')
+                os.close(fd)
+                self._backup_path = tmppath
+            shutil.copyfile(self.filepath, self._backup_path)
+            shutil.copystat(self.filepath, self._backup_path)
+            self._infile = open(self._backup_path, 'rb')
+            self._outfile = open(self.filepath, 'wb')
+        ###else: error?
+
+
+class InPlace(InPlaceABC):
+    ### TODO: Modify __init__ and open to handle encodings etc.
+
+    def open(self):
+        if self._infile is None:
+            if self.backup is not None:
+                self._backup_path = self.backup
+            else:
+                fd, tmppath = tempfile.mkstemp(prefix='inplace')
+                os.close(fd)
+                self._backup_path = tmppath
+            shutil.copyfile(self.filepath, self._backup_path)
+            shutil.copystat(self.filepath, self._backup_path)
+            self._infile = io.open(self._backup_path, 'rt')
+            self._outfile = io.open(self.filepath, 'wt')
+        ###else: error?
