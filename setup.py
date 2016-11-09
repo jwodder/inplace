@@ -11,8 +11,8 @@ with open(join(dirname(__file__), 'inplace.py')) as fp:
     else:
         raise RuntimeError('Unable to find own __version__ string')
 
-###with open(join(dirname(__file__), 'README.rst')) as fp:
-###    long_desc = fp.read()
+with open(join(dirname(__file__), 'README.rst')) as fp:
+    long_desc = fp.read()
 
 setup(
     name='inplace',
@@ -22,8 +22,8 @@ setup(
     author='John Thorvald Wodder II',
     author_email='inplace@varonathe.org',
     ###keywords='',
-    ###description='',
-    ###long_description=long_desc,
+    description='In-place file processing',
+    long_description=long_desc,
     url='https://github.com/jwodder/inplace',
 
     setup_requires=['pytest-runner>=2.0,<3'],

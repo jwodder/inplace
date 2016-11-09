@@ -1,10 +1,8 @@
-__version__ = '0.1.0.dev1'
-
-# Benefits: lets you specify the complete filename of the backup file, not just
-# an extension; lets you control the encoding; doesn't redirect stdout; `read`
-# method
-
-# cf. <https://hg.python.org/cpython/file/2.7/Lib/fileinput.py#l310>
+__version__      = '0.1.0.dev1'
+__author__       = 'John Thorvald Wodder II'
+__author_email__ = 'inplace@varonathe.org'
+__license__      = 'MIT'
+__url__          = 'https://github.com/jwodder/inplace'
 
 import abc
 from   errno import ENOENT
