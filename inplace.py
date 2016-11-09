@@ -38,8 +38,26 @@ class InPlaceABC(object):   ### TODO: Inherit one of the ABCs in `io`
             self.close()
         return False
 
-    @abc.abstractmethod
     def open(self):
+        if self._infile is None:
+            if self.backup is not None:
+                self._backup_path = self.backup
+            else:
+                fd, tmppath = tempfile.mkstemp(prefix='inplace')
+                os.close(fd)
+                self._backup_path = tmppath
+            shutil.copyfile(self.filepath, self._backup_path)
+            shutil.copystat(self.filepath, self._backup_path)
+            self._infile = self._open_read(self._backup_path)
+            self._outfile = self._open_write(self.filepath)
+        ###else: error?
+
+    @abc.abstractmethod
+    def _open_read(self, path):
+        pass
+
+    @abc.abstractmethod
+    def _open_write(self, path):
         pass
 
     def _close(self):
@@ -85,19 +103,11 @@ class InPlaceABC(object):   ### TODO: Inherit one of the ABCs in `io`
 
 
 class InPlaceBytes(InPlaceABC):
-    def open(self):
-        if self._infile is None:
-            if self.backup is not None:
-                self._backup_path = self.backup
-            else:
-                fd, tmppath = tempfile.mkstemp(prefix='inplace')
-                os.close(fd)
-                self._backup_path = tmppath
-            shutil.copyfile(self.filepath, self._backup_path)
-            shutil.copystat(self.filepath, self._backup_path)
-            self._infile = open(self._backup_path, 'rb')
-            self._outfile = open(self.filepath, 'wb')
-        ###else: error?
+    def _open_read(self, path):
+        return open(path, 'rb')
+
+    def _open_write(self, path):
+        return open(path, 'wb')
 
 
 class InPlace(InPlaceABC):
@@ -108,28 +118,10 @@ class InPlace(InPlaceABC):
         self.errors = errors
         self.newline = newline
 
-    def open(self):
-        if self._infile is None:
-            if self.backup is not None:
-                self._backup_path = self.backup
-            else:
-                fd, tmppath = tempfile.mkstemp(prefix='inplace')
-                os.close(fd)
-                self._backup_path = tmppath
-            shutil.copyfile(self.filepath, self._backup_path)
-            shutil.copystat(self.filepath, self._backup_path)
-            self._infile = io.open(
-                self._backup_path,
-                'rt',
-                encoding=self.encoding,
-                errors=self.errors,
-                newline=self.newline,
-            )
-            self._outfile = io.open(
-                self.filepath,
-                'wt',
-                encoding=self.encoding,
-                errors=self.errors,
-                newline=self.newline,
-            )
-        ###else: error?
+    def _open_read(self, path):
+        return io.open(path, 'rt', encoding=self.encoding, errors=self.errors,
+                       newline=self.newline)
+
+    def _open_write(self, path):
+        return io.open(path, 'wt', encoding=self.encoding, errors=self.errors,
+                       newline=self.newline)
