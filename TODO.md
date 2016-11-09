@@ -1,5 +1,4 @@
 - Add docstrings
-- Fill in `keywords` and `classifiers` in `setup.py`
 - Integrate with Travis
 - cf. <https://hg.python.org/cpython/file/2.7/Lib/fileinput.py#l310>
 

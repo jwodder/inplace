@@ -21,7 +21,7 @@ setup(
     license='MIT',
     author='John Thorvald Wodder II',
     author_email='inplace@varonathe.org',
-    ###keywords='',
+    keywords='inplace in-place io open file tmpfile tempfile sed redirection',
     description='In-place file processing',
     long_description=long_desc,
     url='https://github.com/jwodder/inplace',
@@ -44,7 +44,8 @@ setup(
         'Programming Language :: Python :: 3.5',
 
         'License :: OSI Approved :: MIT License',
-
-        ###
+        'Intended Audience :: Developers',
+        'Topic :: System :: Filesystems',
+        'Topic :: Text Processing :: Filters',
     ],
 )
