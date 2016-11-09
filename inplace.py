@@ -103,7 +103,12 @@ class InPlaceBytes(InPlaceABC):
 
 
 class InPlace(InPlaceABC):
-    ### TODO: Modify __init__ and open to handle encodings etc.
+    def __init__(self, filename, backup=None, backup_ext=None, encoding=None,
+                 errors=None, newline=None):
+        super(InPlace, self).__init__(filename, backup, backup_ext)
+        self.encoding = encoding
+        self.errors = errors
+        self.newline = newline
 
     def open(self):
         if self._infile is None:
@@ -115,6 +120,18 @@ class InPlace(InPlaceABC):
                 self._backup_path = tmppath
             shutil.copyfile(self.filepath, self._backup_path)
             shutil.copystat(self.filepath, self._backup_path)
-            self._infile = io.open(self._backup_path, 'rt')
-            self._outfile = io.open(self.filepath, 'wt')
+            self._infile = io.open(
+                self._backup_path,
+                'rt',
+                encoding=self.encoding,
+                errors=self.errors,
+                newline=self.newline,
+            )
+            self._outfile = io.open(
+                self.filepath,
+                'wt',
+                encoding=self.encoding,
+                errors=self.errors,
+                newline=self.newline,
+            )
         ###else: error?

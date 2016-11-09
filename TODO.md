@@ -7,17 +7,20 @@
       `__enter__`, and `__exit__`
     - copying permissions and other file attributes
     - encodings
+    - encoding error handler
     - newlines
     - bytes
     - `print`ing to an in-place file
     - Test every I/O method
+    - rolling back on exceptions
 
 - Add options for:
-    - encoding, newlines, binary vs. text mode, buffering?, encoding error
-      handling, etc.
+    - buffering?
     - using a tempfile for the outfile instead of the infile and only moving
-      files around when done; cf. GNU sed
-      <http://git.savannah.gnu.org/cgit/sed.git/tree/sed/sed.c#n84>
+      files around when done
+        - cf. GNU sed:
+          <http://git.savannah.gnu.org/cgit/sed.git/tree/sed/sed.c#n84>
+        - cf. the "atomic" option in click
     - preserving the tempfile if an error was raised
     - Add `readhook` and `writehook` options for controlling how to open the
       filehandles for reading & writing?
