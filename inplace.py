@@ -48,6 +48,15 @@ class InPlaceABC(object):   ### TODO: Inherit one of the ABCs in `io`
                 self._backup_path = tmppath
             shutil.copyfile(self.filepath, self._backup_path)
             shutil.copystat(self.filepath, self._backup_path)
+            st = os.stat(self.filepath)
+            # Based on GNU sed's behavior:
+            try:
+                os.chown(self._backup_path, st.st_uid, st.st_gid)
+            except EnvironmentError:
+                try:
+                    os.chown(self._backup_path, -1, st.st_gid)
+                except EnvironmentError:
+                    pass
             self._infile = self._open_read(self._backup_path)
             self._outfile = self._open_write(self.filepath)
         ###else: error?
