@@ -1,5 +1,4 @@
 - Add docstrings
-- Integrate with Travis
 - cf. <https://hg.python.org/cpython/file/2.7/Lib/fileinput.py#l310>
 
 - Write more tests:
@@ -33,6 +32,7 @@
 - Get pytest to clean up its temporary directories
 - The context manager is not reentrant; make sure it is not used as such
 - When the filename is `-`, read stdin and write to stdout?
+- Rename `discard` to `rollback`?
 
 - Add the following methods:
     - `flush`
