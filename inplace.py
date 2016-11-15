@@ -12,9 +12,11 @@ import os.path
 import shutil
 import sys
 import tempfile
+from   six   import add_metaclass
 
 __all__ = ['InPlaceABC', 'InPlace', 'InPlaceBytes']
 
+@add_metaclass(abc.ABCMeta)
 class InPlaceABC(object):   ### TODO: Inherit one of the ABCs in `io`
     def __init__(self, filename, backup=None, backup_ext=None):
         #: The working directory at the time that the instance was created
