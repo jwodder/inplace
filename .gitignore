@@ -2,6 +2,7 @@
 *.egg-info/
 *.pyc
 .cache
+.coverage
 .eggs
 .tox
 __pycache__/

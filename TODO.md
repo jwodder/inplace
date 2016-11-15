@@ -1,5 +1,4 @@
 - Add docstrings
-- cf. <https://hg.python.org/cpython/file/2.7/Lib/fileinput.py#l310>
 
 - Write more tests:
     - Test the current directory changing between calls to `__init__`,
@@ -40,6 +39,7 @@
 - Copy ACLs etc.
 - Create the tempfile in the same directory as `filename` in order to ensure
   that the user can actually write to that directory
+- Feed `.coverage` files to Coveralls
 
 - Add the following methods:
     - `closed` (property)
