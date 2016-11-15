@@ -17,11 +17,10 @@
 
 - Add options for:
     - buffering?
-    - using a tempfile for the outfile instead of the infile and only moving
-      files around when done
-        - cf. GNU sed:
-          <http://git.savannah.gnu.org/cgit/sed.git/tree/sed/sed.c#n84>
-        - cf. the "atomic" option in Click
+    - `move_first=False` — when `True`, move the file and create a new one in
+      its place on opening (à la `fileinput`) rather than creating a tempfile
+      and only moving it on closing (as is done by GNU sed and Click's
+      "atomic")
     - preserving the tempfile if an error was raised
     - Add `readhook` and `writehook` options for controlling how to open the
       filehandles for reading & writing?
@@ -36,8 +35,6 @@
 - The context manager is not reentrant; make sure it is not used as such
 - When the filename is `-`, read stdin and write to stdout?
 - Rename `discard` to `rollback`?
-- Don't copy the input file, just move it?  (This is vulnerable to race
-  conditions.)
 - Skip Unix-specific `os` calls (e.g., `os.chown`) on platforms where they're
   not available
 - Copy ACLs etc.

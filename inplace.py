@@ -10,7 +10,10 @@ import io
 import os
 import os.path
 import shutil
+import sys
 import tempfile
+
+__all__ = ['InPlaceABC', 'InPlace', 'InPlaceBytes']
 
 class InPlaceABC(object):   ### TODO: Inherit one of the ABCs in `io`
     def __init__(self, filename, backup=None, backup_ext=None):
@@ -49,25 +52,12 @@ class InPlaceABC(object):   ### TODO: Inherit one of the ABCs in `io`
 
     def open(self):
         if self._infile is None:
-            if self.backup is not None:
-                self._tmppath = self.backup
-            else:
-                fd, tmppath = tempfile.mkstemp(prefix='inplace')
-                os.close(fd)
-                self._tmppath = tmppath
-            shutil.copyfile(self.filepath, self._tmppath)
-            shutil.copystat(self.filepath, self._tmppath)
-            st = os.stat(self.filepath)
-            # Based on GNU sed's behavior:
-            try:
-                os.chown(self._tmppath, st.st_uid, st.st_gid)
-            except EnvironmentError:
-                try:
-                    os.chown(self._tmppath, -1, st.st_gid)
-                except EnvironmentError:
-                    pass
-            self._infile = self._open_read(self._tmppath)
-            self._outfile = self._open_write(self.filepath)
+            fd, self._tmppath = tempfile.mkstemp(prefix='inplace')
+            os.close(fd)
+            self._infile = self._open_read(self.filepath)
+            self._outfile = self._open_write(self._tmppath)
+            copystats(self.filepath, self._tmppath) 
+                ### Will the temp file's mtime still be updated after this?
         ###else: error?
 
     @abc.abstractmethod
@@ -87,19 +77,16 @@ class InPlaceABC(object):   ### TODO: Inherit one of the ABCs in `io`
     def close(self):
         if self._infile is not None:
             self._close()
-            if self.backup is None:
-                try:
-                    os.unlink(self._tmppath)
-                except EnvironmentError as e:
-                    if e.errno != ENOENT:
-                        raise
+            if self.backup is not None:
+                force_rename(self.filepath, self.backup)
+            force_rename(self._tmppath, self.filepath)
             self._tmppath = None
         ###else: error?
 
     def discard(self):
         if self._infile is not None:
             self._close()
-            shutil.copyfile(self._tmppath, self.filepath)
+            try_unlink(self._tmppath)
             self._tmppath = None
         ###else: error?
 
@@ -145,3 +132,31 @@ class InPlace(InPlaceABC):
     def _open_write(self, path):
         return io.open(path, 'wt', encoding=self.encoding, errors=self.errors,
                        newline=self.newline)
+
+
+def copystats(from_file, to_file):
+    shutil.copystat(from_file, to_file)
+    st = os.stat(from_file)
+    # Based on GNU sed's behavior:
+    try:
+        os.chown(to_file, st.st_uid, st.st_gid)
+    except EnvironmentError:
+        try:
+            os.chown(to_file, -1, st.st_gid)
+        except EnvironmentError:
+            pass
+
+def force_rename(oldpath, newpath):
+    if hasattr(os, 'replace'):  # Python 3.3+
+        os.replace(oldpath, newpath)
+    else:
+        if sys.platform.startswith('win'):
+            try_unlink(newpath)
+        os.rename(oldpath, newpath)
+
+def try_unlink(path):
+    try:
+        os.unlink(path)
+    except EnvironmentError as e:
+        if e.errno != ENOENT:
+            raise
