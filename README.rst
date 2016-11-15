@@ -4,7 +4,7 @@
           has not yet been a stable, usable release suitable for the public.
 
 ..
-    .. image:: https://img.shields.io/pypi/pyversions/javaproperties.svg
+    .. image:: https://img.shields.io/pypi/pyversions/inplace.svg
 
 .. image:: https://img.shields.io/github/license/jwodder/inplace.svg?maxAge=2592000
     :target: https://opensource.org/licenses/MIT
@@ -63,4 +63,4 @@ Compared to the in-place filtering implemented by the Python standard library's
 
 
 .. |fileinput| replace:: ``fileinput``
-.. _getpreferredencoding: https://docs.python.org/3/library/fileinput.html
+.. _fileinput: https://docs.python.org/3/library/fileinput.html

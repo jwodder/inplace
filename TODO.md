@@ -21,7 +21,7 @@
       files around when done
         - cf. GNU sed:
           <http://git.savannah.gnu.org/cgit/sed.git/tree/sed/sed.c#n84>
-        - cf. the "atomic" option in click
+        - cf. the "atomic" option in Click
     - preserving the tempfile if an error was raised
     - Add `readhook` and `writehook` options for controlling how to open the
       filehandles for reading & writing?
@@ -40,7 +40,11 @@
   conditions.)
 - Skip Unix-specific `os` calls (e.g., `os.chown`) on platforms where they're
   not available
+- Copy ACLs etc.
+- Create the tempfile in the same directory as `filename` in order to ensure
+  that the user can actually write to that directory
 
 - Add the following methods:
+    - `closed` (property)
     - `flush`
     - `readinto` (for binary files, at least)

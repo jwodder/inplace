@@ -14,18 +14,27 @@ import tempfile
 
 class InPlaceABC(object):   ### TODO: Inherit one of the ABCs in `io`
     def __init__(self, filename, backup=None, backup_ext=None):
+        #: The working directory at the time that the instance was created
         self._wd = os.getcwd()
+        #: The name of the file to edit in-place
         self.filename = filename
+        #: The absolute path of the file to edit in-place
         self.filepath = os.path.join(self._wd, filename)
         if backup is not None:
+            #: The absolute path of the backup file (if any) that will be
+            #: created after editing
             self.backup = os.path.join(self._wd, backup)
         elif backup_ext is not None and backup_ext != '':
             self.backup = self.filepath + backup_ext
         else:
             self.backup = None
+        #: The input filehandle; only non-`None` while the instance is open
         self._infile = None
+        #: The output filehandle; only non-`None` while the instance is open
         self._outfile = None
-        self._backup_path = None
+        #: The absolute path to the temporary file; only non-`None` while the
+        #: instance is open
+        self._tmppath = None
 
     def __enter__(self):
         self.open()
@@ -41,23 +50,23 @@ class InPlaceABC(object):   ### TODO: Inherit one of the ABCs in `io`
     def open(self):
         if self._infile is None:
             if self.backup is not None:
-                self._backup_path = self.backup
+                self._tmppath = self.backup
             else:
                 fd, tmppath = tempfile.mkstemp(prefix='inplace')
                 os.close(fd)
-                self._backup_path = tmppath
-            shutil.copyfile(self.filepath, self._backup_path)
-            shutil.copystat(self.filepath, self._backup_path)
+                self._tmppath = tmppath
+            shutil.copyfile(self.filepath, self._tmppath)
+            shutil.copystat(self.filepath, self._tmppath)
             st = os.stat(self.filepath)
             # Based on GNU sed's behavior:
             try:
-                os.chown(self._backup_path, st.st_uid, st.st_gid)
+                os.chown(self._tmppath, st.st_uid, st.st_gid)
             except EnvironmentError:
                 try:
-                    os.chown(self._backup_path, -1, st.st_gid)
+                    os.chown(self._tmppath, -1, st.st_gid)
                 except EnvironmentError:
                     pass
-            self._infile = self._open_read(self._backup_path)
+            self._infile = self._open_read(self._tmppath)
             self._outfile = self._open_write(self.filepath)
         ###else: error?
 
@@ -80,16 +89,18 @@ class InPlaceABC(object):   ### TODO: Inherit one of the ABCs in `io`
             self._close()
             if self.backup is None:
                 try:
-                    os.unlink(self._backup_path)
+                    os.unlink(self._tmppath)
                 except EnvironmentError as e:
                     if e.errno != ENOENT:
                         raise
+            self._tmppath = None
         ###else: error?
 
     def discard(self):
         if self._infile is not None:
             self._close()
-            shutil.copyfile(self._backup_path, self.filepath)
+            shutil.copyfile(self._tmppath, self.filepath)
+            self._tmppath = None
         ###else: error?
 
     def read(self, size=-1):
