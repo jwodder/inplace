@@ -29,11 +29,10 @@
     - forcing `backup` to be interpreted as relative to
       `os.path.dirname(filename)`?
 
-- Support calling `discard` and `close` in the middle of a `with` context?
+- Support calling `rollback` and `close` in the middle of a `with` context?
 - Get pytest to clean up its temporary directories
 - The context manager is not reentrant; make sure it is not used as such
 - When the filename is `-`, read stdin and write to stdout?
-- Rename `discard` to `rollback`?
 - Skip Unix-specific `os` calls (e.g., `os.chown`) on platforms where they're
   not available
 - Copy ACLs etc.

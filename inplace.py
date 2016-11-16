@@ -47,7 +47,7 @@ class InPlaceABC(object):   ### TODO: Inherit one of the ABCs in `io`
 
     def __exit__(self, exc_type, exc_value, traceback):
         if exc_type is not None:
-            self.discard()
+            self.rollback()
         else:
             self.close()
         return False
@@ -85,7 +85,7 @@ class InPlaceABC(object):   ### TODO: Inherit one of the ABCs in `io`
             self._tmppath = None
         ###else: error?
 
-    def discard(self):
+    def rollback(self):
         if self._infile is not None:
             self._close()
             try_unlink(self._tmppath)
