@@ -14,7 +14,10 @@ import sys
 import tempfile
 from   six   import add_metaclass
 
-__all__ = ['InPlaceABC', 'InPlace', 'InPlaceBytes']
+__all__ = ['InPlaceABC', 'InPlace', 'InPlaceBytes', 'DoubleOpenError']
+
+class DoubleOpenError(Exception):
+    pass
 
 @add_metaclass(abc.ABCMeta)
 class InPlaceABC(object):   ### TODO: Inherit one of the ABCs in `io`
@@ -60,7 +63,8 @@ class InPlaceABC(object):   ### TODO: Inherit one of the ABCs in `io`
             self._outfile = self._open_write(self._tmppath)
             copystats(self.filepath, self._tmppath) 
                 ### Will the temp file's mtime still be updated after this?
-        ###else: error?
+        else:
+            raise DoubleOpenError('open() called when file is already open')
 
     @abc.abstractmethod
     def _open_read(self, path):
