@@ -1,4 +1,5 @@
-from inplace import InPlace
+import pytest
+from   inplace import InPlace
 
 TEXT = '''\
 'Twas brillig, and the slithy toves
@@ -71,3 +72,16 @@ def test_inplace_backup(tmpdir, monkeypatch):
     assert sorted(pylistdir(tmpdir)) == ['backup.txt', 'file.txt']
     assert tmpdir.join('backup.txt').read() == TEXT
     assert p.read() == TEXT.swapcase()
+
+def test_inplace_backup_ext_error(tmpdir):
+    assert pylistdir(tmpdir) == []
+    p = tmpdir.join("file.txt")
+    p.write(TEXT)
+    with pytest.raises(RuntimeError):
+        with InPlace(str(p), backup_ext='~') as fp:
+            for i, line in enumerate(fp):
+                fp.write(line.swapcase())
+                if i > 5:
+                    raise RuntimeError("I changed my mind.")
+    assert sorted(pylistdir(tmpdir)) == ['file.txt']
+    assert p.read() == TEXT

@@ -3,16 +3,15 @@
 - Write more tests:
     - Test the current directory changing between calls to `__init__`,
       `__enter__`, and `__exit__`
-    - copying permissions and other file attributes
+    - copying file mode, owner, & group
     - encodings
     - encoding error handler
     - newlines
     - bytes
     - `print`ing to an in-place file
-    - Test every I/O method
-    - rolling back on exceptions
+    - every I/O method
     - handling of symbolic links
-    - copying file owner & group
+    - deleting the file before closing
 
 - Add options for:
     - buffering?
