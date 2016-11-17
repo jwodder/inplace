@@ -19,12 +19,16 @@
       its place on opening (à la `fileinput`) rather than creating a tempfile
       and only moving it on closing (as is done by GNU sed and Click's
       "atomic")
+        - Specifically, the input file should be moved to a temporary path and
+          only moved to the backup path on successful completion; this way, if
+          a rollback occurs, whatever was already at the backup path will be
+          untouched.
     - preserving the tempfile if an error was raised
     - Add `readhook` and `writehook` options for controlling how to open the
       filehandles for reading & writing?
         - Alternatively, if the user wants to override the opening methods, ey
           can just write a subclass
-    - setting the directory in which to create the tempfile
+    - setting the directory in which to create the tempfile?
     - forcing `backup` to be interpreted as relative to
       `os.path.dirname(filename)`?
 
@@ -35,9 +39,6 @@
 - Skip Unix-specific `os` calls (e.g., `os.chown`) on platforms where they're
   not available
 - Copy ACLs etc.
-- Create the tempfile in the same directory as `filename` in order to ensure
-  that the user can actually write to that directory
-    - `sed` does this, apparently
 - Feed `.coverage` files to Coveralls
 - `sed` behavior to possibly copy:
     - If moving the input file to the backup path fails, delete the output
@@ -47,5 +48,6 @@
 
 - Add the following methods:
     - `closed` (property)
+    - `name` (property)
     - `flush`
     - `readinto` (for binary files, at least)

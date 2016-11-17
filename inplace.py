@@ -61,7 +61,10 @@ class InPlaceABC(object):   ### TODO: Inherit one of the ABCs in `io`
         if not self._open:
             self._open = True
             try:
-                fd, self._tmppath = tempfile.mkstemp(prefix='inplace')
+                fd, self._tmppath = tempfile.mkstemp(
+                    dir=os.path.dirname(self.filepath),
+                    prefix='._inplace-',
+                )
                 os.close(fd)
                 copystats(self.filepath, self._tmppath) 
                 self._infile = self._open_read(self.filepath)

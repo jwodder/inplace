@@ -54,15 +54,19 @@ or save to ``someotherfile.txt`` with::
 Compared to the in-place filtering implemented by the Python standard library's
 |fileinput|_ module, ``inplace`` offers the following benefits:
 
-- ``inplace`` returns a new writable filehandle instead of hijacking
-  ``sys.stdout``.
-- The returned filehandle supports all of the standard I/O methods, not just
+- Instead of hijacking ``sys.stdout``, a new filehandle is returned for
+  writing.
+- The filehandle supports all of the standard I/O methods, not just
   ``readline()``.
 - There are options for setting the encoding, encoding error handling, and
   newline policy for opening the file, along with support for opening files in
-  binary mode.
+  binary mode, and these options apply to both input and output.
 - The complete filename of the backup file can be specified; you aren't
   constrained to just adding an extension.
+- When used as a context manager, ``inplace`` will restore the original file if
+  an exception occurs.
+- The creation of temporary files won't silently clobber innocent bystander
+  files.
 
 
 .. |fileinput| replace:: ``fileinput``
