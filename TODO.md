@@ -31,12 +31,19 @@
 - Support calling `rollback` and `close` in the middle of a `with` context?
 - Get pytest to clean up its temporary directories
 - When the filename is `-`, read stdin and write to stdout?
+    - Only support this when an `allow_dash=True` argument is given?
 - Skip Unix-specific `os` calls (e.g., `os.chown`) on platforms where they're
   not available
 - Copy ACLs etc.
 - Create the tempfile in the same directory as `filename` in order to ensure
   that the user can actually write to that directory
+    - `sed` does this, apparently
 - Feed `.coverage` files to Coveralls
+- `sed` behavior to possibly copy:
+    - If moving the input file to the backup path fails, delete the output
+      tempfile and re-raise the error 
+    - If moving the output tempfile to the input filepath fails, delete the
+      output tempfile and re-raise the error
 
 - Add the following methods:
     - `closed` (property)

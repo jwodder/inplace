@@ -43,6 +43,8 @@ class InPlaceABC(object):   ### TODO: Inherit one of the ABCs in `io`
         #: The absolute path to the temporary file; only non-`None` while the
         #: instance is open
         self._tmppath = None
+        #: Are we currently editing or trying to edit?
+        self._open = False
 
     def __enter__(self):
         self.open()
@@ -56,13 +58,17 @@ class InPlaceABC(object):   ### TODO: Inherit one of the ABCs in `io`
         return False
 
     def open(self):
-        if self._infile is None:
-            fd, self._tmppath = tempfile.mkstemp(prefix='inplace')
-            os.close(fd)
-            self._infile = self._open_read(self.filepath)
-            self._outfile = self._open_write(self._tmppath)
-            copystats(self.filepath, self._tmppath) 
-                ### Will the temp file's mtime still be updated after this?
+        if not self._open:
+            self._open = True
+            try:
+                fd, self._tmppath = tempfile.mkstemp(prefix='inplace')
+                os.close(fd)
+                copystats(self.filepath, self._tmppath) 
+                self._infile = self._open_read(self.filepath)
+                self._outfile = self._open_write(self._tmppath)
+            except Exception:
+                self.rollback()
+                raise
         else:
             raise DoubleOpenError('open() called when file is already open')
 
@@ -75,13 +81,16 @@ class InPlaceABC(object):   ### TODO: Inherit one of the ABCs in `io`
         pass
 
     def _close(self):
-        self._infile.close()
-        self._outfile.close()
-        self._infile = None
-        self._outfile = None
+        if self._infile is not None:
+            self._infile.close()
+            self._infile = None
+        if self._outfile is not None:
+            self._outfile.close()
+            self._outfile = None
 
     def close(self):
-        if self._infile is not None:
+        if self._open:
+            self._open = False
             self._close()
             if self.backup is not None:
                 force_rename(self.filepath, self.backup)
@@ -90,7 +99,8 @@ class InPlaceABC(object):   ### TODO: Inherit one of the ABCs in `io`
         ###else: error?
 
     def rollback(self):
-        if self._infile is not None:
+        if self._open:
+            self._open = False
             self._close()
             try_unlink(self._tmppath)
             self._tmppath = None
