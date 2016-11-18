@@ -85,3 +85,38 @@ def test_inplace_backup_ext_error(tmpdir):
                     raise RuntimeError("I changed my mind.")
     assert sorted(pylistdir(tmpdir)) == ['file.txt']
     assert p.read() == TEXT
+
+def test_inplace_nobackup_pass(tmpdir):
+    assert pylistdir(tmpdir) == []
+    p = tmpdir.join("file.txt")
+    p.write(TEXT)
+    with InPlace(str(p)):
+        pass
+    assert pylistdir(tmpdir) == ['file.txt']
+    assert p.read() == ''
+
+def test_inplace_delete_nobackup(tmpdir, monkeypatch):
+    assert pylistdir(tmpdir) == []
+    monkeypatch.chdir(tmpdir)
+    p = tmpdir.join("file.txt")
+    p.write(TEXT)
+    with InPlace(str(p)) as fp:
+        for i, line in enumerate(fp):
+            fp.write(line.swapcase())
+            if i == 5:
+                p.remove()
+    assert sorted(pylistdir(tmpdir)) == ['file.txt']
+    assert p.read() == TEXT.swapcase()
+
+def test_inplace_delete_backup(tmpdir, monkeypatch):
+    assert pylistdir(tmpdir) == []
+    monkeypatch.chdir(tmpdir)
+    p = tmpdir.join("file.txt")
+    p.write(TEXT)
+    with InPlace(str(p), backup='backup.txt') as fp:
+        for i, line in enumerate(fp):
+            fp.write(line.swapcase())
+            if i == 5:
+                p.remove()
+    assert sorted(pylistdir(tmpdir)) == ['file.txt']
+    assert p.read() == TEXT.swapcase()

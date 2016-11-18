@@ -11,7 +11,6 @@
     - `print`ing to an in-place file
     - every I/O method
     - handling of symbolic links
-    - deleting the file before closing
 
 - Add options for:
     - buffering?
@@ -45,9 +44,10 @@
       tempfile and re-raise the error 
     - If moving the output tempfile to the input filepath fails, delete the
       output tempfile and re-raise the error
+- Should `open` be called automatically upon object instantiation?
 
 - Add the following methods:
     - `closed` (property)
-    - `name` (property)
     - `flush`
+    - `name` (property)
     - `readinto` (for binary files, at least)
