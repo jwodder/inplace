@@ -108,6 +108,7 @@ def test_inplace_delete_nobackup(tmpdir, monkeypatch):
     assert sorted(pylistdir(tmpdir)) == ['file.txt']
     assert p.read() == TEXT.swapcase()
 
+@pytest.mark.xfail
 def test_inplace_delete_backup(tmpdir, monkeypatch):
     assert pylistdir(tmpdir) == []
     monkeypatch.chdir(tmpdir)
