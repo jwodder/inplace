@@ -95,10 +95,15 @@ class InPlaceABC(object):   ### TODO: Inherit one of the ABCs in `io`
         if self._open:
             self._open = False
             self._close()
-            if self.backup is not None:
-                force_rename(self.filepath, self.backup)
-            force_rename(self._tmppath, self.filepath)
-            self._tmppath = None
+            try:
+                if self.backup is not None:
+                    force_rename(self.filepath, self.backup)
+                force_rename(self._tmppath, self.filepath)
+            except EnvironmentError:
+                try_unlink(self._tmppath)
+                raise
+            finally:
+                self._tmppath = None
         ###else: error?
 
     def rollback(self):

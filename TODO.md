@@ -11,6 +11,10 @@
     - `print`ing to an in-place file
     - every I/O method
     - handling of symbolic links
+    - Assert that the tempfile is created in the right directory
+    - Test specifying a backup path without calling `chdir` beforehand
+    - Assert that all of the relevant attributes on an `InPlace` object are
+      `None` after closing (and non-`None` before closing)
 
 - Add options for:
     - buffering?
@@ -39,12 +43,8 @@
   not available
 - Copy ACLs etc.
 - Feed `.coverage` files to Coveralls
-- `sed` behavior to possibly copy:
-    - If moving the input file to the backup path fails, delete the output
-      tempfile and re-raise the error 
-    - If moving the output tempfile to the input filepath fails, delete the
-      output tempfile and re-raise the error
 - Should `open` be called automatically upon object instantiation?
+- Make the input & output filehandles public
 
 - Add the following methods:
     - `closed` (property)
