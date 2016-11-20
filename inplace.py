@@ -132,6 +132,9 @@ class InPlaceABC(object):   ### TODO: Inherit one of the ABCs in `io`
     def __iter__(self):
         return iter(self._infile)
 
+    def flush(self):
+        self._outfile.flush()
+
 
 class InPlaceBytes(InPlaceABC):
     def _open_read(self, path):
@@ -139,6 +142,12 @@ class InPlaceBytes(InPlaceABC):
 
     def _open_write(self, path):
         return open(path, 'wb')
+
+    def readinto(self, b):
+        return self._outfile.readinto(b)
+
+    def readall(self):
+        return self._outfile.readall()
 
 
 class InPlace(InPlaceABC):

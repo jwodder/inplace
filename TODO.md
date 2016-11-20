@@ -15,6 +15,7 @@
     - Test specifying a backup path without calling `chdir` beforehand
     - Assert that all of the relevant attributes on an `InPlace` object are
       `None` after closing (and non-`None` before closing)
+    - `rollback`
 
 - Add options for:
     - buffering?
@@ -34,20 +35,21 @@
     - setting the directory in which to create the tempfile?
     - forcing `backup` to be interpreted as relative to
       `os.path.dirname(filename)`?
+    - Don't error if moving the input file to the backup location fails?
 
 - Support calling `rollback` and `close` in the middle of a `with` context?
-- Get pytest to clean up its temporary directories
 - When the filename is `-`, read stdin and write to stdout?
     - Only support this when an `allow_dash=True` argument is given?
 - Skip Unix-specific `os` calls (e.g., `os.chown`) on platforms where they're
   not available
 - Copy ACLs etc.
-- Feed `.coverage` files to Coveralls
 - Should `open` be called automatically upon object instantiation?
 - Make the input & output filehandles public
+    - Rename them to "`input`" and "`output`"?
+
+- Get pytest to clean up its temporary directories
+- Feed `.coverage` files to Coveralls
 
 - Add the following methods:
     - `closed` (property)
-    - `flush`
     - `name` (property)
-    - `readinto` (for binary files, at least)
