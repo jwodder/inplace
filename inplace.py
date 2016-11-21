@@ -21,6 +21,10 @@ class DoubleOpenError(Exception):
 
 @add_metaclass(abc.ABCMeta)
 class InPlaceABC(object):   ### TODO: Inherit one of the ABCs in `io`
+    UNOPENED = 0
+    OPEN = 1
+    CLOSED = 2
+
     def __init__(self, filename, backup=None, backup_ext=None):
         #: The working directory at the time that the instance was created
         self._wd = os.getcwd()
@@ -43,23 +47,24 @@ class InPlaceABC(object):   ### TODO: Inherit one of the ABCs in `io`
         #: The absolute path to the temporary file; only non-`None` while the
         #: instance is open
         self._tmppath = None
-        #: Are we currently editing or trying to edit?
-        self._open = False
+        #: Are we not open yet, open, or closed?
+        self._state = self.UNOPENED
 
     def __enter__(self):
         self.open()
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
-        if exc_type is not None:
-            self.rollback()
-        else:
-            self.close()
+        if self._state == self.OPEN:
+            if exc_type is not None:
+                self.rollback()
+            else:
+                self.close()
         return False
 
     def open(self):
-        if not self._open:
-            self._open = True
+        if self._state < self.OPEN:
+            self._state = self.OPEN
             try:
                 fd, self._tmppath = tempfile.mkstemp(
                     dir=os.path.dirname(self.filepath),
@@ -73,7 +78,7 @@ class InPlaceABC(object):   ### TODO: Inherit one of the ABCs in `io`
                 self.rollback()
                 raise
         else:
-            raise DoubleOpenError('open() called when file is already open')
+            raise DoubleOpenError('open() called twice on same filehandle')
 
     @abc.abstractmethod
     def _open_read(self, path):
@@ -92,8 +97,10 @@ class InPlaceABC(object):   ### TODO: Inherit one of the ABCs in `io`
             self._outfile = None
 
     def close(self):
-        if self._open:
-            self._open = False
+        if self._state == self.UNOPENED:
+            raise ValueError('Cannot close unopened file')
+        elif self._state == self.OPEN:
+            self._state = self.CLOSED
             self._close()
             try:
                 if self.backup is not None:
@@ -104,15 +111,17 @@ class InPlaceABC(object):   ### TODO: Inherit one of the ABCs in `io`
                 raise
             finally:
                 self._tmppath = None
-        ###else: error?
+        #elif self._state == self.CLOSED: pass
 
     def rollback(self):
-        if self._open:
-            self._open = False
+        if self._state == self.UNOPENED:
+            raise ValueError('Cannot close unopened file')
+        elif self._state == self.OPEN:
+            self._state = self.CLOSED
             self._close()
             try_unlink(self._tmppath)
             self._tmppath = None
-        ###else: error?
+        #elif self._state == self.CLOSED: pass
 
     def read(self, size=-1):
         return self._infile.read(size)

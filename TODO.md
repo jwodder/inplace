@@ -37,13 +37,13 @@
       `os.path.dirname(filename)`?
     - Don't error if moving the input file to the backup location fails?
 
-- Support calling `rollback` and `close` in the middle of a `with` context?
 - When the filename is `-`, read stdin and write to stdout?
     - Only support this when an `allow_dash=True` argument is given?
 - Skip Unix-specific `os` calls (e.g., `os.chown`) on platforms where they're
   not available
 - Copy ACLs etc.
 - Should `open` be called automatically upon object instantiation?
+    - Give `__init__` a `delay=False` argument for controlling this behavior
 - Make the input & output filehandles public
     - Rename them to "`input`" and "`output`"?
 
