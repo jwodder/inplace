@@ -124,24 +124,38 @@ class InPlaceABC(object):   ### TODO: Inherit one of the ABCs in `io`
         #elif self._state == self.CLOSED: pass
 
     def read(self, size=-1):
+        if self._state != self.OPEN:
+            raise ValueError('Filehandle is not currently open')
         return self._infile.read(size)
 
     def readline(self, size=-1):
+        if self._state != self.OPEN:
+            raise ValueError('Filehandle is not currently open')
         return self._infile.readline(size)
 
     def readlines(self, sizehint=-1):
+        if self._state != self.OPEN:
+            raise ValueError('Filehandle is not currently open')
         return self._infile.readlines(sizehint)
 
     def write(self, s):
+        if self._state != self.OPEN:
+            raise ValueError('Filehandle is not currently open')
         self._outfile.write(s)
 
     def writelines(self, seq):
+        if self._state != self.OPEN:
+            raise ValueError('Filehandle is not currently open')
         self._outfile.writelines(seq)
 
     def __iter__(self):
+        if self._state != self.OPEN:
+            raise ValueError('Filehandle is not currently open')
         return iter(self._infile)
 
     def flush(self):
+        if self._state != self.OPEN:
+            raise ValueError('Filehandle is not currently open')
         self._outfile.flush()
 
 
@@ -153,9 +167,13 @@ class InPlaceBytes(InPlaceABC):
         return open(path, 'wb')
 
     def readinto(self, b):
+        if self._state != self.OPEN:
+            raise ValueError('Filehandle is not currently open')
         return self._outfile.readinto(b)
 
     def readall(self):
+        if self._state != self.OPEN:
+            raise ValueError('Filehandle is not currently open')
         return self._outfile.readall()
 
 

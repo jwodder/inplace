@@ -120,3 +120,27 @@ def test_inplace_delete_backup(tmpdir, monkeypatch):
                 if i == 5:
                     p.remove()
     assert sorted(pylistdir(tmpdir)) == []
+
+def test_inplace_early_close_nobackup(tmpdir):
+    assert pylistdir(tmpdir) == []
+    p = tmpdir.join("file.txt")
+    p.write(TEXT)
+    with InPlace(str(p)) as fp:
+        for line in fp:
+            fp.write(line.swapcase())
+        fp.close()
+    assert pylistdir(tmpdir) == ['file.txt']
+    assert p.read() == TEXT.swapcase()
+
+def test_inplace_early_close_and_write_nobackup(tmpdir):
+    assert pylistdir(tmpdir) == []
+    p = tmpdir.join("file.txt")
+    p.write(TEXT)
+    with pytest.raises(ValueError):
+        with InPlace(str(p)) as fp:
+            for line in fp:
+                fp.write(line.swapcase())
+            fp.close()
+            fp.write('And another thing...\n')
+    assert pylistdir(tmpdir) == ['file.txt']
+    assert p.read() == TEXT.swapcase()
