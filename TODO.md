@@ -12,10 +12,11 @@
     - every I/O method
     - handling of symbolic links
     - Assert that the tempfile is created in the right directory
-    - Test specifying a backup path without calling `chdir` beforehand
     - Assert that all of the relevant attributes on an `InPlace` object are
       `None` after closing (and non-`None` before closing)
     - `rollback`
+    - backing up over a pre-existing file
+    - neglecting a needed directory path for `backup`
 
 - Add options for:
     - buffering?

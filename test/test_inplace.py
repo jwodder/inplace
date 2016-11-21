@@ -61,7 +61,19 @@ def test_inplace_backup_ext(tmpdir):
     assert p.new(ext='txt~').read() == TEXT
     assert p.read() == TEXT.swapcase()
 
-def test_inplace_backup(tmpdir, monkeypatch):
+def test_inplace_backup(tmpdir):
+    assert pylistdir(tmpdir) == []
+    p = tmpdir.join("file.txt")
+    p.write(TEXT)
+    bkp = tmpdir.join('backup.txt')
+    with InPlace(str(p), backup=str(bkp)) as fp:
+        for line in fp:
+            fp.write(line.swapcase())
+    assert sorted(pylistdir(tmpdir)) == ['backup.txt', 'file.txt']
+    assert bkp.read() == TEXT
+    assert p.read() == TEXT.swapcase()
+
+def test_inplace_backup_chdir(tmpdir, monkeypatch):
     assert pylistdir(tmpdir) == []
     monkeypatch.chdir(tmpdir)
     p = tmpdir.join("file.txt")
@@ -95,9 +107,8 @@ def test_inplace_nobackup_pass(tmpdir):
     assert pylistdir(tmpdir) == ['file.txt']
     assert p.read() == ''
 
-def test_inplace_delete_nobackup(tmpdir, monkeypatch):
+def test_inplace_delete_nobackup(tmpdir):
     assert pylistdir(tmpdir) == []
-    monkeypatch.chdir(tmpdir)
     p = tmpdir.join("file.txt")
     p.write(TEXT)
     with InPlace(str(p)) as fp:
@@ -108,13 +119,13 @@ def test_inplace_delete_nobackup(tmpdir, monkeypatch):
     assert sorted(pylistdir(tmpdir)) == ['file.txt']
     assert p.read() == TEXT.swapcase()
 
-def test_inplace_delete_backup(tmpdir, monkeypatch):
+def test_inplace_delete_backup(tmpdir):
     assert pylistdir(tmpdir) == []
-    monkeypatch.chdir(tmpdir)
     p = tmpdir.join("file.txt")
     p.write(TEXT)
+    bkp = tmpdir.join('backup.txt')
     with pytest.raises(OSError):
-        with InPlace(str(p), backup='backup.txt') as fp:
+        with InPlace(str(p), backup=str(bkp)) as fp:
             for i, line in enumerate(fp):
                 fp.write(line.swapcase())
                 if i == 5:
@@ -143,4 +154,32 @@ def test_inplace_early_close_and_write_nobackup(tmpdir):
             fp.close()
             fp.write('And another thing...\n')
     assert pylistdir(tmpdir) == ['file.txt']
+    assert p.read() == TEXT.swapcase()
+
+def test_inplace_early_close_backup(tmpdir):
+    assert pylistdir(tmpdir) == []
+    p = tmpdir.join("file.txt")
+    p.write(TEXT)
+    bkp = tmpdir.join('backup.txt')
+    with InPlace(str(p), backup=str(bkp)) as fp:
+        for line in fp:
+            fp.write(line.swapcase())
+        fp.close()
+    assert sorted(pylistdir(tmpdir)) == ['backup.txt', 'file.txt']
+    assert bkp.read() == TEXT
+    assert p.read() == TEXT.swapcase()
+
+def test_inplace_early_close_and_write_backup(tmpdir):
+    assert pylistdir(tmpdir) == []
+    p = tmpdir.join("file.txt")
+    p.write(TEXT)
+    bkp = tmpdir.join('backup.txt')
+    with pytest.raises(ValueError):
+        with InPlace(str(p), backup=str(bkp)) as fp:
+            for line in fp:
+                fp.write(line.swapcase())
+            fp.close()
+            fp.write('And another thing...\n')
+    assert sorted(pylistdir(tmpdir)) == ['backup.txt', 'file.txt']
+    assert bkp.read() == TEXT
     assert p.read() == TEXT.swapcase()
