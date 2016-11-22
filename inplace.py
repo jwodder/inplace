@@ -25,13 +25,13 @@ class InPlaceABC(object):   ### TODO: Inherit one of the ABCs in `io`
     OPEN = 1
     CLOSED = 2
 
-    def __init__(self, filename, backup=None, backup_ext=None):
+    def __init__(self, name, backup=None, backup_ext=None):
         #: The working directory at the time that the instance was created
         self._wd = os.getcwd()
         #: The name of the file to edit in-place
-        self.filename = filename
+        self.name = name
         #: The absolute path of the file to edit in-place
-        self.filepath = os.path.join(self._wd, filename)
+        self.filepath = os.path.join(self._wd, name)
         if backup is not None:
             #: The absolute path of the backup file (if any) that will be
             #: created after editing
@@ -123,6 +123,10 @@ class InPlaceABC(object):   ### TODO: Inherit one of the ABCs in `io`
             self._tmppath = None
         #elif self._state == self.CLOSED: pass
 
+    @property
+    def closed(self):
+        return self._state != self.OPEN
+
     def read(self, size=-1):
         if self._state != self.OPEN:
             raise ValueError('Filehandle is not currently open')
@@ -178,9 +182,9 @@ class InPlaceBytes(InPlaceABC):
 
 
 class InPlace(InPlaceABC):
-    def __init__(self, filename, backup=None, backup_ext=None, encoding=None,
+    def __init__(self, name, backup=None, backup_ext=None, encoding=None,
                  errors=None, newline=None):
-        super(InPlace, self).__init__(filename, backup, backup_ext)
+        super(InPlace, self).__init__(name, backup, backup_ext)
         self.encoding = encoding
         self.errors = errors
         self.newline = newline

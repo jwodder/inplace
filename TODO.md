@@ -50,7 +50,3 @@
 
 - Get pytest to clean up its temporary directories
 - Feed `.coverage` files to Coveralls
-
-- Add the following methods:
-    - `closed` (property)
-    - `name` (property)
