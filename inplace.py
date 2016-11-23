@@ -41,9 +41,9 @@ class InPlaceABC(object):   ### TODO: Inherit one of the ABCs in `io`
         else:
             self.backup = None
         #: The input filehandle; only non-`None` while the instance is open
-        self._infile = None
+        self.input = None
         #: The output filehandle; only non-`None` while the instance is open
-        self._outfile = None
+        self.output = None
         #: The absolute path to the temporary file; only non-`None` while the
         #: instance is open
         self._tmppath = None
@@ -72,8 +72,8 @@ class InPlaceABC(object):   ### TODO: Inherit one of the ABCs in `io`
                 )
                 os.close(fd)
                 copystats(self.filepath, self._tmppath) 
-                self._infile = self._open_read(self.filepath)
-                self._outfile = self._open_write(self._tmppath)
+                self.input = self._open_read(self.filepath)
+                self.output = self._open_write(self._tmppath)
             except Exception:
                 self.rollback()
                 raise
@@ -89,12 +89,12 @@ class InPlaceABC(object):   ### TODO: Inherit one of the ABCs in `io`
         pass
 
     def _close(self):
-        if self._infile is not None:
-            self._infile.close()
-            self._infile = None
-        if self._outfile is not None:
-            self._outfile.close()
-            self._outfile = None
+        if self.input is not None:
+            self.input.close()
+            self.input = None
+        if self.output is not None:
+            self.output.close()
+            self.output = None
 
     def close(self):
         if self._state == self.UNOPENED:
@@ -130,37 +130,37 @@ class InPlaceABC(object):   ### TODO: Inherit one of the ABCs in `io`
     def read(self, size=-1):
         if self._state != self.OPEN:
             raise ValueError('Filehandle is not currently open')
-        return self._infile.read(size)
+        return self.input.read(size)
 
     def readline(self, size=-1):
         if self._state != self.OPEN:
             raise ValueError('Filehandle is not currently open')
-        return self._infile.readline(size)
+        return self.input.readline(size)
 
     def readlines(self, sizehint=-1):
         if self._state != self.OPEN:
             raise ValueError('Filehandle is not currently open')
-        return self._infile.readlines(sizehint)
+        return self.input.readlines(sizehint)
 
     def write(self, s):
         if self._state != self.OPEN:
             raise ValueError('Filehandle is not currently open')
-        self._outfile.write(s)
+        self.output.write(s)
 
     def writelines(self, seq):
         if self._state != self.OPEN:
             raise ValueError('Filehandle is not currently open')
-        self._outfile.writelines(seq)
+        self.output.writelines(seq)
 
     def __iter__(self):
         if self._state != self.OPEN:
             raise ValueError('Filehandle is not currently open')
-        return iter(self._infile)
+        return iter(self.input)
 
     def flush(self):
         if self._state != self.OPEN:
             raise ValueError('Filehandle is not currently open')
-        self._outfile.flush()
+        self.output.flush()
 
 
 class InPlaceBytes(InPlaceABC):
@@ -173,12 +173,12 @@ class InPlaceBytes(InPlaceABC):
     def readinto(self, b):
         if self._state != self.OPEN:
             raise ValueError('Filehandle is not currently open')
-        return self._outfile.readinto(b)
+        return self.output.readinto(b)
 
     def readall(self):
         if self._state != self.OPEN:
             raise ValueError('Filehandle is not currently open')
-        return self._outfile.readall()
+        return self.output.readall()
 
 
 class InPlace(InPlaceABC):

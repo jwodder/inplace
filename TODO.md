@@ -1,8 +1,8 @@
 - Add docstrings
+- Create a Readthedocs site?
 
 - Write more tests:
-    - Test the current directory changing between calls to `__init__`,
-      `__enter__`, and `__exit__`
+    - calling `os.chdir` between calls to `__init__`, `__enter__`, & `__exit__`
     - copying file mode, owner, & group
     - encodings
     - encoding error handler
@@ -35,7 +35,7 @@
           can just write a subclass
     - setting the directory in which to create the tempfile?
     - forcing `backup` to be interpreted as relative to
-      `os.path.dirname(filename)`?
+      `os.path.dirname(name)`?
     - Don't error if moving the input file to the backup location fails?
 
 - When the filename is `-`, read stdin and write to stdout?
@@ -45,8 +45,6 @@
 - Copy ACLs etc.
 - Should `open` be called automatically upon object instantiation?
     - Give `__init__` a `delay=False` argument for controlling this behavior
-- Make the input & output filehandles public
-    - Rename them to "`input`" and "`output`"?
 
 - Get pytest to clean up its temporary directories
 - Feed `.coverage` files to Coveralls
