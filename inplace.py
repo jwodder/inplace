@@ -25,7 +25,7 @@ class InPlaceABC(object):   ### TODO: Inherit one of the ABCs in `io`
     OPEN = 1
     CLOSED = 2
 
-    def __init__(self, name, backup=None, backup_ext=None):
+    def __init__(self, name, backup=None, backup_ext=None, delay_open=False):
         #: The working directory at the time that the instance was created
         self._wd = os.getcwd()
         #: The name of the file to edit in-place
@@ -49,9 +49,12 @@ class InPlaceABC(object):   ### TODO: Inherit one of the ABCs in `io`
         self._tmppath = None
         #: Are we not open yet, open, or closed?
         self._state = self.UNOPENED
+        if not delay_open:
+            self.open()
 
     def __enter__(self):
-        self.open()
+        if self._state < self.OPEN:
+            self.open()
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
@@ -182,12 +185,12 @@ class InPlaceBytes(InPlaceABC):
 
 
 class InPlace(InPlaceABC):
-    def __init__(self, name, backup=None, backup_ext=None, encoding=None,
-                 errors=None, newline=None):
-        super(InPlace, self).__init__(name, backup, backup_ext)
+    def __init__(self, name, backup=None, backup_ext=None, delay_open=False,
+                 encoding=None, errors=None, newline=None):
         self.encoding = encoding
         self.errors = errors
         self.newline = newline
+        super(InPlace, self).__init__(name, backup, backup_ext, delay_open)
 
     def _open_read(self, path):
         return io.open(path, 'rt', encoding=self.encoding, errors=self.errors,

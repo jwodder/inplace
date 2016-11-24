@@ -17,6 +17,7 @@
     - `rollback`
     - backing up over a pre-existing file
     - neglecting a needed directory path for `backup`
+    - `delay_open=True`
 
 - Add options for:
     - buffering?
@@ -43,8 +44,6 @@
 - Skip Unix-specific `os` calls (e.g., `os.chown`) on platforms where they're
   not available
 - Copy ACLs etc.
-- Should `open` be called automatically upon object instantiation?
-    - Give `__init__` a `delay=False` argument for controlling this behavior
 
 - Get pytest to clean up its temporary directories
 - Feed `.coverage` files to Coveralls
