@@ -14,7 +14,6 @@
     - Assert that the tempfile is created in the right directory
     - Assert that all of the relevant attributes on an `InPlace` object are
       `None` after closing (and non-`None` before closing)
-    - `rollback`
     - backing up over a pre-existing file
     - neglecting a needed directory path for `backup`
     - `delay_open=True`

@@ -183,3 +183,53 @@ def test_inplace_early_close_and_write_backup(tmpdir):
     assert sorted(pylistdir(tmpdir)) == ['backup.txt', 'file.txt']
     assert bkp.read() == TEXT
     assert p.read() == TEXT.swapcase()
+
+def test_inplace_rollback_nobackup(tmpdir):
+    assert pylistdir(tmpdir) == []
+    p = tmpdir.join("file.txt")
+    p.write(TEXT)
+    with InPlace(str(p)) as fp:
+        for line in fp:
+            fp.write(line.swapcase())
+        fp.rollback()
+    assert pylistdir(tmpdir) == ['file.txt']
+    assert p.read() == TEXT
+
+def test_inplace_rollback_and_write_nobackup(tmpdir):
+    assert pylistdir(tmpdir) == []
+    p = tmpdir.join("file.txt")
+    p.write(TEXT)
+    with pytest.raises(ValueError):
+        with InPlace(str(p)) as fp:
+            for line in fp:
+                fp.write(line.swapcase())
+            fp.rollback()
+            fp.write('And another thing...\n')
+    assert pylistdir(tmpdir) == ['file.txt']
+    assert p.read() == TEXT
+
+def test_inplace_rollback_backup(tmpdir):
+    assert pylistdir(tmpdir) == []
+    p = tmpdir.join("file.txt")
+    p.write(TEXT)
+    bkp = tmpdir.join('backup.txt')
+    with InPlace(str(p), backup=str(bkp)) as fp:
+        for line in fp:
+            fp.write(line.swapcase())
+        fp.rollback()
+    assert pylistdir(tmpdir) == ['file.txt']
+    assert p.read() == TEXT
+
+def test_inplace_rollback_and_write_backup(tmpdir):
+    assert pylistdir(tmpdir) == []
+    p = tmpdir.join("file.txt")
+    p.write(TEXT)
+    bkp = tmpdir.join('backup.txt')
+    with pytest.raises(ValueError):
+        with InPlace(str(p), backup=str(bkp)) as fp:
+            for line in fp:
+                fp.write(line.swapcase())
+            fp.rollback()
+            fp.write('And another thing...\n')
+    assert pylistdir(tmpdir) == ['file.txt']
+    assert p.read() == TEXT
