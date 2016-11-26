@@ -38,7 +38,7 @@ All mimsy were the borogoves,
 	And the mome raths outgrabe.
 '''
 
-def pylistdir(d): return [p.basename for p in d.listdir()]
+def pylistdir(d): return sorted(p.basename for p in d.listdir())
 
 def test_inplace_nobackup(tmpdir):
     assert pylistdir(tmpdir) == []
@@ -57,7 +57,7 @@ def test_inplace_backup_ext(tmpdir):
     with InPlace(str(p), backup_ext='~') as fp:
         for line in fp:
             fp.write(line.swapcase())
-    assert sorted(pylistdir(tmpdir)) == ['file.txt', 'file.txt~']
+    assert pylistdir(tmpdir) == ['file.txt', 'file.txt~']
     assert p.new(ext='txt~').read() == TEXT
     assert p.read() == TEXT.swapcase()
 
@@ -69,7 +69,7 @@ def test_inplace_backup(tmpdir):
     with InPlace(str(p), backup=str(bkp)) as fp:
         for line in fp:
             fp.write(line.swapcase())
-    assert sorted(pylistdir(tmpdir)) == ['backup.txt', 'file.txt']
+    assert pylistdir(tmpdir) == ['backup.txt', 'file.txt']
     assert bkp.read() == TEXT
     assert p.read() == TEXT.swapcase()
 
@@ -81,7 +81,7 @@ def test_inplace_backup_chdir(tmpdir, monkeypatch):
     with InPlace(str(p), backup='backup.txt') as fp:
         for line in fp:
             fp.write(line.swapcase())
-    assert sorted(pylistdir(tmpdir)) == ['backup.txt', 'file.txt']
+    assert pylistdir(tmpdir) == ['backup.txt', 'file.txt']
     assert tmpdir.join('backup.txt').read() == TEXT
     assert p.read() == TEXT.swapcase()
 
@@ -95,7 +95,7 @@ def test_inplace_backup_ext_error(tmpdir):
                 fp.write(line.swapcase())
                 if i > 5:
                     raise RuntimeError("I changed my mind.")
-    assert sorted(pylistdir(tmpdir)) == ['file.txt']
+    assert pylistdir(tmpdir) == ['file.txt']
     assert p.read() == TEXT
 
 def test_inplace_nobackup_pass(tmpdir):
@@ -116,7 +116,7 @@ def test_inplace_delete_nobackup(tmpdir):
             fp.write(line.swapcase())
             if i == 5:
                 p.remove()
-    assert sorted(pylistdir(tmpdir)) == ['file.txt']
+    assert pylistdir(tmpdir) == ['file.txt']
     assert p.read() == TEXT.swapcase()
 
 def test_inplace_delete_backup(tmpdir):
@@ -130,7 +130,7 @@ def test_inplace_delete_backup(tmpdir):
                 fp.write(line.swapcase())
                 if i == 5:
                     p.remove()
-    assert sorted(pylistdir(tmpdir)) == []
+    assert pylistdir(tmpdir) == []
 
 def test_inplace_early_close_nobackup(tmpdir):
     assert pylistdir(tmpdir) == []
@@ -165,7 +165,7 @@ def test_inplace_early_close_backup(tmpdir):
         for line in fp:
             fp.write(line.swapcase())
         fp.close()
-    assert sorted(pylistdir(tmpdir)) == ['backup.txt', 'file.txt']
+    assert pylistdir(tmpdir) == ['backup.txt', 'file.txt']
     assert bkp.read() == TEXT
     assert p.read() == TEXT.swapcase()
 
@@ -180,7 +180,7 @@ def test_inplace_early_close_and_write_backup(tmpdir):
                 fp.write(line.swapcase())
             fp.close()
             fp.write('And another thing...\n')
-    assert sorted(pylistdir(tmpdir)) == ['backup.txt', 'file.txt']
+    assert pylistdir(tmpdir) == ['backup.txt', 'file.txt']
     assert bkp.read() == TEXT
     assert p.read() == TEXT.swapcase()
 
@@ -243,7 +243,7 @@ def test_inplace_backup_overwrite(tmpdir):
     with InPlace(str(p), backup=str(bkp)) as fp:
         for line in fp:
             fp.write(line.swapcase())
-    assert sorted(pylistdir(tmpdir)) == ['backup.txt', 'file.txt']
+    assert pylistdir(tmpdir) == ['backup.txt', 'file.txt']
     assert bkp.read() == TEXT
     assert p.read() == TEXT.swapcase()
 
@@ -257,6 +257,6 @@ def test_inplace_rollback_backup_overwrite(tmpdir):
         for line in fp:
             fp.write(line.swapcase())
         fp.rollback()
-    assert sorted(pylistdir(tmpdir)) == ['backup.txt', 'file.txt']
+    assert pylistdir(tmpdir) == ['backup.txt', 'file.txt']
     assert bkp.read() == 'This is not the file you are looking for.\n'
     assert p.read() == TEXT

@@ -25,7 +25,7 @@ TEXT = u'''\
 Δημοσθένους, Γ´ ᾿Ολυνθιακὸς
 '''
 
-def pylistdir(d): return [p.basename for p in d.listdir()]
+def pylistdir(d): return sorted(p.basename for p in d.listdir())
 
 def test_inplace_utf8(tmpdir):
     assert pylistdir(tmpdir) == []
