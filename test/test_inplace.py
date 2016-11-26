@@ -233,3 +233,30 @@ def test_inplace_rollback_and_write_backup(tmpdir):
             fp.write('And another thing...\n')
     assert pylistdir(tmpdir) == ['file.txt']
     assert p.read() == TEXT
+
+def test_inplace_backup_overwrite(tmpdir):
+    assert pylistdir(tmpdir) == []
+    p = tmpdir.join("file.txt")
+    p.write(TEXT)
+    bkp = tmpdir.join('backup.txt')
+    bkp.write('This is not the file you are looking for.\n')
+    with InPlace(str(p), backup=str(bkp)) as fp:
+        for line in fp:
+            fp.write(line.swapcase())
+    assert sorted(pylistdir(tmpdir)) == ['backup.txt', 'file.txt']
+    assert bkp.read() == TEXT
+    assert p.read() == TEXT.swapcase()
+
+def test_inplace_rollback_backup_overwrite(tmpdir):
+    assert pylistdir(tmpdir) == []
+    p = tmpdir.join("file.txt")
+    p.write(TEXT)
+    bkp = tmpdir.join('backup.txt')
+    bkp.write('This is not the file you are looking for.\n')
+    with InPlace(str(p), backup=str(bkp)) as fp:
+        for line in fp:
+            fp.write(line.swapcase())
+        fp.rollback()
+    assert sorted(pylistdir(tmpdir)) == ['backup.txt', 'file.txt']
+    assert bkp.read() == 'This is not the file you are looking for.\n'
+    assert p.read() == TEXT

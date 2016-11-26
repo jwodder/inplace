@@ -14,9 +14,9 @@
     - Assert that the tempfile is created in the right directory
     - Assert that all of the relevant attributes on an `InPlace` object are
       `None` after closing (and non-`None` before closing)
-    - backing up over a pre-existing file
     - neglecting a needed directory path for `backup`
     - `delay_open=True`
+    - invalid backup path (e.g., a pre-existing directory)
 
 - Add options for:
     - buffering?
@@ -46,3 +46,4 @@
 
 - Get pytest to clean up its temporary directories
 - Feed `.coverage` files to Coveralls
+- Test against & add support for pypy?
