@@ -20,7 +20,7 @@ class DoubleOpenError(Exception):
     pass
 
 @add_metaclass(abc.ABCMeta)
-class InPlaceABC(object):   ### TODO: Inherit one of the ABCs in `io`
+class InPlaceABC(object):
     UNOPENED = 0
     OPEN = 1
     CLOSED = 2

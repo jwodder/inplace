@@ -43,6 +43,7 @@
 - Skip Unix-specific `os` calls (e.g., `os.chown`) on platforms where they're
   not available
 - Copy ACLs etc.
+- Make `InPlaceABC` inherit one of the ABCs in `io`?
 
 - Get pytest to clean up its temporary directories
 - Feed `.coverage` files to Coveralls
