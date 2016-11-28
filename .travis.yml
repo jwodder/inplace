@@ -1,6 +1,12 @@
 language: python
 python:
     - '3.5'
+addons:
+    apt:
+        sources:
+            - pypy
+        packages:
+            - pypy
 env:
     - TOXENV=py26
     - TOXENV=py27
