@@ -1,5 +1,6 @@
+from   __future__ import print_function
 import pytest
-from   inplace import InPlace
+from   inplace    import InPlace
 
 TEXT = '''\
 'Twas brillig, and the slithy toves
@@ -260,3 +261,15 @@ def test_inplace_rollback_backup_overwrite(tmpdir):
     assert pylistdir(tmpdir) == ['backup.txt', 'file.txt']
     assert bkp.read() == 'This is not the file you are looking for.\n'
     assert p.read() == TEXT
+
+def test_inplace_print_backup(tmpdir):
+    assert pylistdir(tmpdir) == []
+    p = tmpdir.join("file.txt")
+    p.write(TEXT)
+    bkp = tmpdir.join('backup.txt')
+    with InPlace(str(p), backup=str(bkp)) as fp:
+        for line in fp:
+            print(line.swapcase(), end=u'', file=fp)
+    assert pylistdir(tmpdir) == ['backup.txt', 'file.txt']
+    assert bkp.read() == TEXT
+    assert p.read() == TEXT.swapcase()

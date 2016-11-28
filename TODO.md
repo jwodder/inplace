@@ -8,7 +8,8 @@
     - encoding error handler
     - newlines
     - bytes
-    - `print`ing to an in-place file
+    - `print`ing bytes?
+    - `print`ing Unicode?
     - every I/O method
     - handling of symbolic links
     - Assert that the tempfile is created in the right directory
