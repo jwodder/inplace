@@ -26,16 +26,15 @@ class InPlaceABC(object):
     CLOSED = 2
 
     def __init__(self, name, backup=None, backup_ext=None, delay_open=False):
-        #: The working directory at the time that the instance was created
-        self._wd = os.getcwd()
+        cwd = os.getcwd()
         #: The name of the file to edit in-place
         self.name = name
         #: The absolute path of the file to edit in-place
-        self.filepath = os.path.join(self._wd, name)
+        self.filepath = os.path.join(cwd, name)
         if backup is not None:
             #: The absolute path of the backup file (if any) that will be
             #: created after editing
-            self.backup = os.path.join(self._wd, backup)
+            self.backup = os.path.join(cwd, backup)
         elif backup_ext is not None and backup_ext != '':
             self.backup = self.filepath + backup_ext
         else:
