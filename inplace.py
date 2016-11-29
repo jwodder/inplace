@@ -124,7 +124,8 @@ class InPlaceABC(object):
             self._close()
             try_unlink(self._tmppath)
             self._tmppath = None
-        #elif self._state == self.CLOSED: pass
+        elif self._state == self.CLOSED:
+            raise ValueError('Cannot rollback closed file')
 
     @property
     def closed(self):
