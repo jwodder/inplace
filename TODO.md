@@ -2,7 +2,6 @@
 - Create a Readthedocs site?
 
 - Write more tests:
-    - calling `os.chdir` between calls to `__init__`, `__enter__`, & `__exit__`
     - copying file mode, owner, & group
     - encodings
     - encoding error handler
@@ -35,8 +34,6 @@
         - Alternatively, if the user wants to override the opening methods, ey
           can just write a subclass
     - setting the directory in which to create the tempfile?
-    - forcing `backup` to be interpreted as relative to
-      `os.path.dirname(name)`?
     - Don't error if moving the input file to the backup location fails?
 
 - When the filename is `-`, read stdin and write to stdout?

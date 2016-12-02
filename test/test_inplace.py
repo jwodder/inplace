@@ -1,4 +1,5 @@
 from   __future__ import print_function
+import os
 import pytest
 from   inplace    import InPlace
 
@@ -72,18 +73,6 @@ def test_inplace_backup(tmpdir):
             fp.write(line.swapcase())
     assert pylistdir(tmpdir) == ['backup.txt', 'file.txt']
     assert bkp.read() == TEXT
-    assert p.read() == TEXT.swapcase()
-
-def test_inplace_backup_chdir(tmpdir, monkeypatch):
-    assert pylistdir(tmpdir) == []
-    monkeypatch.chdir(tmpdir)
-    p = tmpdir.join("file.txt")
-    p.write(TEXT)
-    with InPlace(str(p), backup='backup.txt') as fp:
-        for line in fp:
-            fp.write(line.swapcase())
-    assert pylistdir(tmpdir) == ['backup.txt', 'file.txt']
-    assert tmpdir.join('backup.txt').read() == TEXT
     assert p.read() == TEXT.swapcase()
 
 def test_inplace_backup_ext_error(tmpdir):
@@ -272,4 +261,54 @@ def test_inplace_print_backup(tmpdir):
             print(line.swapcase(), end=u'', file=fp)
     assert pylistdir(tmpdir) == ['backup.txt', 'file.txt']
     assert bkp.read() == TEXT
+    assert p.read() == TEXT.swapcase()
+
+def test_inplace_prechdir_backup(tmpdir, monkeypatch):
+    assert pylistdir(tmpdir) == []
+    monkeypatch.chdir(tmpdir)
+    p = tmpdir.join("file.txt")
+    p.write(TEXT)
+    with InPlace(str(p), backup='backup.txt') as fp:
+        for line in fp:
+            fp.write(line.swapcase())
+    assert pylistdir(tmpdir) == ['backup.txt', 'file.txt']
+    assert tmpdir.join('backup.txt').read() == TEXT
+    assert p.read() == TEXT.swapcase()
+
+def test_inplace_midchdir_backup(tmpdir, monkeypatch):
+    """
+    Assert that changing directory between creating an InPlace object and
+    opening it works
+    """
+    filedir = tmpdir.mkdir('filedir')
+    wrongdir = tmpdir.mkdir('wrongdir')
+    p = filedir.join("file.txt")
+    p.write(TEXT)
+    monkeypatch.chdir(filedir)
+    fp = InPlace('file.txt', backup='backup.txt', delay_open=True)
+    monkeypatch.chdir(wrongdir)
+    with fp:
+        for line in fp:
+            fp.write(line.swapcase())
+    assert os.getcwd() == str(wrongdir)
+    assert pylistdir(wrongdir) == []
+    assert pylistdir(filedir) == ['backup.txt', 'file.txt']
+    assert filedir.join('backup.txt').read() == TEXT
+    assert p.read() == TEXT.swapcase()
+
+def test_inplace_postchdir_backup(tmpdir, monkeypatch):
+    """ Assert that changing directory after opening an InPlace object works """
+    filedir = tmpdir.mkdir('filedir')
+    wrongdir = tmpdir.mkdir('wrongdir')
+    p = filedir.join("file.txt")
+    p.write(TEXT)
+    monkeypatch.chdir(filedir)
+    with InPlace('file.txt', backup='backup.txt') as fp:
+        monkeypatch.chdir(wrongdir)
+        for line in fp:
+            fp.write(line.swapcase())
+    assert os.getcwd() == str(wrongdir)
+    assert pylistdir(wrongdir) == []
+    assert pylistdir(filedir) == ['backup.txt', 'file.txt']
+    assert filedir.join('backup.txt').read() == TEXT
     assert p.read() == TEXT.swapcase()
