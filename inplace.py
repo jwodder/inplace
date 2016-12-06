@@ -203,15 +203,16 @@ class InPlace(InPlaceABC):
 
 def copystats(from_file, to_file):
     shutil.copystat(from_file, to_file)
-    st = os.stat(from_file)
-    # Based on GNU sed's behavior:
-    try:
-        os.chown(to_file, st.st_uid, st.st_gid)
-    except EnvironmentError:
+    if hasattr(os, 'chown'):
+        st = os.stat(from_file)
+        # Based on GNU sed's behavior:
         try:
-            os.chown(to_file, -1, st.st_gid)
+            os.chown(to_file, st.st_uid, st.st_gid)
         except EnvironmentError:
-            pass
+            try:
+                os.chown(to_file, -1, st.st_gid)
+            except EnvironmentError:
+                pass
 
 def force_rename(oldpath, newpath):
     if hasattr(os, 'replace'):  # Python 3.3+

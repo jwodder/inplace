@@ -38,8 +38,6 @@
 
 - When the filename is `-`, read stdin and write to stdout?
     - Only support this when an `allow_dash=True` argument is given?
-- Skip Unix-specific `os` calls (e.g., `os.chown`) on platforms where they're
-  not available
 - Copy ACLs etc.
 - Make `InPlaceABC` inherit one of the ABCs in `io`?
 
