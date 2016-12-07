@@ -17,17 +17,10 @@
     - neglecting a needed directory path for `backup`
     - `delay_open=True`
     - invalid backup path (e.g., a pre-existing directory)
+    - `move_first=True`
 
 - Add options for:
     - buffering?
-    - `move_first=False` — when `True`, move the file and create a new one in
-      its place on opening (à la `fileinput`) rather than creating a tempfile
-      and only moving it on closing (as is done by GNU sed and Click's
-      "atomic")
-        - Specifically, the input file should be moved to a temporary path and
-          only moved to the backup path on successful completion; this way, if
-          a rollback occurs, whatever was already at the backup path will be
-          untouched.
     - preserving the tempfile if an error was raised
     - Add `readhook` and `writehook` options for controlling how to open the
       filehandles for reading & writing?
@@ -40,6 +33,10 @@
     - Only support this when an `allow_dash=True` argument is given?
 - Copy ACLs etc.
 - Make `InPlaceABC` inherit one of the ABCs in `io`?
+- How should exceptions raised by `_close` be handled?
+- `move_first=True`: The input file should be moved to a temporary path and
+  only moved to the backup path on successful completion; this way, if a
+  rollback occurs, whatever was already at the backup path will be untouched.
 
 - Get pytest to clean up its temporary directories
 - Feed `.coverage` files to Coveralls

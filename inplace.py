@@ -25,7 +25,8 @@ class InPlaceABC(object):
     OPEN = 1
     CLOSED = 2
 
-    def __init__(self, name, backup=None, backup_ext=None, delay_open=False):
+    def __init__(self, name, backup=None, backup_ext=None, delay_open=False,
+                 move_first=False):
         cwd = os.getcwd()
         #: The name of the file to edit in-place
         self.name = name
@@ -39,6 +40,7 @@ class InPlaceABC(object):
             self.backup = self.filepath + backup_ext
         else:
             self.backup = None
+        self.move_first = move_first
         #: The input filehandle; only non-`None` while the instance is open
         self.input = None
         #: The output filehandle; only non-`None` while the instance is open
@@ -64,18 +66,32 @@ class InPlaceABC(object):
                 self.close()
         return False
 
+    def mktemp(self):
+        fd, tmppath = tempfile.mkstemp(
+            dir=os.path.dirname(self.filepath),
+            prefix='._inplace-',
+        )
+        os.close(fd)
+        return tmppath
+
     def open(self):
         if self._state < self.OPEN:
             self._state = self.OPEN
             try:
-                fd, self._tmppath = tempfile.mkstemp(
-                    dir=os.path.dirname(self.filepath),
-                    prefix='._inplace-',
-                )
-                os.close(fd)
-                copystats(self.filepath, self._tmppath) 
-                self.input = self._open_read(self.filepath)
-                self.output = self._open_write(self._tmppath)
+                if self.move_first:
+                    if self.backup is not None:
+                        self._tmppath = self.backup
+                    else:
+                        self._tmppath = self.mktemp()
+                    force_rename(self.filepath, self._tmppath)
+                    self.input = self._open_read(self._tmppath)
+                    self.output = self._open_write(self.filepath)
+                    copystats(self._tmppath, self.filepath)
+                else:
+                    self._tmppath = self.mktemp()
+                    copystats(self.filepath, self._tmppath) 
+                    self.input = self._open_read(self.filepath)
+                    self.output = self._open_write(self._tmppath)
             except Exception:
                 self.rollback()
                 raise
@@ -105,12 +121,17 @@ class InPlaceABC(object):
             self._state = self.CLOSED
             self._close()
             try:
-                if self.backup is not None:
-                    force_rename(self.filepath, self.backup)
-                force_rename(self._tmppath, self.filepath)
-            except EnvironmentError:
-                try_unlink(self._tmppath)
-                raise
+                if self.move_first:
+                    if self.backup is None:
+                        try_unlink(self._tmppath)
+                else:
+                    try:
+                        if self.backup is not None:
+                            force_rename(self.filepath, self.backup)
+                        force_rename(self._tmppath, self.filepath)
+                    except EnvironmentError:
+                        try_unlink(self._tmppath)
+                        raise
             finally:
                 self._tmppath = None
         #elif self._state == self.CLOSED: pass
@@ -121,7 +142,10 @@ class InPlaceABC(object):
         elif self._state == self.OPEN:
             self._state = self.CLOSED
             self._close()
-            try_unlink(self._tmppath)
+            if self.move_first:
+                force_rename(self._tmppath, self.filepath)
+            else:
+                try_unlink(self._tmppath)
             self._tmppath = None
         elif self._state == self.CLOSED:
             raise ValueError('Cannot rollback closed file')
@@ -186,11 +210,13 @@ class InPlaceBytes(InPlaceABC):
 
 class InPlace(InPlaceABC):
     def __init__(self, name, backup=None, backup_ext=None, delay_open=False,
-                 encoding=None, errors=None, newline=None):
+                 move_first=False, encoding=None, errors=None, newline=None):
         self.encoding = encoding
         self.errors = errors
         self.newline = newline
-        super(InPlace, self).__init__(name, backup, backup_ext, delay_open)
+        super(InPlace, self).__init__(
+            name, backup, backup_ext, delay_open, move_first,
+        )
 
     def _open_read(self, path):
         return io.open(path, 'rt', encoding=self.encoding, errors=self.errors,
