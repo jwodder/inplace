@@ -2,7 +2,7 @@
 - Create a Readthedocs site?
 
 - Write more tests:
-    - copying file mode, owner, & group
+    - copying file mode, timestamps, owner, & group
     - encodings
     - encoding error handler
     - newlines

@@ -35,11 +35,11 @@ class InPlaceABC(object):
         if backup is not None:
             #: The absolute path of the backup file (if any) that will be
             #: created after editing
-            self.backup = os.path.join(cwd, backup)
+            self.backuppath = os.path.join(cwd, backup)
         elif backup_ext is not None and backup_ext != '':
-            self.backup = self.filepath + backup_ext
+            self.backuppath = self.filepath + backup_ext
         else:
-            self.backup = None
+            self.backuppath = None
         self.move_first = move_first
         #: The input filehandle; only non-`None` while the instance is open
         self.input = None
@@ -79,8 +79,8 @@ class InPlaceABC(object):
             self._state = self.OPEN
             try:
                 if self.move_first:
-                    if self.backup is not None:
-                        self._tmppath = self.backup
+                    if self.backuppath is not None:
+                        self._tmppath = self.backuppath
                     else:
                         self._tmppath = self.mktemp()
                     force_rename(self.filepath, self._tmppath)
@@ -122,12 +122,12 @@ class InPlaceABC(object):
             self._close()
             try:
                 if self.move_first:
-                    if self.backup is None:
+                    if self.backuppath is None:
                         try_unlink(self._tmppath)
                 else:
                     try:
-                        if self.backup is not None:
-                            force_rename(self.filepath, self.backup)
+                        if self.backuppath is not None:
+                            force_rename(self.filepath, self.backuppath)
                         force_rename(self._tmppath, self.filepath)
                     except EnvironmentError:
                         try_unlink(self._tmppath)
