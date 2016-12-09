@@ -17,7 +17,6 @@
     - neglecting a needed directory path for `backup`
     - `delay_open=True`
     - invalid backup path (e.g., a pre-existing directory)
-    - `move_first=True`
 
 - Add options for:
     - buffering?
