@@ -4,6 +4,7 @@
 - Write more tests:
     - copying file mode, timestamps, owner, & group
     - encodings
+        - process the same file as both UTF-8 and Latin-1
     - encoding error handler
     - newlines
     - bytes
@@ -33,10 +34,11 @@
 - Copy ACLs etc.
 - Make `InPlaceABC` inherit one of the ABCs in `io`?
 - How should exceptions raised by `_close` be handled?
-- `move_first=True`: The input file should be moved to a temporary path and
-  only moved to the backup path on successful completion; this way, if a
-  rollback occurs, whatever was already at the backup path will be untouched.
+- `move_first=True`: The input file should be moved to a temporary path (in the
+  same directory as the backup path?) and only moved to the backup path on
+  successful completion; this way, if a rollback occurs, whatever was already
+  at the backup path will be untouched.
 
 - Get pytest to clean up its temporary directories
 - Feed `.coverage` files to Coveralls
-- Test against & add support for pypy?
+- Test against and indicate support for pypy & pypy3
