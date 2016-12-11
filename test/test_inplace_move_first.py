@@ -106,21 +106,20 @@ def test_inplace_move_first_delete_nobackup(tmpdir):
             fp.write(line.swapcase())
             if i == 5:
                 p.remove()
-    assert pylistdir(tmpdir) == ['file.txt']
-    assert p.read() == TEXT.swapcase()
+    assert pylistdir(tmpdir) == []
 
 def test_inplace_move_first_delete_backup(tmpdir):
     assert pylistdir(tmpdir) == []
     p = tmpdir.join("file.txt")
     p.write(TEXT)
     bkp = tmpdir.join('backup.txt')
-    with pytest.raises(OSError):
-        with InPlace(str(p), backup=str(bkp), move_first=True) as fp:
-            for i, line in enumerate(fp):
-                fp.write(line.swapcase())
-                if i == 5:
-                    p.remove()
-    assert pylistdir(tmpdir) == []
+    with InPlace(str(p), backup=str(bkp), move_first=True) as fp:
+        for i, line in enumerate(fp):
+            fp.write(line.swapcase())
+            if i == 5:
+                p.remove()
+    assert pylistdir(tmpdir) == ['backup.txt']
+    assert bkp.read() == TEXT
 
 def test_inplace_move_first_early_close_nobackup(tmpdir):
     assert pylistdir(tmpdir) == []
