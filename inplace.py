@@ -66,9 +66,9 @@ class InPlaceABC(object):
                 self.close()
         return False
 
-    def mktemp(self):
+    def mktemp(self, filepath):
         fd, tmppath = tempfile.mkstemp(
-            dir=os.path.dirname(self.filepath),
+            dir=os.path.dirname(filepath),
             prefix='._inplace-',
         )
         os.close(fd)
@@ -80,15 +80,15 @@ class InPlaceABC(object):
             try:
                 if self.move_first:
                     if self.backuppath is not None:
-                        self._tmppath = self.backuppath
+                        self._tmppath = self.mktemp(self.backuppath)
                     else:
-                        self._tmppath = self.mktemp()
+                        self._tmppath = self.mktemp(self.filepath)
                     force_rename(self.filepath, self._tmppath)
                     self.input = self._open_read(self._tmppath)
                     self.output = self._open_write(self.filepath)
                     copystats(self._tmppath, self.filepath)
                 else:
-                    self._tmppath = self.mktemp()
+                    self._tmppath = self.mktemp(self.filepath)
                     copystats(self.filepath, self._tmppath) 
                     self.input = self._open_read(self.filepath)
                     self.output = self._open_write(self._tmppath)
@@ -122,7 +122,10 @@ class InPlaceABC(object):
             self._close()
             try:
                 if self.move_first:
-                    if self.backuppath is None:
+                    if self.backuppath is not None:
+                        force_rename(self._tmppath, self.backuppath)
+                        ### Delete tempfile on error?
+                    else:
                         try_unlink(self._tmppath)
                 else:
                     try:
