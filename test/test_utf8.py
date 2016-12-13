@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
-from   unicodedata import normalize
-from   six         import text_type
-from   inplace     import InPlace
+from   unicodedata       import normalize
+from   six               import text_type
+from   inplace           import InPlace
+from   test_inplace_util import pylistdir
 
 TEXT = u'\xE5\xE9\xEE\xF8\xFC\n'  # u'àéîøü\n'
 
-def pylistdir(d): return sorted(p.basename for p in d.listdir())
-
-def test_inplace_utf8(tmpdir):
+def test_utf8_nobackup(tmpdir):
     assert pylistdir(tmpdir) == []
     p = tmpdir.join("file.txt")
     p.write_text(TEXT, 'utf-8')
