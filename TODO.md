@@ -3,9 +3,6 @@
 
 - Write more tests:
     - copying file mode, timestamps, owner, & group
-    - encodings
-        - process the same file as both UTF-8 and Latin-1
-    - encoding error handler
     - newlines
     - bytes
     - `print`ing bytes?
