@@ -4,7 +4,6 @@
 - Write more tests:
     - copying file mode, timestamps, owner, & group
     - newlines
-    - bytes
     - `print`ing bytes?
     - `print`ing Unicode?
     - every I/O method
