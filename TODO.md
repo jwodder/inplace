@@ -17,6 +17,7 @@
     - Python 2: `print >>fp val,`?  (cf. `file.softspace`)
     - nontrivial (i.e., containing `/` and/or `..`) relative filepaths
     - `backup_ext` containing a directory separator?
+    - relative vs. absolute paths?
 
 - Add options for:
     - buffering?

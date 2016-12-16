@@ -262,3 +262,20 @@ def test_postchdir_backup(tmpdir, monkeypatch):
     assert pylistdir(filedir) == ['backup.txt', 'file.txt']
     assert filedir.join('backup.txt').read() == TEXT
     assert p.read() == TEXT.swapcase()
+
+def test_different_dir_backup(tmpdir, monkeypatch):
+    monkeypatch.chdir(tmpdir)
+    filedir = tmpdir.mkdir('filedir')
+    bkpdir = tmpdir.mkdir('bkpdir')
+    p = filedir.join("file.txt")
+    p.write(TEXT)
+    with InPlace(
+        os.path.join('filedir', 'file.txt'),
+        backup=os.path.join('bkpdir', 'backup.txt')
+    ) as fp:
+        for line in fp:
+            fp.write(line.swapcase())
+    assert pylistdir(filedir) == ['file.txt']
+    assert pylistdir(bkpdir) == ['backup.txt']
+    assert bkpdir.join('backup.txt').read() == TEXT
+    assert p.read() == TEXT.swapcase()
