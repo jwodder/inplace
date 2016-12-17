@@ -1,6 +1,6 @@
 from   __future__        import print_function
-from   inplace           import InPlace
-from   test_inplace_util import TEXT, pylistdir
+from   inplace           import InPlace, InPlaceBytes
+from   test_inplace_util import TEXT, UNICODE, pylistdir
 
 def test_print_backup(tmpdir):
     assert pylistdir(tmpdir) == []
@@ -13,3 +13,15 @@ def test_print_backup(tmpdir):
     assert pylistdir(tmpdir) == ['backup.txt', 'file.txt']
     assert bkp.read() == TEXT
     assert p.read() == TEXT.swapcase()
+
+def test_readinto_bytearray_nobackup(tmpdir):
+    assert pylistdir(tmpdir) == []
+    p = tmpdir.join("file.txt")
+    p.write_text(UNICODE, 'utf-8')
+    with InPlaceBytes(str(p)) as fp:
+        ba = bytearray(5)
+        assert fp.readinto(ba) == 5
+        assert ba == bytearray(b'\xC3\xA5\xC3\xA9\xC3')
+        fp.write(ba)
+    assert pylistdir(tmpdir) == ['file.txt']
+    assert p.read_binary() == b'\xC3\xA5\xC3\xA9\xC3'

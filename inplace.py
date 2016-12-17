@@ -203,12 +203,12 @@ class InPlaceBytes(InPlaceABC):
     def readinto(self, b):
         if self._state != self.OPEN:
             raise ValueError('Filehandle is not currently open')
-        return self.output.readinto(b)
+        return self.input.readinto(b)
 
     def readall(self):
         if self._state != self.OPEN:
             raise ValueError('Filehandle is not currently open')
-        return self.output.readall()
+        return self.input.readall()
 
 
 class InPlace(InPlaceABC):

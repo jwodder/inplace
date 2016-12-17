@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 def pylistdir(d): return sorted(p.basename for p in d.listdir())
 
 TEXT = '''\
@@ -36,3 +38,5 @@ O frabjous day!  Callooh!  Callay!"
 All mimsy were the borogoves,
 	And the mome raths outgrabe.
 '''
+
+UNICODE = u'\xE5\xE9\xEE\xF8\xFC\n'  # u'àéîøü\n'
