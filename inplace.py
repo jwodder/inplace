@@ -84,14 +84,14 @@ class InPlaceABC(object):
                     else:
                         self._tmppath = self.mktemp(self.filepath)
                     force_rename(self.filepath, self._tmppath)
-                    self.input = self._open_read(self._tmppath)
-                    self.output = self._open_write(self.filepath)
+                    self.input = self.open_read(self._tmppath)
+                    self.output = self.open_write(self.filepath)
                     copystats(self._tmppath, self.filepath)
                 else:
                     self._tmppath = self.mktemp(self.filepath)
                     copystats(self.filepath, self._tmppath) 
-                    self.input = self._open_read(self.filepath)
-                    self.output = self._open_write(self._tmppath)
+                    self.input = self.open_read(self.filepath)
+                    self.output = self.open_write(self._tmppath)
             except Exception:
                 self.rollback()
                 raise
@@ -99,11 +99,21 @@ class InPlaceABC(object):
             raise DoubleOpenError('open() called twice on same filehandle')
 
     @abc.abstractmethod
-    def _open_read(self, path):
+    def open_read(self, path):
+        """
+        Open the file at ``path`` for reading and return a file-like object.
+        Concrete subclasses must override this method in order to customize how
+        (and as what class) the file is opened.
+        """
         pass
 
     @abc.abstractmethod
-    def _open_write(self, path):
+    def open_write(self, path):
+        """
+        Open the file at ``path`` for writing and return a file-like object.
+        Concrete subclasses must override this method in order to customize how
+        (and as what class) the file is opened.
+        """
         pass
 
     def _close(self):
@@ -194,10 +204,10 @@ class InPlaceABC(object):
 
 
 class InPlaceBytes(InPlaceABC):
-    def _open_read(self, path):
+    def open_read(self, path):
         return open(path, 'rb')
 
-    def _open_write(self, path):
+    def open_write(self, path):
         return open(path, 'wb')
 
     def readinto(self, b):
@@ -221,11 +231,11 @@ class InPlace(InPlaceABC):
             name, backup, backup_ext, delay_open, move_first,
         )
 
-    def _open_read(self, path):
+    def open_read(self, path):
         return io.open(path, 'rt', encoding=self.encoding, errors=self.errors,
                        newline=self.newline)
 
-    def _open_write(self, path):
+    def open_write(self, path):
         return io.open(path, 'wt', encoding=self.encoding, errors=self.errors,
                        newline=self.newline)
 

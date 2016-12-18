@@ -22,10 +22,6 @@
 - Add options for:
     - buffering?
     - preserving the tempfile if an error was raised
-    - Add `readhook` and `writehook` options for controlling how to open the
-      filehandles for reading & writing?
-        - Alternatively, if the user wants to override the opening methods, ey
-          can just write a subclass
     - setting the directory in which to create the tempfile?
     - Don't error if moving the input file to the backup location fails?
 
