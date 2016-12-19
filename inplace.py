@@ -134,7 +134,7 @@ class InPlaceABC(object):
                 if self.move_first:
                     if self.backuppath is not None:
                         force_rename(self._tmppath, self.backuppath)
-                        ### Delete tempfile on error?
+                        ### TODO: Delete tempfile on error?
                     else:
                         try_unlink(self._tmppath)
                 else:
