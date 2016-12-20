@@ -134,18 +134,12 @@ class InPlaceABC(object):
                 if self.move_first:
                     if self.backuppath is not None:
                         force_rename(self._tmppath, self.backuppath)
-                        ### TODO: Delete tempfile on error?
-                    else:
-                        try_unlink(self._tmppath)
                 else:
-                    try:
-                        if self.backuppath is not None:
-                            force_rename(self.filepath, self.backuppath)
-                        force_rename(self._tmppath, self.filepath)
-                    except EnvironmentError:
-                        try_unlink(self._tmppath)
-                        raise
+                    if self.backuppath is not None:
+                        force_rename(self.filepath, self.backuppath)
+                    force_rename(self._tmppath, self.filepath)
             finally:
+                try_unlink(self._tmppath)
                 self._tmppath = None
         #elif self._state == self.CLOSED: pass
 
@@ -155,11 +149,12 @@ class InPlaceABC(object):
         elif self._state == self.OPEN:
             self._state = self.CLOSED
             self._close()
-            if self.move_first:
-                force_rename(self._tmppath, self.filepath)
-            else:
-                try_unlink(self._tmppath)
-            self._tmppath = None
+            if self._tmppath is not None:  # In case of error while opening
+                if self.move_first:
+                    force_rename(self._tmppath, self.filepath)
+                else:
+                    try_unlink(self._tmppath)
+                self._tmppath = None
         elif self._state == self.CLOSED:
             raise ValueError('Cannot rollback closed file')
 
