@@ -133,14 +133,20 @@ class InPlaceABC(object):
             try:
                 if self.move_first:
                     if self.backuppath is not None:
-                        force_rename(self._tmppath, self.backuppath)
+                        try:
+                            force_rename(self._tmppath, self.backuppath)
+                        except EnvironmentError:
+                            force_rename(self._tmppath, self.filepath)
+                            self._tmppath = None
+                            raise
                 else:
                     if self.backuppath is not None:
                         force_rename(self.filepath, self.backuppath)
                     force_rename(self._tmppath, self.filepath)
             finally:
-                try_unlink(self._tmppath)
-                self._tmppath = None
+                if self._tmppath is not None:
+                    try_unlink(self._tmppath)
+                    self._tmppath = None
         #elif self._state == self.CLOSED: pass
 
     def rollback(self):
