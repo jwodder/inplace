@@ -9,8 +9,11 @@ def test_nobackup(tmpdir):
     p = tmpdir.join("file.txt")
     p.write(TEXT)
     with InPlace(str(p)) as fp:
+        assert not fp.closed
         for line in fp:
             fp.write(line.swapcase())
+        assert not fp.closed
+    assert fp.closed
     assert pylistdir(tmpdir) == ['file.txt']
     assert p.read() == TEXT.swapcase()
 
@@ -31,8 +34,11 @@ def test_backup(tmpdir):
     p.write(TEXT)
     bkp = tmpdir.join('backup.txt')
     with InPlace(str(p), backup=str(bkp)) as fp:
+        assert not fp.closed
         for line in fp:
             fp.write(line.swapcase())
+        assert not fp.closed
+    assert fp.closed
     assert pylistdir(tmpdir) == ['backup.txt', 'file.txt']
     assert bkp.read() == TEXT
     assert p.read() == TEXT.swapcase()
@@ -237,9 +243,13 @@ def test_midchdir_backup(tmpdir, monkeypatch):
     monkeypatch.chdir(filedir)
     fp = InPlace('file.txt', backup='backup.txt', delay_open=True)
     monkeypatch.chdir(wrongdir)
+    assert fp.closed
     with fp:
+        assert not fp.closed
         for line in fp:
             fp.write(line.swapcase())
+        assert not fp.closed
+    assert fp.closed
     assert os.getcwd() == str(wrongdir)
     assert pylistdir(wrongdir) == []
     assert pylistdir(filedir) == ['backup.txt', 'file.txt']
