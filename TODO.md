@@ -34,3 +34,4 @@
 - Get pytest to clean up its temporary directories
 - Feed `.coverage` files to Coveralls
 - Test against and indicate support for pypy & pypy3
+- Test against and indicate support for Python 3.6

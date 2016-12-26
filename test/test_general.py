@@ -1,7 +1,7 @@
 from   __future__        import print_function
 import os
 import pytest
-from   inplace           import InPlace
+from   inplace           import InPlace, DoubleOpenError
 from   test_inplace_util import TEXT, pylistdir
 
 def test_nobackup(tmpdir):
@@ -323,3 +323,18 @@ def test_backup_nosuchdir(tmpdir):
         fp.close()
     assert pylistdir(tmpdir) == ['file.txt']
     assert p.read() == TEXT
+
+def test_double_open_nobackup(tmpdir):
+    assert pylistdir(tmpdir) == []
+    p = tmpdir.join("file.txt")
+    p.write(TEXT)
+    with InPlace(str(p)) as fp:
+        with pytest.raises(DoubleOpenError):
+            fp.open()
+        assert not fp.closed
+        for line in fp:
+            fp.write(line.swapcase())
+        assert not fp.closed
+    assert fp.closed
+    assert pylistdir(tmpdir) == ['file.txt']
+    assert p.read() == TEXT.swapcase()
