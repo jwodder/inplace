@@ -14,7 +14,6 @@
     - neglecting a needed directory path for `backup`
     - `delay_open=True`
     - invalid backup path (e.g., a pre-existing directory)
-    - Python 2: `print >>fp val,`?  (cf. `file.softspace`)
     - nontrivial (i.e., containing `/` and/or `..`) relative filepaths
     - `backup_ext` containing a directory separator?
     - relative vs. absolute paths?
