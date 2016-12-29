@@ -290,6 +290,28 @@ def test_move_first_different_dir_backup(tmpdir, monkeypatch):
     assert bkpdir.join('backup.txt').read() == TEXT
     assert p.read() == TEXT.swapcase()
 
+def test_move_first_different_dir_file_backup(tmpdir, monkeypatch):
+    """
+    Assert that if the input filepath contains a directory component and the
+    backup path does not, the backup file will be created in the current
+    directory
+    """
+    monkeypatch.chdir(tmpdir)
+    filedir = tmpdir.mkdir('filedir')
+    p = filedir.join("file.txt")
+    p.write(TEXT)
+    with InPlace(
+        os.path.join('filedir', 'file.txt'),
+        backup='backup.txt',
+        move_first=True,
+    ) as fp:
+        for line in fp:
+            fp.write(line.swapcase())
+    assert pylistdir(tmpdir) == ['backup.txt', 'filedir']
+    assert pylistdir(filedir) == ['file.txt']
+    assert tmpdir.join('backup.txt').read() == TEXT
+    assert p.read() == TEXT.swapcase()
+
 def test_move_first_backup_dirpath(tmpdir):
     """
     Assert that using a path to a directory as the backup path raises an error

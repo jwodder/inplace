@@ -11,11 +11,10 @@
     - Assert that the tempfile is created in the right directory
     - Assert that all of the relevant attributes on an `InPlace` object are
       `None` after closing (and non-`None` before closing)
-    - neglecting a needed directory path for `backup`
     - `delay_open=True`
-    - invalid backup path (e.g., a pre-existing directory)
     - nontrivial (i.e., containing `/` and/or `..`) relative filepaths
     - `backup_ext` containing a directory separator?
+    - `backup_ext` when the filepath contains a directory separator
     - relative vs. absolute paths?
 
 - Add options for:
