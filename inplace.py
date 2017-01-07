@@ -53,10 +53,6 @@ class InPlaceABC(object):
         if not delay_open:
             self.open()
 
-    def __del__(self):
-        self.close()
-        super(InPlaceABC, self).__del__()
-
     def __enter__(self):
         if self._state < self.OPEN:
             self.open()
