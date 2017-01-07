@@ -12,8 +12,8 @@ def test_py2print_backup(tmpdir):
     # Use InPlaceBytes because we're writing Python 2 `str`s
     with InPlaceBytes(str(p), backup=str(bkp)) as fp:
         for line in fp:
-            exec('print >>fp, len(line),', globals(), locals())
-        exec('print >>fp', globals(), locals())
+            exec('print >>fp, len(line),') in globals(), locals()
+        exec('print >>fp') in globals(), locals()
     assert pylistdir(tmpdir) == ['backup.txt', 'file.txt']
     assert bkp.read() == TEXT
     assert p.read() == ' '.join(str(len(line)) for line in TEXT.splitlines(True)) + '\n'
