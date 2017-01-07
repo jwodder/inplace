@@ -364,3 +364,18 @@ def test_move_first_double_open_nobackup(tmpdir):
     assert fp.closed
     assert pylistdir(tmpdir) == ['file.txt']
     assert p.read() == TEXT.swapcase()
+
+def test_move_first_del_backup(tmpdir):
+    assert pylistdir(tmpdir) == []
+    p = tmpdir.join("file.txt")
+    p.write(TEXT)
+    bkp = tmpdir.join('backup.txt')
+    fp = InPlace(str(p), backup=str(bkp), move_first=True)
+    assert not fp.closed
+    for line in fp:
+        fp.write(line.swapcase())
+    assert not fp.closed
+    del fp
+    assert pylistdir(tmpdir) == ['backup.txt', 'file.txt']
+    assert bkp.read() == TEXT
+    assert p.read() == TEXT.swapcase()

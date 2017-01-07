@@ -28,7 +28,7 @@ class InPlaceABC(object):
     def __init__(self, name, backup=None, backup_ext=None, delay_open=False,
                  move_first=False):
         cwd = os.getcwd()
-        #: The name of the file to edit in-place
+        #: The path to the file to edit in-place
         self.name = name
         #: The absolute path of the file to edit in-place
         self.filepath = os.path.join(cwd, name)
@@ -52,6 +52,10 @@ class InPlaceABC(object):
         self._state = self.UNOPENED
         if not delay_open:
             self.open()
+
+    def __del__(self):
+        self.close()
+        super(InPlaceABC, self).__del__()
 
     def __enter__(self):
         if self._state < self.OPEN:
