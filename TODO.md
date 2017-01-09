@@ -1,12 +1,19 @@
 - Add docstrings
+    - Document that you should always close (or rollback) `InPlace` objects
+      explicity, because we can't guarantee tmpfile cleanup on garbage
+      collection
 - Create a Readthedocs site?
 
 - Write more tests:
     - copying file mode, timestamps, owner, & group
     - newlines
-    - `print`ing bytes?
-    - `print`ing Unicode?
     - every I/O method
+        - readline
+        - readlines
+        - writelines
+        - `__iter__`
+        - flush
+        - readall
     - handling of symbolic links
     - Assert that the tempfile is created in the right directory
     - Assert that all of the relevant attributes on an `InPlace` object are
@@ -28,6 +35,7 @@
 - Copy ACLs etc.
 - Make `InPlaceABC` inherit one of the ABCs in `io`?
 - How should exceptions raised by `_close` be handled?
+- Should calling `rollback` while closed be a no-op?
 
 - Get pytest to clean up its temporary directories
 - Feed `.coverage` files to Coveralls

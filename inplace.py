@@ -33,8 +33,8 @@ class InPlaceABC(object):
         #: The absolute path of the file to edit in-place
         self.filepath = os.path.join(cwd, name)
         if backup is not None:
-            #: The absolute path of the backup file (if any) that will be
-            #: created after editing
+            #: The absolute path of the backup file (if any) that the original
+            #: contents of ``filepath`` will be moved to after editing
             self.backuppath = os.path.join(cwd, backup)
         elif backup_ext is not None and backup_ext != '':
             self.backuppath = self.filepath + backup_ext
@@ -67,6 +67,10 @@ class InPlaceABC(object):
         return False
 
     def mktemp(self, filepath):
+        """
+        Create an empty temporary file in the same directory as ``filepath``
+        and return the path to the new file
+        """
         fd, tmppath = tempfile.mkstemp(
             dir=os.path.dirname(filepath),
             prefix='._inplace-',
@@ -125,6 +129,14 @@ class InPlaceABC(object):
             self.output = None
 
     def close(self):
+        """
+        Close filehandles and move affected files to their final destinations.
+        If called after the filhandle has already been closed (with either this
+        method or :meth:`rollback`), :meth:`close` does nothing.
+
+        :return: `None`
+        :raises ValueError: if called before opening the filehandle
+        """
         if self._state == self.UNOPENED:
             raise ValueError('Cannot close unopened file')
         elif self._state == self.OPEN:
@@ -150,6 +162,13 @@ class InPlaceABC(object):
         #elif self._state == self.CLOSED: pass
 
     def rollback(self):
+        """
+        Close filehandles and remove/rename temporary files so that things look
+        like they did before the `InPlace` object was opened
+
+        :return: `None`
+        :raises ValueError: if called while the `InPlace` object is not open
+        """
         if self._state == self.UNOPENED:
             raise ValueError('Cannot close unopened file')
         elif self._state == self.OPEN:
@@ -166,6 +185,11 @@ class InPlaceABC(object):
 
     @property
     def closed(self):
+        """
+        `True` iff the filehandle is not currently open.  Note that, if the
+        filehandle was initialized with ``delay_open=True``, `closed` will be
+        `True` until :meth:`open()` is called.
+        """
         return self._state != self.OPEN
 
     def read(self, size=-1):
