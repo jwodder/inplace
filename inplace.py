@@ -21,6 +21,36 @@ class DoubleOpenError(Exception):
 
 @add_metaclass(abc.ABCMeta)
 class InPlaceABC(object):
+    """
+    TODO
+
+    File paths are resolved relative to the current directory at the time that
+    the object is instantiated.
+
+    :param string name: The path to the file to edit in-place
+
+    :param string backup: The path at which to save the file's original
+        contents once editing has finished; if `None` (the default), no backup
+        is saved
+
+    :param string backup_ext: A string to append to ``name`` to get the path at
+        which to save the file's original contents.  Empty strings are ignored.
+        If both ``backup`` and ``backup_ext`` are specified, only ``backup`` is
+        used.
+
+    :param bool delay_open: If `True`, the newly-constructed object will not be
+        open, and the user must either explicitly call the :meth:`open()`
+        method or use the object as a context manager in order to open it.  If
+        `False` (the default), the object will be automatically opened as soon
+        as it is constructed.
+
+    :param bool move_first: If `True`, the original (input) file will be moved
+        to a temporary location before opening, and the output file will be
+        created in its place.  If `False` (the default), the output file will
+        be created at a temporary location, and the input file will not be
+        moved or deleted until :meth:`close()` is called.
+    """
+
     UNOPENED = 0
     OPEN = 1
     CLOSED = 2
@@ -40,6 +70,8 @@ class InPlaceABC(object):
             self.backuppath = self.filepath + backup_ext
         else:
             self.backuppath = None
+        #: Whether to move the input file before opening and create the output
+        #: file in its place instead of moving the files after closing
         self.move_first = move_first
         #: The input filehandle; only non-`None` while the instance is open
         self.input = None
@@ -266,6 +298,10 @@ class InPlace(InPlaceABC):
 
 
 def copystats(from_file, to_file):
+    """
+    Copy stat info from ``from_file`` to ``to_file`` using `shutil.copystat`.
+    If possible, also copy the user and/or group ownership information.
+    """
     shutil.copystat(from_file, to_file)
     if hasattr(os, 'chown'):
         st = os.stat(from_file)
@@ -279,6 +315,10 @@ def copystats(from_file, to_file):
                 pass
 
 def force_rename(oldpath, newpath):
+    """
+    Move the file at ``oldpath`` to ``newpath``, deleting ``newpath``
+    beforehand if necessary
+    """
     if hasattr(os, 'replace'):  # Python 3.3+
         os.replace(oldpath, newpath)
     else:
@@ -287,6 +327,10 @@ def force_rename(oldpath, newpath):
         os.rename(oldpath, newpath)
 
 def try_unlink(path):
+    """
+    Try to delete the file at ``path``.  If the file doesn't exist, do nothing;
+    any other errors are propagated to the caller.
+    """
     try:
         os.unlink(path)
     except EnvironmentError as e:

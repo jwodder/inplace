@@ -36,6 +36,11 @@
 - Make `InPlaceABC` inherit one of the ABCs in `io`?
 - How should exceptions raised by `_close` be handled?
 - Should calling `rollback` while closed be a no-op?
+- Use `shutil.move` instead of `os.rename` in order to handle cross-filesystem
+  moves?  (But then strange things will happen when moving to a directory)
+- Raise an error if both `backup` and `backup_ext` are defined?
+- Raise an error if `backup_ext` is empty?
+- Use a standard exception instead of `DoubleOpenError`?
 
 - Get pytest to clean up its temporary directories
 - Feed `.coverage` files to Coveralls
