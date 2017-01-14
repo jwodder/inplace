@@ -24,8 +24,8 @@ class InPlaceABC(object):
     """
     TODO
 
-    File paths are resolved relative to the current directory at the time that
-    the object is instantiated.
+    File paths are always resolved relative to the current directory at the
+    time of the object's creation.
 
     :param string name: The path to the file to edit in-place
 
@@ -111,6 +111,20 @@ class InPlaceABC(object):
         return tmppath
 
     def open(self):
+        """
+        Open the file :attr:`name` for reading and open a temporary file for
+        writing.  If :attr:`move_first` is `True`, :attr:`name` will be moved
+        to a temporary location before opening.
+
+        If ``delay_open=True`` was passed to the object's constructor, this
+        method must be called (either explicitly or else implicitly by using
+        the object as a context manager) before the object can be used for
+        reading or writing.  If ``delay_open`` was `False` (the default), this
+        method is called automatically by the constructor, and the user should
+        not call it again.
+
+        :raises DoubleOpenError: if called more than once on the same object
+        """
         if self._state < self.OPEN:
             self._state = self.OPEN
             try:

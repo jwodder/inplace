@@ -25,3 +25,12 @@ def test_readinto_bytearray_nobackup(tmpdir):
         fp.write(ba)
     assert pylistdir(tmpdir) == ['file.txt']
     assert p.read_binary() == b'\xC3\xA5\xC3\xA9\xC3'
+
+def test_readlines_nobackup(tmpdir):
+    assert pylistdir(tmpdir) == []
+    p = tmpdir.join("file.txt")
+    p.write(TEXT)
+    with InPlace(str(p)) as fp:
+        assert fp.readlines() == TEXT.splitlines(True)
+    assert pylistdir(tmpdir) == ['file.txt']
+    assert p.read() == ''

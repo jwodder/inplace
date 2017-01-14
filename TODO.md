@@ -9,7 +9,6 @@
     - newlines
     - every I/O method
         - readline
-        - readlines
         - writelines
         - `__iter__`
         - flush
@@ -41,6 +40,8 @@
 - Raise an error if both `backup` and `backup_ext` are defined?
 - Raise an error if `backup_ext` is empty?
 - Use a standard exception instead of `DoubleOpenError`?
+- Add an `InPlaceStr` class that just calls `open` without specifying encoding
+  or bytesness?
 
 - Get pytest to clean up its temporary directories
 - Feed `.coverage` files to Coveralls
