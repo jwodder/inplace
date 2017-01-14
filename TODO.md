@@ -2,6 +2,7 @@
     - Document that you should always close (or rollback) `InPlace` objects
       explicity, because we can't guarantee tmpfile cleanup on garbage
       collection
+    - Emphasize that `InPlace` deals with `unicode` objects in Python 2
 - Create a Readthedocs site?
 
 - Write more tests:
@@ -9,7 +10,6 @@
     - newlines
     - every I/O method
         - readline
-        - writelines
         - `__iter__`
         - flush
         - readall
@@ -42,6 +42,8 @@
 - Use a standard exception instead of `DoubleOpenError`?
 - Add an `InPlaceStr` class that just calls `open` without specifying encoding
   or bytesness?
+    - Make this the default `InPlace` and rename the current `InPlace` to
+      `InPlaceText`?
 
 - Get pytest to clean up its temporary directories
 - Feed `.coverage` files to Coveralls

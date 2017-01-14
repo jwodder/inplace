@@ -34,3 +34,14 @@ def test_readlines_nobackup(tmpdir):
         assert fp.readlines() == TEXT.splitlines(True)
     assert pylistdir(tmpdir) == ['file.txt']
     assert p.read() == ''
+
+def test_writelines_backup(tmpdir):
+    assert pylistdir(tmpdir) == []
+    p = tmpdir.join("file.txt")
+    p.write('')
+    bkp = tmpdir.join('backup.txt')
+    with InPlace(str(p), backup=str(bkp)) as fp:
+        fp.writelines(TEXT.splitlines(True))
+    assert pylistdir(tmpdir) == ['backup.txt', 'file.txt']
+    assert bkp.read() == ''
+    assert p.read() == TEXT
