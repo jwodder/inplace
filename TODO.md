@@ -9,8 +9,6 @@
     - copying file mode, timestamps, owner, & group
     - newlines
     - every I/O method
-        - readline
-        - `__iter__`
         - flush
         - readall
     - handling of symbolic links

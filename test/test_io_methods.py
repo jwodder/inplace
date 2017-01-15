@@ -45,3 +45,13 @@ def test_writelines_backup(tmpdir):
     assert pylistdir(tmpdir) == ['backup.txt', 'file.txt']
     assert bkp.read() == ''
     assert p.read() == TEXT
+
+def test_readline_nobackup(tmpdir):
+    assert pylistdir(tmpdir) == []
+    p = tmpdir.join("file.txt")
+    p.write(TEXT)
+    with InPlace(str(p)) as fp:
+        for line in iter(fp.readline, ''):
+            fp.write(line.swapcase())
+    assert pylistdir(tmpdir) == ['file.txt']
+    assert p.read() == TEXT.swapcase()
