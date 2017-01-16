@@ -38,10 +38,9 @@
 - Raise an error if both `backup` and `backup_ext` are defined?
 - Raise an error if `backup_ext` is empty?
 - Use a standard exception instead of `DoubleOpenError`?
-- Add an `InPlaceStr` class that just calls `open` without specifying encoding
-  or bytesness?
-    - Make this the default `InPlace` and rename the current `InPlace` to
-      `InPlaceText`?
+- Rename `InPlace` to `InPlaceText` and add a new `InPlace` class that just
+  calls `open()` and operates on `str`s, whatever those happen to be in the
+  current Python
 
 - Get pytest to clean up its temporary directories
 - Feed `.coverage` files to Coveralls
