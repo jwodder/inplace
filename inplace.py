@@ -98,7 +98,7 @@ class InPlaceABC(object):
                 self.close()
         return False
 
-    def mktemp(self, filepath):
+    def _mktemp(self, filepath):
         """
         Create an empty temporary file in the same directory as ``filepath``
         and return the path to the new file
@@ -130,16 +130,16 @@ class InPlaceABC(object):
             try:
                 if self.move_first:
                     if self.backuppath is not None:
-                        self._tmppath = self.mktemp(self.backuppath)
+                        self._tmppath = self._mktemp(self.backuppath)
                     else:
-                        self._tmppath = self.mktemp(self.filepath)
+                        self._tmppath = self._mktemp(self.filepath)
                     force_rename(self.filepath, self._tmppath)
                     self.input = self.open_read(self._tmppath)
                     self.output = self.open_write(self.filepath)
                     copystats(self._tmppath, self.filepath)
                 else:
-                    self._tmppath = self.mktemp(self.filepath)
-                    copystats(self.filepath, self._tmppath) 
+                    self._tmppath = self._mktemp(self.filepath)
+                    copystats(self.filepath, self._tmppath)
                     self.input = self.open_read(self.filepath)
                     self.output = self.open_write(self._tmppath)
             except Exception:
