@@ -22,16 +22,23 @@ class DoubleOpenError(Exception):
 @add_metaclass(abc.ABCMeta)
 class InPlaceABC(object):
     """
-    TODO
+    An abstract base class for reading from & writing to a file "in-place"
+    (with data that you write ending up at the same filepath that you read
+    from) that takes care of all the necessary mucking about with temporary
+    files.  Concrete subclasses only need to implement `open_read` and
+    `open_write` in order to define how & with what options the files are
+    opened, and `InPlaceABC` takes care of the rest.
 
-    File paths are always resolved relative to the current directory at the
-    time of the object's creation.
+    Two concrete subclasses are provided with `InPlaceABC`: `InPlace`, for
+    working with text files, and `InPlaceBytes`, for working with binary files.
 
-    :param string name: The path to the file to edit in-place
+    :param string name: The path to the file to open & edit in-place (resolved
+        relative to the current directory at the time of the object's creation)
 
     :param string backup: The path at which to save the file's original
-        contents once editing has finished; if `None` (the default), no backup
-        is saved
+        contents once editing has finished (resolved relative to the current
+        directory at the time of the object's creation); if `None` (the
+        default), no backup is saved
 
     :param string backup_ext: A string to append to ``name`` to get the path at
         which to save the file's original contents.  Empty strings are ignored.
@@ -47,8 +54,8 @@ class InPlaceABC(object):
     :param bool move_first: If `True`, the original (input) file will be moved
         to a temporary location before opening, and the output file will be
         created in its place.  If `False` (the default), the output file will
-        be created at a temporary location, and the input file will not be
-        moved or deleted until :meth:`close()` is called.
+        be created at a temporary location, and neither file will be moved or
+        deleted until :meth:`close()` is called.
     """
 
     UNOPENED = 0
@@ -73,9 +80,11 @@ class InPlaceABC(object):
         #: Whether to move the input file before opening and create the output
         #: file in its place instead of moving the files after closing
         self.move_first = move_first
-        #: The input filehandle; only non-`None` while the instance is open
+        #: The input filehandle from which data is read; only non-`None` while
+        #: the instance is open
         self.input = None
-        #: The output filehandle; only non-`None` while the instance is open
+        #: The output filehandle to which data is written; only non-`None`
+        #: while the instance is open
         self.output = None
         #: The absolute path to the temporary file; only non-`None` while the
         #: instance is open
@@ -167,6 +176,7 @@ class InPlaceABC(object):
         pass
 
     def _close(self):
+        """ Close filehandles and set them to `None` """
         if self.input is not None:
             self.input.close()
             self.input = None
@@ -275,6 +285,11 @@ class InPlaceABC(object):
 
 
 class InPlaceBytes(InPlaceABC):
+    """
+    A binary file edited in-place; data is read & written as `str` (Python 2)
+    or `bytes` (Python 3) objects.
+    """
+
     def open_read(self, path):
         return open(path, 'rb')
 
@@ -293,6 +308,16 @@ class InPlaceBytes(InPlaceABC):
 
 
 class InPlace(InPlaceABC):
+    """
+    A text (Unicode) file edited in-place; data is read & written as `unicode`
+    (Python 2) or `str` (Python 3) objects.
+
+    In addition to the parameters accepted by `InPlaceABC`, this class's
+    constructor accepts optional ``encoding``, ``errors``, and ``newline``
+    arguments that are applied to both reading and writing with the same
+    meaning as the parameters to `io.open`.
+    """
+
     def __init__(self, name, backup=None, backup_ext=None, delay_open=False,
                  move_first=False, encoding=None, errors=None, newline=None):
         self.encoding = encoding
