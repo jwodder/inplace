@@ -8,6 +8,8 @@ python:
     - '3.6'
     - pypy
 install:
-    - pip install tox
+    - pip install python-coveralls tox
 script:
     - tox -e py
+after_success:
+    - coveralls

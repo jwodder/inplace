@@ -2,8 +2,9 @@
     - Document that you should always close (or rollback) `InPlace` objects
       explicity, because we can't guarantee tmpfile cleanup on garbage
       collection
-    - Emphasize that `InPlace` deals with `unicode` objects in Python 2
 - Create a Readthedocs site?
+- Somewhere document exactly how the module works with regards to creating
+  temporary files and moving things around
 
 - Write more tests:
     - copying file mode, timestamps, owner, & group
@@ -41,6 +42,7 @@
 - Rename `InPlace` to `InPlaceText` and add a new `InPlace` class that just
   calls `open()` and operates on `str`s, whatever those happen to be in the
   current Python
+- Add a `commit` method that overwrites the input file with the output file's
+  current contents but leaves the instance open afterwards?
 
 - Get pytest to clean up its temporary directories
-- Feed `.coverage` files to Coveralls
