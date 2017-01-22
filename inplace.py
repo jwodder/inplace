@@ -33,11 +33,12 @@ class InPlaceABC(object):
     working with text files, and `InPlaceBytes`, for working with binary files.
 
     :param string name: The path to the file to open & edit in-place (resolved
-        relative to the current directory at the time of the object's creation)
+        relative to the current directory at the time of the instance's
+        creation)
 
     :param string backup: The path at which to save the file's original
         contents once editing has finished (resolved relative to the current
-        directory at the time of the object's creation); if `None` (the
+        directory at the time of the instance's creation); if `None` (the
         default), no backup is saved
 
     :param string backup_ext: A string to append to ``name`` to get the path at
@@ -45,11 +46,11 @@ class InPlaceABC(object):
         If both ``backup`` and ``backup_ext`` are specified, only ``backup`` is
         used.
 
-    :param bool delay_open: If `True`, the newly-constructed object will not be
-        open, and the user must either explicitly call the :meth:`open()`
-        method or use the object as a context manager in order to open it.  If
-        `False` (the default), the object will be automatically opened as soon
-        as it is constructed.
+    :param bool delay_open: If `True`, the newly-constructed instance will not
+        be open, and the user must either explicitly call the :meth:`open()`
+        method or use the instance as a context manager in order to open it.
+        If `False` (the default), the instance will be automatically opened as
+        soon as it is constructed.
 
     :param bool move_first: If `True`, the original (input) file will be moved
         to a temporary location before opening, and the output file will be
@@ -125,14 +126,14 @@ class InPlaceABC(object):
         writing.  If :attr:`move_first` is `True`, :attr:`name` will be moved
         to a temporary location before opening.
 
-        If ``delay_open=True`` was passed to the object's constructor, this
+        If ``delay_open=True`` was passed to the instance's constructor, this
         method must be called (either explicitly or else implicitly by using
-        the object as a context manager) before the object can be used for
+        the instance as a context manager) before the instance can be used for
         reading or writing.  If ``delay_open`` was `False` (the default), this
         method is called automatically by the constructor, and the user should
         not call it again.
 
-        :raises DoubleOpenError: if called more than once on the same object
+        :raises DoubleOpenError: if called more than once on the same instance
         """
         if self._state < self.OPEN:
             self._state = self.OPEN
@@ -220,10 +221,10 @@ class InPlaceABC(object):
     def rollback(self):
         """
         Close filehandles and remove/rename temporary files so that things look
-        like they did before the `InPlace` object was opened
+        like they did before the `InPlace` instance was opened
 
         :return: `None`
-        :raises ValueError: if called while the `InPlace` object is not open
+        :raises ValueError: if called while the `InPlace` instance is not open
         """
         if self._state == self.UNOPENED:
             raise ValueError('Cannot close unopened file')
