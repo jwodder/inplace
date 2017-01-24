@@ -1,4 +1,5 @@
 - Add docstrings
+    - Add a module docstring (Include link to GitHub repo)
     - Document that you should always close (or rollback) `InPlace` objects
       explicity, because we can't guarantee tmpfile cleanup on garbage
       collection
@@ -21,12 +22,14 @@
     - `backup_ext` containing a directory separator?
     - `backup_ext` when the filepath contains a directory separator
     - relative vs. absolute paths?
+    - context manager re-entrancy
 
 - Add options for:
     - buffering?
     - preserving the tempfile if an error was raised
     - setting the directory in which to create the tempfile?
     - Don't error if moving the input file to the backup location fails?
+    - not rolling back on error?
 
 - When the filename is `-`, read stdin and write to stdout?
     - Only support this when an `allow_dash=True` argument is given?
@@ -38,7 +41,6 @@
   moves?  (But then strange things will happen when moving to a directory)
 - Raise an error if both `backup` and `backup_ext` are defined?
 - Raise an error if `backup_ext` is empty?
-- Use a standard exception instead of `DoubleOpenError`?
 - Rename `InPlace` to `InPlaceText` and add a new `InPlace` class that just
   calls `open()` and operates on `str`s, whatever those happen to be in the
   current Python

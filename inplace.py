@@ -14,10 +14,7 @@ import sys
 import tempfile
 from   six   import add_metaclass
 
-__all__ = ['InPlaceABC', 'InPlace', 'InPlaceBytes', 'DoubleOpenError']
-
-class DoubleOpenError(Exception):
-    pass
+__all__ = ['InPlaceABC', 'InPlace', 'InPlaceBytes']
 
 @add_metaclass(abc.ABCMeta)
 class InPlaceABC(object):
@@ -133,7 +130,7 @@ class InPlaceABC(object):
         method is called automatically by the constructor, and the user should
         not call it again.
 
-        :raises DoubleOpenError: if called more than once on the same instance
+        :raises ValueError: if called more than once on the same instance
         """
         if self._state < self.OPEN:
             self._state = self.OPEN
@@ -156,7 +153,7 @@ class InPlaceABC(object):
                 self.rollback()
                 raise
         else:
-            raise DoubleOpenError('open() called twice on same filehandle')
+            raise ValueError('open() called twice on same filehandle')
 
     @abc.abstractmethod
     def open_read(self, path):

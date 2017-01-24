@@ -1,7 +1,7 @@
 from   __future__        import print_function
 import os
 import pytest
-from   inplace           import InPlace, DoubleOpenError
+from   inplace           import InPlace
 from   test_inplace_util import TEXT, pylistdir
 
 def test_nobackup(tmpdir):
@@ -350,7 +350,7 @@ def test_double_open_nobackup(tmpdir):
     p = tmpdir.join("file.txt")
     p.write(TEXT)
     with InPlace(str(p)) as fp:
-        with pytest.raises(DoubleOpenError):
+        with pytest.raises(ValueError):
             fp.open()
         assert not fp.closed
         for line in fp:
