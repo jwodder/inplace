@@ -11,7 +11,7 @@
 
 .. image:: https://img.shields.io/pypi/pyversions/in_place.svg
 
-.. image:: https://img.shields.io/github/license/jwodder/in_place.svg?maxAge=2592000
+.. image:: https://img.shields.io/github/license/jwodder/inplace.svg?maxAge=2592000
     :target: https://opensource.org/licenses/MIT
     :alt: MIT License
 
