@@ -2,7 +2,7 @@ from   os.path    import dirname, join
 import re
 from   setuptools import setup
 
-with open(join(dirname(__file__), 'inplace.py')) as fp:
+with open(join(dirname(__file__), 'in_place.py')) as fp:
     for line in fp:
         m = re.search(r'^\s*__version__\s*=\s*([\'"])([^\'"]+)\1\s*$', line)
         if m:
@@ -15,9 +15,9 @@ with open(join(dirname(__file__), 'README.rst')) as fp:
     long_desc = fp.read()
 
 setup(
-    name='inplace',
+    name='in_place',
     version=version,
-    py_modules=['inplace'],
+    py_modules=['in_place'],
     license='MIT',
     author='John Thorvald Wodder II',
     author_email='inplace@varonathe.org',

@@ -1,7 +1,7 @@
 import sys
 import pytest
-from   inplace           import InPlaceBytes
-from   test_inplace_util import TEXT, pylistdir
+from   in_place           import InPlaceBytes
+from   test_in_place_util import TEXT, pylistdir
 
 @pytest.mark.skipif(sys.version_info[0] > 2, reason='Python 2 only')
 def test_py2print_backup(tmpdir):

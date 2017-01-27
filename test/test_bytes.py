@@ -1,6 +1,6 @@
-from   six               import binary_type
-from   inplace           import InPlaceBytes
-from   test_inplace_util import UNICODE, pylistdir
+from   six                import binary_type
+from   in_place           import InPlaceBytes
+from   test_in_place_util import UNICODE, pylistdir
 
 def test_bytes_iconv_nobackup(tmpdir):
     assert pylistdir(tmpdir) == []

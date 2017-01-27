@@ -1,8 +1,8 @@
-from   __future__        import print_function
+from   __future__         import print_function
 import os
 import pytest
-from   inplace           import InPlace
-from   test_inplace_util import TEXT, pylistdir
+from   in_place           import InPlace
+from   test_in_place_util import TEXT, pylistdir
 
 def test_nobackup(tmpdir):
     assert pylistdir(tmpdir) == []

@@ -1,8 +1,8 @@
-from   unicodedata       import normalize
-from   six               import text_type
+from   unicodedata        import normalize
+from   six                import text_type
 import pytest
-from   inplace           import InPlace
-from   test_inplace_util import UNICODE, pylistdir
+from   in_place           import InPlace
+from   test_in_place_util import UNICODE, pylistdir
 
 def test_utf8_nobackup(tmpdir):
     assert pylistdir(tmpdir) == []

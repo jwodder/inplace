@@ -1,15 +1,15 @@
 """
 In-place file processing
 
-The ``inplace`` module provides Python classes for reading & writing a file
+The ``in_place`` module provides Python classes for reading & writing a file
 "in-place": data that you write ends up at the same filepath that you read
-from, and ``inplace`` takes care of all the necessary mucking about with
+from, and ``in_place`` takes care of all the necessary mucking about with
 temporary files for you.
 
 Visit <https://github.com/jwodder/inplace> for more information.
 """
 
-__version__      = '0.1.0'
+__version__      = '0.1.1'
 __author__       = 'John Thorvald Wodder II'
 __author_email__ = 'inplace@varonathe.org'
 __license__      = 'MIT'
@@ -123,7 +123,7 @@ class InPlaceABC(object):
         """
         fd, tmppath = tempfile.mkstemp(
             dir=os.path.dirname(filepath),
-            prefix='._inplace-',
+            prefix='._in_place-',
         )
         os.close(fd)
         return tmppath

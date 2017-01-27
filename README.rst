@@ -9,19 +9,19 @@
 .. image:: https://coveralls.io/repos/github/jwodder/inplace/badge.svg?branch=master
     :target: https://coveralls.io/github/jwodder/inplace?branch=master
 
-.. image:: https://img.shields.io/pypi/pyversions/inplace.svg
+.. image:: https://img.shields.io/pypi/pyversions/in_place.svg
 
-.. image:: https://img.shields.io/github/license/jwodder/inplace.svg?maxAge=2592000
+.. image:: https://img.shields.io/github/license/jwodder/in_place.svg?maxAge=2592000
     :target: https://opensource.org/licenses/MIT
     :alt: MIT License
 
 `GitHub <https://github.com/jwodder/inplace>`_
-| `PyPI <https://pypi.python.org/pypi/inplace>`_
+| `PyPI <https://pypi.python.org/pypi/in_place>`_
 | `Issues <https://github.com/jwodder/inplace/issues>`_
 
-The ``inplace`` module provides Python classes for reading & writing a file
+The ``in_place`` module provides Python classes for reading & writing a file
 "in-place": data that you write ends up at the same filepath that you read
-from, and ``inplace`` takes care of all the necessary mucking about with
+from, and ``in_place`` takes care of all the necessary mucking about with
 temporary files for you.
 
 For example, given the file ``somefile.txt``::
@@ -33,9 +33,9 @@ For example, given the file ``somefile.txt``::
 
 and the program ``disemvowel.py``::
 
-    import inplace
+    import in_place
 
-    with inplace.InPlace('somefile.txt') as fp:
+    with in_place.InPlace('somefile.txt') as fp:
         for line in fp:
             fp.write(''.join(c for c in line if c not in 'AEIOUaeiou'))
 
@@ -51,14 +51,14 @@ and no sign of those pesky vowels remains!  If you want a sign of those pesky
 vowels to remain, you can instead save the file's original contents in, say,
 ``somefile.txt~`` by constructing the filehandle with::
 
-    inplace.InPlace('somefile.txt', backup_ext='~')
+    in_place.InPlace('somefile.txt', backup_ext='~')
 
 or save to ``someotherfile.txt`` with::
 
-    inplace.InPlace('somefile.txt', backup='someotherfile.txt')
+    in_place.InPlace('somefile.txt', backup='someotherfile.txt')
 
 Compared to the in-place filtering implemented by the Python standard library's
-|fileinput|_ module, ``inplace`` offers the following benefits:
+|fileinput|_ module, ``in_place`` offers the following benefits:
 
 - Instead of hijacking ``sys.stdout``, a new filehandle is returned for
   writing.
@@ -69,8 +69,8 @@ Compared to the in-place filtering implemented by the Python standard library's
   binary mode, and these options apply to both input and output.
 - The complete filename of the backup file can be specified; you aren't
   constrained to just adding an extension.
-- When used as a context manager, ``inplace`` will restore the original file if
-  an exception occurs.
+- When used as a context manager, ``in_place`` will restore the original file
+  if an exception occurs.
 - The creation of temporary files won't silently clobber innocent bystander
   files.
 
@@ -81,14 +81,14 @@ Compared to the in-place filtering implemented by the Python standard library's
 Installation
 ============
 Just use `pip <https://pip.pypa.io>`_ (You have pip, right?) to install
-``inplace`` and its dependencies::
+``in_place`` and its dependencies::
 
-    pip install inplace
+    pip install in_place
 
 
 Basic Usage
 ===========
-``inplace`` provides two classes: ``InPlace``, for working with text files
+``in_place`` provides two classes: ``InPlace``, for working with text files
 (reading & writing ``unicode`` objects in Python 2, ``str`` objects in Python
 3); and ``InPlaceBytes``, for working with binary files (reading & writing
 ``str`` objects in Python 2, ``bytes`` objects in Python 3).  Both classes'
