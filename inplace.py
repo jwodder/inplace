@@ -1,3 +1,14 @@
+"""
+In-place file processing
+
+The ``inplace`` module provides Python classes for reading & writing a file
+"in-place": data that you write ends up at the same filepath that you read
+from, and ``inplace`` takes care of all the necessary mucking about with
+temporary files for you.
+
+Visit <https://github.com/jwodder/inplace> for more information.
+"""
+
 __version__      = '0.1.0.dev1'
 __author__       = 'John Thorvald Wodder II'
 __author_email__ = 'inplace@varonathe.org'
@@ -174,7 +185,10 @@ class InPlaceABC(object):
         pass
 
     def _close(self):
-        """ Close filehandles and set them to `None` """
+        """
+        Close filehandles (if they aren't closed already) and set them to
+        `None`
+        """
         if self.input is not None:
             self.input.close()
             self.input = None

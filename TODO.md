@@ -1,5 +1,3 @@
-- Add docstrings
-    - Add a module docstring (Include link to GitHub repo)
 - Create a Readthedocs site?
 - Somewhere document exactly how the module works with regards to creating
   temporary files and moving things around
