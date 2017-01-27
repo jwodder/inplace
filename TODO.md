@@ -1,8 +1,5 @@
 - Add docstrings
     - Add a module docstring (Include link to GitHub repo)
-    - Document that you should always close (or rollback) `InPlace` objects
-      explicity, because we can't guarantee tmpfile cleanup on garbage
-      collection
 - Create a Readthedocs site?
 - Somewhere document exactly how the module works with regards to creating
   temporary files and moving things around
@@ -46,5 +43,6 @@
   current Python
 - Add a `commit` method that overwrites the input file with the output file's
   current contents but leaves the instance open afterwards?
+- Give the classes decent `__repr__`s
 
 - Get pytest to clean up its temporary directories
