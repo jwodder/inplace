@@ -1,4 +1,3 @@
-from   __future__         import print_function
 import os
 import pytest
 from   in_place           import InPlace
@@ -11,6 +10,7 @@ def test_nobackup(tmpdir):
     with InPlace(str(p)) as fp:
         assert not fp.closed
         for line in fp:
+            assert isinstance(line, str)
             fp.write(line.swapcase())
         assert not fp.closed
     assert fp.closed
@@ -323,7 +323,7 @@ def test_backup_dirpath(tmpdir):
     not_a_file.mkdir()
     assert pylistdir(not_a_file) == []
     fp = InPlace(str(p), backup=str(not_a_file))
-    fp.write(u'This will be discarded.\n')
+    fp.write('This will be discarded.\n')
     with pytest.raises(EnvironmentError):
         fp.close()
     assert pylistdir(tmpdir) == ['file.txt', 'not-a-file']
@@ -339,7 +339,7 @@ def test_backup_nosuchdir(tmpdir):
     p = tmpdir.join("file.txt")
     p.write(TEXT)
     fp = InPlace(str(p), backup=str(tmpdir.join('nonexistent', 'backup.txt')))
-    fp.write(u'This will be discarded.\n')
+    fp.write('This will be discarded.\n')
     with pytest.raises(EnvironmentError):
         fp.close()
     assert pylistdir(tmpdir) == ['file.txt']

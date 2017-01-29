@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 
-def pylistdir(d): return sorted(p.basename for p in d.listdir())
+def pylistdir(d):
+    return sorted(p.basename for p in d.listdir())
 
-TEXT = u'''\
+TEXT = '''\
 'Twas brillig, and the slithy toves
 	Did gyre and gimble in the wabe;
 All mimsy were the borogoves,

@@ -36,9 +36,6 @@
   moves?  (But then strange things will happen when moving to a directory)
 - Raise an error if both `backup` and `backup_ext` are defined?
 - Raise an error if `backup_ext` is empty?
-- Rename `InPlace` to `InPlaceText` and add a new `InPlace` class that just
-  calls `open()` and operates on `str`s, whatever those happen to be in the
-  current Python
 - Add a `commit` method that overwrites the input file with the output file's
   current contents but leaves the instance open afterwards?
 - Give the classes decent `__repr__`s

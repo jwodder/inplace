@@ -9,7 +9,7 @@ def test_print_backup(tmpdir):
     bkp = tmpdir.join('backup.txt')
     with InPlace(str(p), backup=str(bkp)) as fp:
         for line in fp:
-            print(line.swapcase(), end=u'', file=fp)
+            print(line.swapcase(), end='', file=fp)
     assert pylistdir(tmpdir) == ['backup.txt', 'file.txt']
     assert bkp.read() == TEXT
     assert p.read() == TEXT.swapcase()

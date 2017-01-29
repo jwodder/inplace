@@ -9,7 +9,7 @@ temporary files for you.
 Visit <https://github.com/jwodder/inplace> for more information.
 """
 
-__version__      = '0.1.1'
+__version__      = '0.2.0.dev1'
 __author__       = 'John Thorvald Wodder II'
 __author_email__ = 'inplace@varonathe.org'
 __license__      = 'MIT'
@@ -25,7 +25,7 @@ import sys
 import tempfile
 from   six   import add_metaclass
 
-__all__ = ['InPlaceABC', 'InPlace', 'InPlaceBytes']
+__all__ = ['InPlaceABC', 'InPlace', 'InPlaceBytes', 'InPlaceText']
 
 @add_metaclass(abc.ABCMeta)
 class InPlaceABC(object):
@@ -296,6 +296,19 @@ class InPlaceABC(object):
         self.output.flush()
 
 
+class InPlace(InPlaceABC):
+    """
+    A file edited in-place; data is read & written as `str` objects, whatever
+    those happen to be in your version of Python.
+    """
+
+    def open_read(self, path):
+        return open(path, 'r')
+
+    def open_write(self, path):
+        return open(path, 'w')
+
+
 class InPlaceBytes(InPlaceABC):
     """
     A binary file edited in-place; data is read & written as `str` (Python 2)
@@ -319,7 +332,7 @@ class InPlaceBytes(InPlaceABC):
         return self.input.readall()
 
 
-class InPlace(InPlaceABC):
+class InPlaceText(InPlaceABC):
     """
     A text (Unicode) file edited in-place; data is read & written as `unicode`
     (Python 2) or `str` (Python 3) objects.
@@ -335,7 +348,7 @@ class InPlace(InPlaceABC):
         self.encoding = encoding
         self.errors = errors
         self.newline = newline
-        super(InPlace, self).__init__(
+        super(InPlaceText, self).__init__(
             name, backup, backup_ext, delay_open, move_first,
         )
 
