@@ -89,11 +89,18 @@ Just use `pip <https://pip.pypa.io>`_ (You have pip, right?) to install
 
 Basic Usage
 ===========
-``in_place`` provides two classes: ``InPlace``, for working with text files
-(reading & writing ``unicode`` objects in Python 2, ``str`` objects in Python
-3); and ``InPlaceBytes``, for working with binary files (reading & writing
-``str`` objects in Python 2, ``bytes`` objects in Python 3).  Both classes'
-constructors take the following arguments:
+``in_place`` provides three classes:
+
+- ``InPlaceText``, for working with text files (reading & writing ``unicode``
+  objects in Python 2, ``str`` objects in Python 3)
+
+- ``InPlaceBytes``, for working with binary files (reading & writing ``str``
+  objects in Python 2, ``bytes`` objects in Python 3)
+
+- ``InPlace``, for just calling ``open()`` and reading & writing whatever the
+  current Python's ``str`` type is
+
+All of the classes' constructors take the following arguments:
 
 ``name=<PATH>`` (required)
    The path to the file to open & edit in-place
@@ -114,17 +121,17 @@ constructors take the following arguments:
    by using it as a context manager.
 
 ``move_first=<BOOL>``
-   If `True`, move the input file to a temporary location first and create the
-   output file in its place (à la ``fileinput``) rather than the default
+   If ``True``, move the input file to a temporary location first and create
+   the output file in its place (à la ``fileinput``) rather than the default
    behavior of creating the output file at a temporary location and only moving
    things around once ``close()`` is called (à la GNU ``sed(1)``).
 
-The ``InPlace`` constructor additionally accepts the optional arguments
+The ``InPlaceText`` constructor additionally accepts the optional arguments
 ``encoding``, ``errors``, and ``newline``, which are passed straight through to
-`io.open` for both reading and writing.
+``io.open`` for both reading and writing.
 
-Once open, ``InPlace`` and ``InPlaceBytes`` instances act as filehandles with
-the usual filehandle attributes, specifically::
+Once open, ``in_place`` instances act as filehandles with the usual filehandle
+attributes, specifically::
 
     __iter__()              close()                 closed
     flush()                 name                    read()
@@ -139,8 +146,8 @@ The classes also feature the following new or modified attributes:
    Open the instance, creating filehandles for reading & writing.  This method
    must be called first before any of the other I/O methods can be used.  It is
    normally called automatically upon instance initialization unless
-   ``delay_open`` was set to `True`.  A `ValueError` is raised if this method
-   is called more than once in an instance's lifetime.
+   ``delay_open`` was set to ``True``.  A ``ValueError`` is raised if this
+   method is called more than once in an instance's lifetime.
 
 ``close()``
    Close filehandles and move files to their final destinations.  If called
@@ -155,10 +162,9 @@ The classes also feature the following new or modified attributes:
    intact) instead of replacing the original file with it
 
 ``__enter__()``, ``__exit__()``
-   When an ``InPlace`` or ``InPlaceBytes`` instance is used as a context
-   manager, it will be opened (if not open already) on entering and either
-   closed (if all went well) or rolled back (if an exception occurred) on
-   exiting
+   When an ``in_place`` instance is used as a context manager, it will be
+   opened (if not open already) on entering and either closed (if all went
+   well) or rolled back (if an exception occurred) on exiting
 
 ``input``
    The actual filehandle that data is read from, in case you need to access it
