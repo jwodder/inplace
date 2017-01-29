@@ -10,6 +10,7 @@
     :target: https://coveralls.io/github/jwodder/inplace?branch=master
 
 .. image:: https://img.shields.io/pypi/pyversions/in_place.svg
+    :target: https://pypi.python.org/pypi/in_place
 
 .. image:: https://img.shields.io/github/license/jwodder/inplace.svg?maxAge=2592000
     :target: https://opensource.org/licenses/MIT
