@@ -1,10 +1,10 @@
 *.egg
 *.egg-info/
 *.pyc
-.cache
+.cache/
 .coverage
-.eggs
-.tox
+.eggs/
+.tox/
 __pycache__/
 build/
 dist/

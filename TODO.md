@@ -34,10 +34,8 @@
 - Should calling `rollback` while closed be a no-op?
 - Use `shutil.move` instead of `os.rename` in order to handle cross-filesystem
   moves?  (But then strange things will happen when moving to a directory)
-- Raise an error if both `backup` and `backup_ext` are defined?
-- Raise an error if `backup_ext` is empty?
+- Raise an error if both `backup` and `backup_ext` are defined
+- Raise an error if `backup_ext` is empty
 - Add a `commit` method that overwrites the input file with the output file's
   current contents but leaves the instance open afterwards?
 - Give the classes decent `__repr__`s
-
-- Get pytest to clean up its temporary directories

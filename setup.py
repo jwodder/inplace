@@ -26,9 +26,7 @@ setup(
     long_description=long_desc,
     url='https://github.com/jwodder/inplace',
 
-    setup_requires=['pytest-runner~=2.0'],
     install_requires=['six~=1.4'],
-    tests_require=['pytest~=3.0', 'pytest-cov~=2.0', 'pytest-flakes~=1.0'],
 
     classifiers=[
         'Development Status :: 4 - Beta',
