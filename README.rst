@@ -164,7 +164,9 @@ The classes also feature the following new or modified attributes:
 ``__enter__()``, ``__exit__()``
    When an ``in_place`` instance is used as a context manager, it will be
    opened (if not open already) on entering and either closed (if all went
-   well) or rolled back (if an exception occurred) on exiting
+   well) or rolled back (if an exception occurred) on exiting.  ``in_place``
+   context managers are not `reusable`_ but are `reentrant`_ (as long as no
+   further operations are performed after the innermost context ends).
 
 ``input``
    The actual filehandle that data is read from, in case you need to access it
@@ -173,3 +175,6 @@ The classes also feature the following new or modified attributes:
 ``output``
    The actual filehandle that data is written to, in case you need to access it
    directly
+
+.. _reentrant: https://docs.python.org/3/library/contextlib.html#reentrant-cms
+.. _reusable: https://docs.python.org/3/library/contextlib.html#reusable-context-managers
