@@ -39,3 +39,4 @@
 - Add a `commit` method that overwrites the input file with the output file's
   current contents but leaves the instance open afterwards?
 - Give the classes decent `__repr__`s
+- If the input file doesn't exist, act as though it's simply empty?

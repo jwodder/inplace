@@ -30,3 +30,18 @@ def test_py2_bytestr(tmpdir):
         print >>fp, txt.decode('utf-8').encode('latin-1')
     assert pylistdir(tmpdir) == ['file.txt']
     assert p.read_binary() == b'\xE5\xE9\xEE\xF8\xFC\n\n'
+
+def test_py2_not_textstr(tmpdir):
+    """
+    Assert that `InPlace` does not work with non-ASCII text strings in Python 2
+    """
+    assert pylistdir(tmpdir) == []
+    p = tmpdir.join("file.txt")
+    p.write_text(UNICODE, 'utf-8')
+    with InPlace(str(p)) as fp:
+        txt = fp.read()
+        assert isinstance(txt, str)
+        assert txt == b'\xc3\xa5\xc3\xa9\xc3\xae\xc3\xb8\xc3\xbc\n'
+        txt = txt.decode('utf-8')
+        with pytest.raises(UnicodeError):
+            print >>fp, txt
