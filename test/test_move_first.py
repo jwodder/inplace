@@ -364,3 +364,35 @@ def test_move_first_double_open_nobackup(tmpdir):
     assert fp.closed
     assert pylistdir(tmpdir) == ['file.txt']
     assert p.read() == TEXT.swapcase()
+
+def test_move_first_nonexistent(tmpdir):
+    assert pylistdir(tmpdir) == []
+    p = tmpdir.join("file.txt")
+    fp = InPlace(str(p), move_first=True, delay_open=True)
+    with pytest.raises(EnvironmentError):
+        fp.open()
+    assert pylistdir(tmpdir) == []
+
+def test_move_first_with_nonexistent(tmpdir):
+    assert pylistdir(tmpdir) == []
+    p = tmpdir.join("file.txt")
+    with pytest.raises(EnvironmentError):
+        with InPlace(str(p), move_first=True):
+            assert False
+    assert pylistdir(tmpdir) == []
+
+def test_move_first_nonexistent_backup_ext(tmpdir):
+    assert pylistdir(tmpdir) == []
+    p = tmpdir.join("file.txt")
+    fp = InPlace(str(p), backup_ext='~', move_first=True, delay_open=True)
+    with pytest.raises(EnvironmentError):
+        fp.open()
+    assert pylistdir(tmpdir) == []
+
+def test_move_first_with_nonexistent_backup_ext(tmpdir):
+    assert pylistdir(tmpdir) == []
+    p = tmpdir.join("file.txt")
+    with pytest.raises(EnvironmentError):
+        with InPlace(str(p), backup_ext='~', move_first=True):
+            assert False
+    assert pylistdir(tmpdir) == []
