@@ -3,6 +3,8 @@ v0.2.0 (in development)
 - Renamed `InPlace` to `InPlaceText` and added a new `InPlace` class for
   reading & writing `str` objects (whatever those happen to be in the current
   Python)
+- **Bugfix**: If the given file does not exist and `move_first` is `True`, an
+  empty file will no longer be left behind in the nonexistent file's place.
 
 v0.1.1 (2017-01-27)
 -------------------

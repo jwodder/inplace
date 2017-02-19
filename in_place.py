@@ -146,20 +146,19 @@ class InPlaceABC(object):
         if self._state < self.OPEN:
             self._state = self.OPEN
             try:
+                self.input = self.open_read(self.filepath)
                 if self.move_first:
                     if self.backuppath is not None:
                         self._tmppath = self._mktemp(self.backuppath)
                     else:
                         self._tmppath = self._mktemp(self.filepath)
                     force_rename(self.filepath, self._tmppath)
-                    self.input = self.open_read(self._tmppath)
                     self.output = self.open_write(self.filepath)
                     copystats(self._tmppath, self.filepath)
                 else:
                     self._tmppath = self._mktemp(self.filepath)
-                    copystats(self.filepath, self._tmppath)
-                    self.input = self.open_read(self.filepath)
                     self.output = self.open_write(self._tmppath)
+                    copystats(self.filepath, self._tmppath)
             except Exception:
                 self.rollback()
                 raise
