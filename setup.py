@@ -26,7 +26,7 @@ setup(
     long_description=long_desc,
     url='https://github.com/jwodder/inplace',
 
-    install_requires=['six~=1.4'],
+    install_requires=['six>=1.4,<2'],
 
     classifiers=[
         'Development Status :: 4 - Beta',
