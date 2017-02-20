@@ -18,13 +18,15 @@
     - `backup_ext` when the filepath contains a directory separator
     - relative vs. absolute paths?
     - context manager re-entrancy
+    - nonwritable directories
 
 - Add options for:
-    - buffering?
     - preserving the tempfile if an error was raised
     - setting the directory in which to create the tempfile?
     - Don't error if moving the input file to the backup location fails?
     - not rolling back on error?
+    - `create=False`: If true and the input file doesn't exist, act as though
+      it's simply empty
 
 - When the filename is `-`, read stdin and write to stdout?
     - Only support this when an `allow_dash=True` argument is given?
@@ -34,9 +36,6 @@
 - Should calling `rollback` while closed be a no-op?
 - Use `shutil.move` instead of `os.rename` in order to handle cross-filesystem
   moves?  (But then strange things will happen when moving to a directory)
-- Raise an error if both `backup` and `backup_ext` are defined
-- Raise an error if `backup_ext` is empty
 - Add a `commit` method that overwrites the input file with the output file's
   current contents but leaves the instance open afterwards?
 - Give the classes decent `__repr__`s
-- If the input file doesn't exist, act as though it's simply empty?

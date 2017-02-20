@@ -79,10 +79,14 @@ class InPlaceABC(object):
         #: The absolute path of the file to edit in-place
         self.filepath = os.path.join(cwd, name)
         if backup is not None:
+            if backup_ext is not None:
+                raise ValueError('backup and backup_ext are mutually exclusive')
             #: The absolute path of the backup file (if any) that the original
             #: contents of ``filepath`` will be moved to after editing
             self.backuppath = os.path.join(cwd, backup)
-        elif backup_ext is not None and backup_ext != '':
+        elif backup_ext is not None:
+            if backup_ext == '':
+                raise ValueError('backup_ext cannot be empty')
             self.backuppath = self.filepath + backup_ext
         else:
             self.backuppath = None

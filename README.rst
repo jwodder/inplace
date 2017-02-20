@@ -110,9 +110,11 @@ All of the classes' constructors take the following arguments:
    when the instance is closed.
 
 ``backup_ext=<EXTENSION>``
-   If set to a nonempty string, the path to the backup file will be created by
-   appending ``backup_ext`` to the original file path.  (If both ``backup`` and
-   ``backup_ext`` are set, ``backup`` takes precedence.)
+   If set, the path to the backup file will be created by appending
+   ``backup_ext`` to the original file path.
+
+   ``backup`` and ``backup_ext`` are mutually exclusive.  ``backup_ext`` cannot
+   be set to the empty string.
 
 ``delay_open=<BOOL>``
    By default, the instance is opened (including creating temporary files and
