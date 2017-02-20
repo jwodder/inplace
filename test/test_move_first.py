@@ -43,6 +43,27 @@ def test_move_first_backup(tmpdir):
     assert bkp.read() == TEXT
     assert p.read() == TEXT.swapcase()
 
+def test_move_first_backup_ext_and_backup(tmpdir):
+    assert pylistdir(tmpdir) == []
+    p = tmpdir.join("file.txt")
+    p.write(TEXT)
+    bkp = tmpdir.join('backup.txt')
+    with pytest.raises(ValueError):
+        with InPlace(str(p), backup=str(bkp), backup_ext='~', move_first=True):
+            assert False
+    assert pylistdir(tmpdir) == ['file.txt']
+    assert p.read() == TEXT
+
+def test_move_first_empty_backup_ext(tmpdir):
+    assert pylistdir(tmpdir) == []
+    p = tmpdir.join("file.txt")
+    p.write(TEXT)
+    with pytest.raises(ValueError):
+        with InPlace(str(p), backup_ext='', move_first=True):
+            assert False
+    assert pylistdir(tmpdir) == ['file.txt']
+    assert p.read() == TEXT
+
 def test_move_first_error_backup_ext(tmpdir):
     assert pylistdir(tmpdir) == []
     p = tmpdir.join("file.txt")
