@@ -50,9 +50,8 @@ class InPlaceABC(object):
         default), no backup is saved
 
     :param string backup_ext: A string to append to ``name`` to get the path at
-        which to save the file's original contents.  Empty strings are ignored.
-        If both ``backup`` and ``backup_ext`` are specified, only ``backup`` is
-        used.
+        which to save the file's original contents.  Cannot be empty.
+        ``backup`` and ``backup_ext`` are mutually exclusive.
 
     :param bool delay_open: If `True`, the newly-constructed instance will not
         be open, and the user must either explicitly call the :meth:`open()`
