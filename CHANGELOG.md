@@ -1,5 +1,5 @@
-v0.2.0 (in development)
------------------------
+v0.2.0 (2017-02-23)
+-------------------
 - Renamed `InPlace` to `InPlaceText` and added a new `InPlace` class for
   reading & writing `str` objects (whatever those happen to be in the current
   Python)
