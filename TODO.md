@@ -17,7 +17,7 @@
     - `backup_ext` containing a directory separator?
     - `backup_ext` when the filepath contains a directory separator
     - relative vs. absolute paths?
-    - context manager re-entrancy
+    - context manager non-reusability
     - nonwritable directories
 
 - Add options for:
@@ -27,6 +27,7 @@
     - not rolling back on error?
     - `create=False`: If true and the input file doesn't exist, act as though
       it's simply empty
+    - following symbolic links
 
 - When the filename is `-`, read stdin and write to stdout?
     - Only support this when an `allow_dash=True` argument is given?

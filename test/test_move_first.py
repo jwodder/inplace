@@ -417,3 +417,28 @@ def test_move_first_with_nonexistent_backup_ext(tmpdir):
         with InPlace(str(p), backup_ext='~', move_first=True):
             assert False
     assert pylistdir(tmpdir) == []
+
+def test_move_first_reentrant_backup_ext(tmpdir):
+    assert pylistdir(tmpdir) == []
+    p = tmpdir.join("file.txt")
+    p.write(TEXT)
+    with InPlace(str(p), backup_ext='~', move_first=True) as fp:
+        with fp:
+            for line in fp:
+                fp.write(line.swapcase())
+    assert pylistdir(tmpdir) == ['file.txt', 'file.txt~']
+    assert p.new(ext='txt~').read() == TEXT
+    assert p.read() == TEXT.swapcase()
+
+def test_move_first_use_and_reenter_backup_ext(tmpdir):
+    assert pylistdir(tmpdir) == []
+    p = tmpdir.join("file.txt")
+    p.write(TEXT)
+    with InPlace(str(p), backup_ext='~', move_first=True) as fp:
+        fp.write(fp.readline().swapcase())
+        with fp:
+            for line in fp:
+                fp.write(line.swapcase())
+    assert pylistdir(tmpdir) == ['file.txt', 'file.txt~']
+    assert p.new(ext='txt~').read() == TEXT
+    assert p.read() == TEXT.swapcase()
