@@ -442,3 +442,41 @@ def test_move_first_use_and_reenter_backup_ext(tmpdir):
     assert pylistdir(tmpdir) == ['file.txt', 'file.txt~']
     assert p.new(ext='txt~').read() == TEXT
     assert p.read() == TEXT.swapcase()
+
+def test_move_first_var_changes(tmpdir):
+    assert pylistdir(tmpdir) == []
+    p = tmpdir.join("file.txt")
+    p.write(TEXT)
+    with InPlace(str(p), backup_ext='~', move_first=True) as fp:
+        assert not fp.closed
+        assert fp.input is not None
+        assert fp.output is not None
+        assert fp._tmppath is not None
+        assert fp._state == fp.OPEN
+    assert fp.closed
+    assert fp.input is None
+    assert fp.output is None
+    assert fp._tmppath is None
+    assert fp._state == fp.CLOSED
+
+def test_move_first_useless_after_close(tmpdir):
+    assert pylistdir(tmpdir) == []
+    p = tmpdir.join("file.txt")
+    p.write(TEXT)
+    with InPlace(str(p), backup_ext='~', move_first=True) as fp:
+        assert not fp.closed
+    assert fp.closed
+    with pytest.raises(ValueError):
+        fp.flush()
+    with pytest.raises(ValueError):
+        iter(fp)
+    with pytest.raises(ValueError):
+        fp.read()
+    with pytest.raises(ValueError):
+        fp.readline()
+    with pytest.raises(ValueError):
+        fp.readlines()
+    with pytest.raises(ValueError):
+        fp.write('')
+    with pytest.raises(ValueError):
+        fp.writelines([''])

@@ -10,8 +10,6 @@
         - readall
     - handling of symbolic links
     - Assert that the tempfile is created in the right directory
-    - Assert that all of the relevant attributes on an `InPlace` object are
-      `None` after closing (and non-`None` before closing)
     - `delay_open=True`
     - nontrivial (i.e., containing `/` and/or `..`) relative filepaths
     - `backup_ext` containing a directory separator?
