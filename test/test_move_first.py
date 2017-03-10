@@ -480,3 +480,33 @@ def test_move_first_useless_after_close(tmpdir):
         fp.write('')
     with pytest.raises(ValueError):
         fp.writelines([''])
+
+def test_move_first_rollback_too_late(tmpdir):
+    assert pylistdir(tmpdir) == []
+    p = tmpdir.join("file.txt")
+    p.write(TEXT)
+    with InPlace(str(p), backup_ext='~', move_first=True) as fp:
+        for line in fp:
+            fp.write(line.swapcase())
+    with pytest.raises(ValueError):
+        fp.rollback()
+    assert pylistdir(tmpdir) == ['file.txt', 'file.txt~']
+    assert p.new(ext='txt~').read() == TEXT
+    assert p.read() == TEXT.swapcase()
+
+def test_move_first_rollback_too_early(tmpdir):
+    assert pylistdir(tmpdir) == []
+    p = tmpdir.join("file.txt")
+    p.write(TEXT)
+    fp = InPlace(str(p), backup_ext='~', delay_open=True, move_first=True)
+    with pytest.raises(ValueError):
+        fp.rollback()
+    assert fp.closed
+    assert pylistdir(tmpdir) == ['file.txt']
+    assert p.read() == TEXT
+    with fp:
+        for line in fp:
+            fp.write(line.swapcase())
+    assert pylistdir(tmpdir) == ['file.txt', 'file.txt~']
+    assert p.new(ext='txt~').read() == TEXT
+    assert p.read() == TEXT.swapcase()
