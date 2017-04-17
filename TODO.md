@@ -4,6 +4,7 @@
 
 - Write more tests:
     - copying file mode, timestamps, owner, & group
+    - timestamp (and other file attributes?) preservation on rollback
     - newlines
     - every I/O method
         - flush
