@@ -21,9 +21,8 @@
 
 - Add options for:
     - preserving the tempfile if an error was raised
-    - setting the directory in which to create the tempfile?
     - Don't error if moving the input file to the backup location fails?
-    - not rolling back on error?
+    - `rollback_on_error=True`
     - `create=False`: If true and the input file doesn't exist, act as though
       it's simply empty
     - following symbolic links

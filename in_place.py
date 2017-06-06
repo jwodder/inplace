@@ -250,7 +250,8 @@ class InPlaceABC(object):
                 else:
                     try_unlink(self._tmppath)
                 self._tmppath = None
-        elif self._state == self.CLOSED:
+        else:
+            assert self._state == self.CLOSED
             raise ValueError('Cannot rollback closed file')
 
     @property
