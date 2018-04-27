@@ -283,10 +283,14 @@ class InPlaceABC(object):
             raise ValueError('Filehandle is not currently open')
         self.output.write(s)
 
+    rewrite = write
+
     def writelines(self, seq):
         if self._state != self.OPEN:
             raise ValueError('Filehandle is not currently open')
         self.output.writelines(seq)
+
+    rewritelines = writelines
 
     def __iter__(self):
         if self._state != self.OPEN:

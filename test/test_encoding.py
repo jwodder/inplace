@@ -12,7 +12,7 @@ def test_utf8_nobackup(tmpdir):
         txt = fp.read()
         assert isinstance(txt, text_type)
         assert txt == UNICODE
-        fp.write(normalize('NFD', txt))
+        fp.rewrite(normalize('NFD', txt))
     assert pylistdir(tmpdir) == ['file.txt']
     assert p.read_text('utf-8') == u'a\u030Ae\u0301i\u0302\xF8u\u0308\n'
 
@@ -24,7 +24,7 @@ def test_utf8_as_latin1(tmpdir):
         txt = fp.read()
         assert isinstance(txt, text_type)
         assert txt == u'\xc3\xa5\xc3\xa9\xc3\xae\xc3\xb8\xc3\xbc\n'
-        fp.write(UNICODE)
+        fp.rewrite(UNICODE)
     assert pylistdir(tmpdir) == ['file.txt']
     assert p.read_binary() == b'\xE5\xE9\xEE\xF8\xFC\n'
 
@@ -44,6 +44,6 @@ def test_latin1_as_utf8_replace(tmpdir):
         txt = fp.read()
         assert isinstance(txt, text_type)
         assert txt == u'\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\n'
-        fp.write(txt)
+        fp.rewrite(txt)
     assert pylistdir(tmpdir) == ['file.txt']
     assert p.read_text('utf-8') == u'\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\n'
