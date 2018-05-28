@@ -1,4 +1,3 @@
-- Create a Readthedocs site?
 - Somewhere document exactly how the module works with regards to creating
   temporary files and moving things around
 
@@ -39,3 +38,4 @@
   current contents but leaves the instance open afterwards?
 - Give the classes decent `__repr__`s
 - Make the context manager reusable
+- Add a `seekable()` method that returns `False`?

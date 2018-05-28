@@ -1,6 +1,7 @@
 v0.3.0 (in development)
 -----------------------
 - More tests
+- Drop support for Python 2.6 and 3.3
 
 v0.2.0 (2017-02-23)
 -------------------
