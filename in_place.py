@@ -77,11 +77,14 @@ class InPlaceABC(object):
         self.name = name
         #: The absolute path of the file to edit in-place
         self.filepath = os.path.join(cwd, name)
+        #: ``filepath`` with symbolic links resolved.  This is set just before
+        #: opening the file.
+        self.realpath = None
         if backup is not None:
             if backup_ext is not None:
                 raise ValueError('backup and backup_ext are mutually exclusive')
             #: The absolute path of the backup file (if any) that the original
-            #: contents of ``filepath`` will be moved to after editing
+            #: contents of ``realpath`` will be moved to after editing
             self.backuppath = os.path.join(cwd, backup)
         elif backup_ext is not None:
             if backup_ext == '':
@@ -148,20 +151,21 @@ class InPlaceABC(object):
         """
         if self._state < self.OPEN:
             self._state = self.OPEN
+            self.realpath = os.path.realpath(self.filepath)
             try:
-                self.input = self.open_read(self.filepath)
+                self.input = self.open_read(self.realpath)
                 if self.move_first:
                     if self.backuppath is not None:
                         self._tmppath = self._mktemp(self.backuppath)
                     else:
-                        self._tmppath = self._mktemp(self.filepath)
-                    force_rename(self.filepath, self._tmppath)
-                    self.output = self.open_write(self.filepath)
-                    copystats(self._tmppath, self.filepath)
+                        self._tmppath = self._mktemp(self.realpath)
+                    force_rename(self.realpath, self._tmppath)
+                    self.output = self.open_write(self.realpath)
+                    copystats(self._tmppath, self.realpath)
                 else:
-                    self._tmppath = self._mktemp(self.filepath)
+                    self._tmppath = self._mktemp(self.realpath)
                     self.output = self.open_write(self._tmppath)
-                    copystats(self.filepath, self._tmppath)
+                    copystats(self.realpath, self._tmppath)
             except Exception:
                 self.rollback()
                 raise
@@ -218,13 +222,13 @@ class InPlaceABC(object):
                         try:
                             force_rename(self._tmppath, self.backuppath)
                         except EnvironmentError:
-                            force_rename(self._tmppath, self.filepath)
+                            force_rename(self._tmppath, self.realpath)
                             self._tmppath = None
                             raise
                 else:
                     if self.backuppath is not None:
-                        force_rename(self.filepath, self.backuppath)
-                    force_rename(self._tmppath, self.filepath)
+                        force_rename(self.realpath, self.backuppath)
+                    force_rename(self._tmppath, self.realpath)
             finally:
                 if self._tmppath is not None:
                     try_unlink(self._tmppath)
@@ -246,7 +250,7 @@ class InPlaceABC(object):
             self._close()
             if self._tmppath is not None:  # In case of error while opening
                 if self.move_first:
-                    force_rename(self._tmppath, self.filepath)
+                    force_rename(self._tmppath, self.realpath)
                 else:
                     try_unlink(self._tmppath)
                 self._tmppath = None

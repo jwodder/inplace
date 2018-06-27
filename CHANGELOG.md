@@ -1,6 +1,10 @@
 v0.3.0 (in development)
 -----------------------
-- More tests
+- Handling of symbolic links is changed: Now, if `in_place` is asked to operate
+  on a symlink `link.txt` that points to `realfile.txt`, it will act as though
+  it was asked to operate on `realfile.txt` instead, and the path `link.txt`
+  will only be used when combining with `backup_ext` to construct a backup file
+  path
 - Drop support for Python 2.6 and 3.3
 
 v0.2.0 (2017-02-23)

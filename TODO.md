@@ -8,7 +8,6 @@
     - every I/O method
         - flush
         - readall
-    - handling of symbolic links
     - Assert that the tempfile is created in the right directory
     - `delay_open=True`
     - nontrivial (i.e., containing `/` and/or `..`) relative filepaths
@@ -17,6 +16,7 @@
     - relative vs. absolute paths?
     - context manager non-reusability
     - nonwritable directories
+    - symlinks pointing to nonexistent files
 
 - Add options for:
     - preserving the tempfile if an error was raised
@@ -24,7 +24,7 @@
     - `rollback_on_error=True`
     - `create=False`: If true and the input file doesn't exist, act as though
       it's simply empty
-    - following symbolic links
+    - not resolving symbolic links?
 
 - When the filename is `-`, read stdin and write to stdout?
     - Only support this when an `allow_dash=True` argument is given?

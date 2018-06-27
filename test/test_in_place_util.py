@@ -40,4 +40,4 @@ All mimsy were the borogoves,
 	And the mome raths outgrabe.
 '''
 
-UNICODE = u'\xE5\xE9\xEE\xF8\xFC\n'  # u'àéîøü\n'
+UNICODE = u'\xE5\xE9\xEE\xF8\xFC\n'  # u'åéîøü\n'
