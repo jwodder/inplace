@@ -1,5 +1,5 @@
-v0.3.0 (in development)
------------------------
+v0.3.0 (2018-06-28)
+-------------------
 - Handling of symbolic links is changed: Now, if `in_place` is asked to operate
   on a symlink `link.txt` that points to `realfile.txt`, it will act as though
   it was asked to operate on `realfile.txt` instead, and the path `link.txt`
