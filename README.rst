@@ -6,8 +6,8 @@
 .. image:: https://travis-ci.org/jwodder/inplace.svg?branch=master
     :target: https://travis-ci.org/jwodder/inplace
 
-.. image:: https://coveralls.io/repos/github/jwodder/inplace/badge.svg?branch=master
-    :target: https://coveralls.io/github/jwodder/inplace?branch=master
+.. image:: https://codecov.io/gh/jwodder/inplace/branch/master/graph/badge.svg
+    :target: https://codecov.io/gh/jwodder/inplace
 
 .. image:: https://img.shields.io/pypi/pyversions/in_place.svg
     :target: https://pypi.python.org/pypi/in_place

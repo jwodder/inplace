@@ -12,8 +12,8 @@ jobs:
         - python: pypy
         - python: pypy3
 install:
-    - pip install coveralls tox
+    - pip install codecov tox
 script:
     - tox -e py
 after_success:
-    - coveralls
+    - codecov
