@@ -11,7 +11,7 @@ def test_move_first_nobackup(tmpdir):
         assert not fp.closed
         for line in fp:
             assert isinstance(line, str)
-            fp.write(line.swapcase())
+            fp.rewrite(line.swapcase())
         assert not fp.closed
     assert fp.closed
     assert pylistdir(tmpdir) == ['file.txt']
@@ -23,7 +23,7 @@ def test_move_first_backup_ext(tmpdir):
     p.write(TEXT)
     with InPlace(str(p), backup_ext='~', move_first=True) as fp:
         for line in fp:
-            fp.write(line.swapcase())
+            fp.rewrite(line.swapcase())
     assert pylistdir(tmpdir) == ['file.txt', 'file.txt~']
     assert p.new(ext='txt~').read() == TEXT
     assert p.read() == TEXT.swapcase()
@@ -36,7 +36,7 @@ def test_move_first_backup(tmpdir):
     with InPlace(str(p), backup=str(bkp), move_first=True) as fp:
         assert not fp.closed
         for line in fp:
-            fp.write(line.swapcase())
+            fp.rewrite(line.swapcase())
         assert not fp.closed
     assert fp.closed
     assert pylistdir(tmpdir) == ['backup.txt', 'file.txt']
@@ -71,7 +71,7 @@ def test_move_first_error_backup_ext(tmpdir):
     with pytest.raises(RuntimeError):
         with InPlace(str(p), backup_ext='~', move_first=True) as fp:
             for i, line in enumerate(fp):
-                fp.write(line.swapcase())
+                fp.rewrite(line.swapcase())
                 if i > 5:
                     raise RuntimeError("I changed my mind.")
     assert pylistdir(tmpdir) == ['file.txt']

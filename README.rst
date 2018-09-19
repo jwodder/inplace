@@ -140,6 +140,9 @@ attributes, specifically::
     readall() *             readinto() *            readline()
     readlines()             write()                 writelines()
 
+In addition ``rewrite()`` and ``rewritelines()`` is aliases for ``write()``
+and ``writelines()``
+
     * InPlaceBytes only
 
 The classes also feature the following new or modified attributes:

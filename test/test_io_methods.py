@@ -22,7 +22,7 @@ def test_readinto_bytearray_nobackup(tmpdir):
         ba = bytearray(5)
         assert fp.readinto(ba) == 5
         assert ba == bytearray(b'\xC3\xA5\xC3\xA9\xC3')
-        fp.write(ba)
+        fp.rewrite(ba)
     assert pylistdir(tmpdir) == ['file.txt']
     assert p.read_binary() == b'\xC3\xA5\xC3\xA9\xC3'
 
@@ -41,7 +41,7 @@ def test_writelines_backup(tmpdir):
     p.write('')
     bkp = tmpdir.join('backup.txt')
     with InPlace(str(p), backup=str(bkp)) as fp:
-        fp.writelines(TEXT.splitlines(True))
+        fp.rewritelines(TEXT.splitlines(True))
     assert pylistdir(tmpdir) == ['backup.txt', 'file.txt']
     assert bkp.read() == ''
     assert p.read() == TEXT
@@ -52,6 +52,6 @@ def test_readline_nobackup(tmpdir):
     p.write(TEXT)
     with InPlace(str(p)) as fp:
         for line in iter(fp.readline, ''):
-            fp.write(line.swapcase())
+            fp.rewrite(line.swapcase())
     assert pylistdir(tmpdir) == ['file.txt']
     assert p.read() == TEXT.swapcase()

@@ -32,4 +32,4 @@ def test_py3_not_bytestr(tmpdir):
         with pytest.raises(TypeError):
             # `print()` would stringify `txt` to `b'...'`, which is not what we
             # want.
-            fp.write(txt)
+            fp.rewrite(txt)
