@@ -39,3 +39,6 @@
 - Give the classes decent `__repr__`s
 - Make the context manager reusable
 - Add a `seekable()` method that returns `False`?
+- Combine all code into a single class that accepts whatever arguments `open()`
+  accepts, including `mode`?
+- Support `os.PathLike` objects in Python 3.6+
