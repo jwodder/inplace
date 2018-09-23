@@ -1,5 +1,5 @@
 from   __future__         import print_function
-from   in_place           import InPlace, InPlaceBytes
+from   in_place           import InPlace
 from   test_in_place_util import TEXT, UNICODE, pylistdir
 
 def test_print_backup(tmpdir):
@@ -18,7 +18,7 @@ def test_readinto_bytearray_nobackup(tmpdir):
     assert pylistdir(tmpdir) == []
     p = tmpdir.join("file.txt")
     p.write_text(UNICODE, 'utf-8')
-    with InPlaceBytes(str(p)) as fp:
+    with InPlace(str(p), 'b') as fp:
         ba = bytearray(5)
         assert fp.readinto(ba) == 5
         assert ba == bytearray(b'\xC3\xA5\xC3\xA9\xC3')
