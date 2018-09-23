@@ -1,8 +1,8 @@
 """
 In-place file processing
 
-The ``in_place`` module provides Python classes for reading & writing a file
-"in-place": data that you write ends up at the same filepath that you read
+The ``in_place`` module provides an ``InPlace`` class for reading & writing a
+file "in-place": data that you write ends up at the same filepath that you read
 from, and ``in_place`` takes care of all the necessary mucking about with
 temporary files for you.
 
@@ -15,7 +15,6 @@ __author_email__ = 'inplace@varonathe.org'
 __license__      = 'MIT'
 __url__          = 'https://github.com/jwodder/inplace'
 
-import abc
 from   errno import ENOENT
 import io
 import os
@@ -23,26 +22,27 @@ import os.path
 import shutil
 import sys
 import tempfile
-from   six   import add_metaclass
 
-__all__ = ['InPlaceABC', 'InPlace', 'InPlaceBytes', 'InPlaceText']
+__all__ = ['InPlace']
 
-@add_metaclass(abc.ABCMeta)
-class InPlaceABC(object):
+class InPlace(object):
     """
-    An abstract base class for reading from & writing to a file "in-place"
-    (with data that you write ending up at the same filepath that you read
-    from) that takes care of all the necessary mucking about with temporary
-    files.  Concrete subclasses only need to implement `open_read` and
-    `open_write` in order to define how & with what options the files are
-    opened, and `InPlaceABC` takes care of the rest.
-
-    Two concrete subclasses are provided with `InPlaceABC`: `InPlace`, for
-    working with text files, and `InPlaceBytes`, for working with binary files.
+    A class for reading from & writing to a file "in-place" (with data that you
+    write ending up at the same filepath that you read from) that takes care of
+    all the necessary mucking about with temporary files.
 
     :param string name: The path to the file to open & edit in-place (resolved
         relative to the current directory at the time of the instance's
         creation)
+
+    :param string mode: Whether to operate on the file in binary or text mode.
+        If ``mode`` is ``'b'``, the file will be opened in binary mode, and
+        data will be read & written as `str` (Python 2) or `bytes` (Python 3)
+        objects.  If ``mode`` is ``'t'``, the file will be opened in text mode,
+        and data will be read & written as `unicode` (Python 2) or `str`
+        (Python 3) objects.  If ``mode`` is unset, the file will be opened with
+        `open` using the default mode, and data will be read & written as `str`
+        objects, whatever those happen to be in your version of Python.
 
     :param string backup: The path at which to save the file's original
         contents once editing has finished (resolved relative to the current
@@ -64,17 +64,22 @@ class InPlaceABC(object):
         created in its place.  If `False` (the default), the output file will
         be created at a temporary location, and neither file will be moved or
         deleted until :meth:`close()` is called.
+
+    :param kwargs: Additional keyword arguments to pass to `open()` or (if
+        ``mode`` is non-`None`) `io.open()`
     """
 
     UNOPENED = 0
     OPEN = 1
     CLOSED = 2
 
-    def __init__(self, name, backup=None, backup_ext=None, delay_open=False,
-                 move_first=False):
+    def __init__(self, name, mode=None, backup=None, backup_ext=None,
+                 delay_open=False, move_first=False, **kwargs):
         cwd = os.getcwd()
         #: The path to the file to edit in-place
         self.name = name
+        #: Whether to operate on the file in binary or text mode
+        self.mode = mode
         #: The absolute path of the file to edit in-place
         self.filepath = os.path.join(cwd, name)
         #: ``filepath`` with symbolic links resolved.  This is set just before
@@ -95,6 +100,8 @@ class InPlaceABC(object):
         #: Whether to move the input file before opening and create the output
         #: file in its place instead of moving the files after closing
         self.move_first = move_first
+        #: Additional arguments to pass to `open`
+        self.kwargs = kwargs
         #: The input filehandle from which data is read; only non-`None` while
         #: the instance is open
         self.input = None
@@ -172,23 +179,31 @@ class InPlaceABC(object):
         else:
             raise ValueError('open() called twice on same filehandle')
 
-    @abc.abstractmethod
     def open_read(self, path):
         """
         Open the file at ``path`` for reading and return a file-like object.
-        Concrete subclasses must override this method in order to customize how
-        (and as what class) the file is opened.
         """
-        pass
+        if not self.mode:
+            return open(path, 'r', **self.kwargs)
+        elif self.mode == 'b':
+            return io.open(path, 'rb', **self.kwargs)
+        elif self.mode == 't':
+            return io.open(path, 'rt', **self.kwargs)
+        else:
+            raise ValueError(self.mode)
 
-    @abc.abstractmethod
     def open_write(self, path):
         """
         Open the file at ``path`` for writing and return a file-like object.
-        Concrete subclasses must override this method in order to customize how
-        (and as what class) the file is opened.
         """
-        pass
+        if not self.mode:
+            return open(path, 'w', **self.kwargs)
+        elif self.mode == 'b':
+            return io.open(path, 'wb', **self.kwargs)
+        elif self.mode == 't':
+            return io.open(path, 'wt', **self.kwargs)
+        else:
+            raise ValueError(self.mode)
 
     def _close(self):
         """
@@ -282,6 +297,16 @@ class InPlaceABC(object):
             raise ValueError('Filehandle is not currently open')
         return self.input.readlines(sizehint)
 
+    def readinto(self, b):
+        if self._state != self.OPEN:
+            raise ValueError('Filehandle is not currently open')
+        return self.input.readinto(b)
+
+    def readall(self):
+        if self._state != self.OPEN:
+            raise ValueError('Filehandle is not currently open')
+        return self.input.readall()
+
     def write(self, s):
         if self._state != self.OPEN:
             raise ValueError('Filehandle is not currently open')
@@ -301,71 +326,6 @@ class InPlaceABC(object):
         if self._state != self.OPEN:
             raise ValueError('Filehandle is not currently open')
         self.output.flush()
-
-
-class InPlace(InPlaceABC):
-    """
-    A file edited in-place; data is read & written as `str` objects, whatever
-    those happen to be in your version of Python.
-    """
-
-    def open_read(self, path):
-        return open(path, 'r')
-
-    def open_write(self, path):
-        return open(path, 'w')
-
-
-class InPlaceBytes(InPlaceABC):
-    """
-    A binary file edited in-place; data is read & written as `str` (Python 2)
-    or `bytes` (Python 3) objects.
-    """
-
-    def open_read(self, path):
-        return open(path, 'rb')
-
-    def open_write(self, path):
-        return open(path, 'wb')
-
-    def readinto(self, b):
-        if self._state != self.OPEN:
-            raise ValueError('Filehandle is not currently open')
-        return self.input.readinto(b)
-
-    def readall(self):
-        if self._state != self.OPEN:
-            raise ValueError('Filehandle is not currently open')
-        return self.input.readall()
-
-
-class InPlaceText(InPlaceABC):
-    """
-    A text (Unicode) file edited in-place; data is read & written as `unicode`
-    (Python 2) or `str` (Python 3) objects.
-
-    In addition to the parameters accepted by `InPlaceABC`, this class's
-    constructor accepts optional ``encoding``, ``errors``, and ``newline``
-    arguments that are applied to both reading and writing with the same
-    meaning as the parameters to `io.open`.
-    """
-
-    def __init__(self, name, backup=None, backup_ext=None, delay_open=False,
-                 move_first=False, encoding=None, errors=None, newline=None):
-        self.encoding = encoding
-        self.errors = errors
-        self.newline = newline
-        super(InPlaceText, self).__init__(
-            name, backup, backup_ext, delay_open, move_first,
-        )
-
-    def open_read(self, path):
-        return io.open(path, 'rt', encoding=self.encoding, errors=self.errors,
-                       newline=self.newline)
-
-    def open_write(self, path):
-        return io.open(path, 'wt', encoding=self.encoding, errors=self.errors,
-                       newline=self.newline)
 
 
 def copystats(from_file, to_file):
