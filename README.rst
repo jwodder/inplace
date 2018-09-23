@@ -20,8 +20,8 @@
 | `PyPI <https://pypi.python.org/pypi/in_place>`_
 | `Issues <https://github.com/jwodder/inplace/issues>`_
 
-The ``in_place`` module provides Python classes for reading & writing a file
-"in-place": data that you write ends up at the same filepath that you read
+The ``in_place`` module provides an ``InPlace`` class for reading & writing a
+file "in-place": data that you write ends up at the same filepath that you read
 from, and ``in_place`` takes care of all the necessary mucking about with
 temporary files for you.
 
@@ -89,21 +89,21 @@ Just use `pip <https://pip.pypa.io>`_ (You have pip, right?) to install
 
 Basic Usage
 ===========
-``in_place`` provides three classes:
-
-- ``InPlaceText``, for working with text files (reading & writing ``unicode``
-  objects in Python 2, ``str`` objects in Python 3)
-
-- ``InPlaceBytes``, for working with binary files (reading & writing ``str``
-  objects in Python 2, ``bytes`` objects in Python 3)
-
-- ``InPlace``, for just calling ``open()`` and reading & writing whatever the
-  current Python's ``str`` type is
-
-All of the classes' constructors take the following arguments:
+``in_place`` provides a single class, ``InPlace``.  Its constructor takes the
+following arguments:
 
 ``name=<PATH>`` (required)
    The path to the file to open & edit in-place
+
+``mode=<'b'|'t'|None>``
+   Whether to operate on the file in binary or text mode.  If ``mode`` is
+   ``'b'``, the file will be opened in binary mode, and data will be read &
+   written as ``str`` (Python 2) or ``bytes`` (Python 3) objects.  If ``mode``
+   is ``'t'``, the file will be opened in text mode, and data will be read &
+   written as ``unicode`` (Python 2) or ``str`` (Python 3) objects.  If
+   ``mode`` is ``None`` (the default), the file will be opened with ``open``
+   using the default mode, and data will be read & written as ``str`` objects,
+   whatever those happen to be in your version of Python.
 
 ``backup=<PATH>``
    If set, the original contents of the file will be saved to the given path
@@ -128,11 +128,21 @@ All of the classes' constructors take the following arguments:
    behavior of creating the output file at a temporary location and only moving
    things around once ``close()`` is called (à la GNU ``sed(1)``).
 
-The ``InPlaceText`` constructor additionally accepts the optional arguments
-``encoding``, ``errors``, and ``newline``, which are passed straight through to
-``io.open`` for both reading and writing.
+``**kwargs``
+   Any additional keyword arguments (such as ``encoding``, ``errors``, and
+   ``newline``) will be forwarded to ``io.open()`` (or the builtin ``open`` if
+   ``mode`` is ``None``) when opening both the input and output file strems.
 
-Once open, ``in_place`` instances act as filehandles with the usual filehandle
+Note:
+
+    Earlier versions of this library provided separate ``InPlaceText`` and
+    ``InPlaceBytes`` classes.  Code written for earlier versions must be
+    updated to use ``InPlace`` with the ``mode`` argument instead::
+
+        InPlaceText(name, ...)   ->  InPlace(name, 't', ...)
+        InPlaceBytes(name, ...)  ->  InPlace(name, 'b', ...)
+
+Once open, ``InPlace`` instances act as filehandles with the usual filehandle
 attributes, specifically::
 
     __iter__()              close()                 closed
@@ -140,9 +150,9 @@ attributes, specifically::
     readall() *             readinto() *            readline()
     readlines()             write()                 writelines()
 
-    * InPlaceBytes only
+    * binary mode only
 
-The classes also feature the following new or modified attributes:
+``InPlace`` instances also feature the following new or modified attributes:
 
 ``open()``
    Open the instance, creating filehandles for reading & writing.  This method
@@ -164,11 +174,11 @@ The classes also feature the following new or modified attributes:
    intact) instead of replacing the original file with it
 
 ``__enter__()``, ``__exit__()``
-   When an ``in_place`` instance is used as a context manager, it will be
-   opened (if not open already) on entering and either closed (if all went
-   well) or rolled back (if an exception occurred) on exiting.  ``in_place``
-   context managers are not `reusable`_ but are `reentrant`_ (as long as no
-   further operations are performed after the innermost context ends).
+   When an ``InPlace`` instance is used as a context manager, it will be opened
+   (if not open already) on entering and either closed (if all went well) or
+   rolled back (if an exception occurred) on exiting.  ``InPlace`` context
+   managers are not `reusable`_ but are `reentrant`_ (as long as no further
+   operations are performed after the innermost context ends).
 
 ``input``
    The actual filehandle that data is read from, in case you need to access it
