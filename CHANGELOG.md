@@ -1,7 +1,10 @@
 v0.4.0 (in development)
 -----------------------
-- **Breaking**: Combined all classes into a single `InPlace` class that uses a
-  `mode` argument to determine whether to operate in text or binary mode
+- **Breaking**: Combined all classes' functionality into a single `InPlace`
+  class that uses a `mode` argument to determine whether to operate in text or
+  binary mode.
+- `InPlaceBytes` and `InPlaceText` are now deprecated and will be removed in a
+  future version; please use `InPlace` with `mode='b'` or `mode='t'` instead.
 
 v0.3.0 (2018-06-28)
 -------------------

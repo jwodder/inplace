@@ -136,8 +136,10 @@ following arguments:
 Note:
 
     Earlier versions of this library provided separate ``InPlaceText`` and
-    ``InPlaceBytes`` classes.  Code written for earlier versions must be
-    updated to use ``InPlace`` with the ``mode`` argument instead::
+    ``InPlaceBytes`` classes for operating in text and binary mode.  As of
+    version 0.4.0, these classes are deprecated and will be removed in a future
+    version.  Code written for earlier versions should be updated to use
+    ``InPlace`` with the ``mode`` argument instead::
 
         InPlaceText(name, ...)   ->  InPlace(name, 't', ...)
         InPlaceBytes(name, ...)  ->  InPlace(name, 'b', ...)

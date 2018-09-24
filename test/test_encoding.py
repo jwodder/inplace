@@ -1,6 +1,6 @@
 from   unicodedata        import normalize
-from   six                import text_type
 import pytest
+from   six                import text_type
 from   in_place           import InPlace
 from   test_in_place_util import UNICODE, pylistdir
 

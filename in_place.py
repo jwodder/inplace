@@ -15,15 +15,16 @@ __author_email__ = 'inplace@varonathe.org'
 __license__      = 'MIT'
 __url__          = 'https://github.com/jwodder/inplace'
 
-from   errno import ENOENT
+from   errno    import ENOENT
 import io
 import os
 import os.path
 import shutil
 import sys
 import tempfile
+from   warnings import warn
 
-__all__ = ['InPlace']
+__all__ = ['InPlace', 'InPlaceBytes', 'InPlaceText']
 
 class InPlace(object):
     """
@@ -326,6 +327,30 @@ class InPlace(object):
         if self._state != self.OPEN:
             raise ValueError('Filehandle is not currently open')
         self.output.flush()
+
+
+class InPlaceBytes(InPlace):
+    """ Deprecated.  Please use `InPlace` with ``mode='b'`` instead. """
+
+    def __init__(self, name, **kwargs):
+        warn(
+            'InPlaceBytes is deprecated.'
+            '  Please use `InPlace(name, mode="b")` instead.',
+            DeprecationWarning,
+        )
+        super(InPlaceBytes, self).__init__(name, mode='b', **kwargs)
+
+
+class InPlaceText(InPlace):
+    """ Deprecated.  Please use `InPlace` with ``mode='t'`` instead. """
+
+    def __init__(self, name, **kwargs):
+        warn(
+            'InPlaceText is deprecated.'
+            '  Please use `InPlace(name, mode="t")` instead.',
+            DeprecationWarning,
+        )
+        super(InPlaceText, self).__init__(name, mode='t', **kwargs)
 
 
 def copystats(from_file, to_file):
