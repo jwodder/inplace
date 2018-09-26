@@ -49,8 +49,7 @@ def test_backup_ext_and_backup(tmpdir):
     p.write(TEXT)
     bkp = tmpdir.join('backup.txt')
     with pytest.raises(ValueError):
-        with InPlace(str(p), backup=str(bkp), backup_ext='~'):
-            assert False
+        InPlace(str(p), backup=str(bkp), backup_ext='~')
     assert pylistdir(tmpdir) == ['file.txt']
     assert p.read() == TEXT
 
@@ -59,8 +58,7 @@ def test_empty_backup_ext(tmpdir):
     p = tmpdir.join("file.txt")
     p.write(TEXT)
     with pytest.raises(ValueError):
-        with InPlace(str(p), backup_ext=''):
-            assert False
+        InPlace(str(p), backup_ext='')
     assert pylistdir(tmpdir) == ['file.txt']
     assert p.read() == TEXT
 
