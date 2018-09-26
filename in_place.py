@@ -183,6 +183,7 @@ class InPlace(object):
     def open_read(self, path):
         """
         Open the file at ``path`` for reading and return a file-like object.
+        Use :attr:`mode` to determine whether to open in binary or text mode.
         """
         if not self.mode:
             return open(path, 'r', **self.kwargs)
@@ -191,11 +192,12 @@ class InPlace(object):
         elif self.mode == 't':
             return io.open(path, 'rt', **self.kwargs)
         else:
-            raise ValueError(self.mode)
+            raise ValueError('{!r}: invalid mode'.format(self.mode))
 
     def open_write(self, path):
         """
         Open the file at ``path`` for writing and return a file-like object.
+        Use :attr:`mode` to determine whether to open in binary or text mode.
         """
         if not self.mode:
             return open(path, 'w', **self.kwargs)
@@ -204,7 +206,7 @@ class InPlace(object):
         elif self.mode == 't':
             return io.open(path, 'wt', **self.kwargs)
         else:
-            raise ValueError(self.mode)
+            raise ValueError('{!r}: invalid mode'.format(self.mode))
 
     def _close(self):
         """
@@ -221,8 +223,8 @@ class InPlace(object):
     def close(self):
         """
         Close filehandles and move affected files to their final destinations.
-        If called after the filhandle has already been closed (with either this
-        method or :meth:`rollback`), :meth:`close` does nothing.
+        If called after the filehandle has already been closed (with either
+        this method or :meth:`rollback`), :meth:`close` does nothing.
 
         :return: `None`
         :raises ValueError: if called before opening the filehandle
