@@ -5,6 +5,7 @@ v0.4.0 (in development)
   binary mode.
 - `InPlaceBytes` and `InPlaceText` are now deprecated and will be removed in a
   future version; please use `InPlace` with `mode='b'` or `mode='t'` instead.
+- Support fsencoded-bytes as file paths under Python 3
 
 v0.3.0 (2018-06-28)
 -------------------

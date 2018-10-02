@@ -82,7 +82,7 @@ Compared to the in-place filtering implemented by the Python standard library's
 Installation
 ============
 Just use `pip <https://pip.pypa.io>`_ (You have pip, right?) to install
-``in_place`` and its dependencies::
+``in_place``::
 
     pip install in_place
 
@@ -132,6 +132,10 @@ following arguments:
    Any additional keyword arguments (such as ``encoding``, ``errors``, and
    ``newline``) will be forwarded to ``io.open()`` (or the builtin ``open`` if
    ``mode`` is ``None``) when opening both the input and output file strems.
+
+``name``, ``backup``, and ``backup_ext`` can be either ``str`` or
+filesystem-encoded ``bytes`` in Python 3, and in Python 3.6 or later, path-like
+objects are also accepted.
 
 Note:
 

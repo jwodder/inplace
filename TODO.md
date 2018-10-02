@@ -39,6 +39,4 @@
 - Give the classes decent `__repr__`s
 - Make the context manager reusable
 - Add a `seekable()` method that returns `False`?
-- Support `os.PathLike` objects in Python 3.6+
-- Support `bytes` paths in Python 3 using `os.fsdecode()`
 - Should `io.open()` be used when `mode` is unset but `kwargs` is nonempty?

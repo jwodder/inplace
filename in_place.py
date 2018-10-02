@@ -24,6 +24,12 @@ import sys
 import tempfile
 from   warnings import warn
 
+try:
+    from os import fsdecode
+except ImportError:
+    def fsdecode(p):
+        return p
+
 __all__ = ['InPlace', 'InPlaceBytes', 'InPlaceText']
 
 class InPlace(object):
@@ -32,9 +38,10 @@ class InPlace(object):
     write ending up at the same filepath that you read from) that takes care of
     all the necessary mucking about with temporary files.
 
-    :param string name: The path to the file to open & edit in-place (resolved
+    :param name: The path to the file to open & edit in-place (resolved
         relative to the current directory at the time of the instance's
         creation)
+    :type name: path-like
 
     :param string mode: Whether to operate on the file in binary or text mode.
         If ``mode`` is ``'b'``, the file will be opened in binary mode, and
@@ -45,14 +52,16 @@ class InPlace(object):
         `open` using the default mode, and data will be read & written as `str`
         objects, whatever those happen to be in your version of Python.
 
-    :param string backup: The path at which to save the file's original
-        contents once editing has finished (resolved relative to the current
-        directory at the time of the instance's creation); if `None` (the
-        default), no backup is saved
+    :param backup: The path at which to save the file's original contents once
+        editing has finished (resolved relative to the current directory at the
+        time of the instance's creation); if `None` (the default), no backup is
+        saved
+    :type backup: path-like
 
-    :param string backup_ext: A string to append to ``name`` to get the path at
-        which to save the file's original contents.  Cannot be empty.
-        ``backup`` and ``backup_ext`` are mutually exclusive.
+    :param backup_ext: A string to append to ``name`` to get the path at which
+        to save the file's original contents.  Cannot be empty.  ``backup`` and
+        ``backup_ext`` are mutually exclusive.
+    :type backup_ext: path-like
 
     :param bool delay_open: If `True`, the newly-constructed instance will not
         be open, and the user must either explicitly call the :meth:`open()`
@@ -78,11 +87,11 @@ class InPlace(object):
                  delay_open=False, move_first=False, **kwargs):
         cwd = os.getcwd()
         #: The path to the file to edit in-place
-        self.name = name
+        self.name = fsdecode(name)
         #: Whether to operate on the file in binary or text mode
         self.mode = mode
         #: The absolute path of the file to edit in-place
-        self.filepath = os.path.join(cwd, name)
+        self.filepath = os.path.join(cwd, self.name)
         #: ``filepath`` with symbolic links resolved.  This is set just before
         #: opening the file.
         self.realpath = None
@@ -91,11 +100,11 @@ class InPlace(object):
                 raise ValueError('backup and backup_ext are mutually exclusive')
             #: The absolute path of the backup file (if any) that the original
             #: contents of ``realpath`` will be moved to after editing
-            self.backuppath = os.path.join(cwd, backup)
+            self.backuppath = os.path.join(cwd, fsdecode(backup))
         elif backup_ext is not None:
-            if backup_ext == '':
+            if not backup_ext:
                 raise ValueError('backup_ext cannot be empty')
-            self.backuppath = self.filepath + backup_ext
+            self.backuppath = self.filepath + fsdecode(backup_ext)
         else:
             self.backuppath = None
         #: Whether to move the input file before opening and create the output
