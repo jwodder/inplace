@@ -29,14 +29,13 @@
 - When the filename is `-`, read stdin and write to stdout?
     - Only support this when an `allow_dash=True` argument is given?
 - Copy ACLs etc.
-- Make `InPlaceABC` inherit one of the ABCs in `io`?
+- Make `InPlace` inherit one of the ABCs in `io`?
 - How should exceptions raised by `_close` be handled?
 - Should calling `rollback` while closed be a no-op?
 - Use `shutil.move` instead of `os.rename` in order to handle cross-filesystem
   moves?  (But then strange things will happen when moving to a directory)
 - Add a `commit` method that overwrites the input file with the output file's
   current contents but leaves the instance open afterwards?
-- Give the classes decent `__repr__`s
+- Give `InPlace` a decent `__repr__`s
 - Make the context manager reusable
 - Add a `seekable()` method that returns `False`?
-- Should `io.open()` be used when `mode` is unset but `kwargs` is nonempty?

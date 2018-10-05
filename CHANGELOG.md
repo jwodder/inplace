@@ -1,5 +1,5 @@
-v0.4.0 (in development)
------------------------
+v0.4.0 (2018-10-05)
+-------------------
 - **Breaking**: Combined all classes' functionality into a single `InPlace`
   class that uses a `mode` argument to determine whether to operate in text or
   binary mode.
