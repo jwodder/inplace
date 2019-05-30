@@ -22,6 +22,7 @@
 `GitHub <https://github.com/jwodder/inplace>`_
 | `PyPI <https://pypi.org/project/in_place>`_
 | `Issues <https://github.com/jwodder/inplace/issues>`_
+| `Changelog <https://github.com/jwodder/inplace/blob/master/CHANGELOG.md>`_
 
 The ``in_place`` module provides an ``InPlace`` class for reading & writing a
 file "in-place": data that you write ends up at the same filepath that you read
