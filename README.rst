@@ -10,14 +10,17 @@
     :target: https://codecov.io/gh/jwodder/inplace
 
 .. image:: https://img.shields.io/pypi/pyversions/in_place.svg
-    :target: https://pypi.python.org/pypi/in_place
+    :target: https://pypi.org/project/in_place
 
 .. image:: https://img.shields.io/github/license/jwodder/inplace.svg?maxAge=2592000
     :target: https://opensource.org/licenses/MIT
     :alt: MIT License
 
+.. image:: https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg
+    :target: https://saythanks.io/to/jwodder
+
 `GitHub <https://github.com/jwodder/inplace>`_
-| `PyPI <https://pypi.python.org/pypi/in_place>`_
+| `PyPI <https://pypi.org/project/in_place>`_
 | `Issues <https://github.com/jwodder/inplace/issues>`_
 
 The ``in_place`` module provides an ``InPlace`` class for reading & writing a
