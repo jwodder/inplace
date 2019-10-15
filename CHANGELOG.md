@@ -1,3 +1,7 @@
+0.5.0 (in development)
+----------------------
+- Support Python 3.8
+
 v0.4.0 (2018-10-05)
 -------------------
 - **Breaking**: Combined all classes' functionality into a single `InPlace`
