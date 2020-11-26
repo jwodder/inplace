@@ -83,10 +83,11 @@ Compared to the in-place filtering implemented by the Python standard library's
 
 Installation
 ============
-Just use `pip <https://pip.pypa.io>`_ (You have pip, right?) to install
-``in_place``::
+``in_place`` requires Python 3.6 or higher.  Just use `pip
+<https://pip.pypa.io>`_ for Python 3 (You have pip, right?) to install
+``in_place`` and its dependencies::
 
-    pip install in_place
+    python3 -m pip install in_place
 
 
 Basic Usage
@@ -100,12 +101,9 @@ following arguments:
 ``mode=<'b'|'t'|None>``
    Whether to operate on the file in binary or text mode.  If ``mode`` is
    ``'b'``, the file will be opened in binary mode, and data will be read &
-   written as ``str`` (Python 2) or ``bytes`` (Python 3) objects.  If ``mode``
-   is ``'t'``, the file will be opened in text mode, and data will be read &
-   written as ``unicode`` (Python 2) or ``str`` (Python 3) objects.  If
-   ``mode`` is ``None`` (the default), the file will be opened with ``open``
-   using the default mode, and data will be read & written as ``str`` objects,
-   whatever those happen to be in your version of Python.
+   written as ``bytes`` objects.  If ``mode`` is ``'t'`` or ``None`` (the
+   default), the file will be opened in text mode, and data will be read &
+   written as ``str`` objects.
 
 ``backup=<PATH>``
    If set, the original contents of the file will be saved to the given path
@@ -132,12 +130,11 @@ following arguments:
 
 ``**kwargs``
    Any additional keyword arguments (such as ``encoding``, ``errors``, and
-   ``newline``) will be forwarded to ``io.open()`` (or the builtin ``open`` if
-   ``mode`` is ``None``) when opening both the input and output file strems.
+   ``newline``) will be forwarded to ``open()`` when opening both the input and
+   output file strems.
 
-``name``, ``backup``, and ``backup_ext`` can be either ``str`` or
-filesystem-encoded ``bytes`` in Python 3, and in Python 3.6 or later, path-like
-objects are also accepted.
+``name``, ``backup``, and ``backup_ext`` can be ``str``, filesystem-encoded
+``bytes``, or path-like objects.
 
 Note:
 

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 def pylistdir(d):
     return sorted(p.basename for p in d.listdir())
 
@@ -40,4 +38,4 @@ TEXT = (
     "\tAnd the mome raths outgrabe.\n"
 )
 
-UNICODE = u'\xE5\xE9\xEE\xF8\xFC\n'  # u'åéîøü\n'
+UNICODE = 'åéîøü\n'

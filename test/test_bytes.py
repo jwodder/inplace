@@ -1,5 +1,4 @@
 import pytest
-from   six                import binary_type
 from   in_place           import InPlace
 from   test_in_place_util import UNICODE, pylistdir
 
@@ -9,7 +8,7 @@ def test_bytes_iconv_nobackup(tmpdir):
     p.write_text(UNICODE, 'utf-8')
     with InPlace(str(p), 'b') as fp:
         txt = fp.read()
-        assert isinstance(txt, binary_type)
+        assert isinstance(txt, bytes)
         assert txt == b'\xc3\xa5\xc3\xa9\xc3\xae\xc3\xb8\xc3\xbc\n'
         fp.write(txt.decode('utf-8').encode('latin-1'))
     assert pylistdir(tmpdir) == ['file.txt']

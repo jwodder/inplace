@@ -15,24 +15,15 @@ __author_email__ = 'inplace@varonathe.org'
 __license__      = 'MIT'
 __url__          = 'https://github.com/jwodder/inplace'
 
-from   errno    import ENOENT
-import io
 import os
 import os.path
 import shutil
-import sys
 import tempfile
 from   warnings import warn
 
-try:
-    from os import fsdecode
-except ImportError:
-    def fsdecode(p):
-        return p
-
 __all__ = ['InPlace', 'InPlaceBytes', 'InPlaceText']
 
-class InPlace(object):
+class InPlace:
     """
     A class for reading from & writing to a file "in-place" (with data that you
     write ending up at the same filepath that you read from) that takes care of
@@ -45,12 +36,9 @@ class InPlace(object):
 
     :param string mode: Whether to operate on the file in binary or text mode.
         If ``mode`` is ``'b'``, the file will be opened in binary mode, and
-        data will be read & written as `str` (Python 2) or `bytes` (Python 3)
-        objects.  If ``mode`` is ``'t'``, the file will be opened in text mode,
-        and data will be read & written as `unicode` (Python 2) or `str`
-        (Python 3) objects.  If ``mode`` is unset, the file will be opened with
-        `open` using the default mode, and data will be read & written as `str`
-        objects, whatever those happen to be in your version of Python.
+        data will be read & written as `bytes` objects.  If ``mode`` is ``'t'``
+        or unset, the file will be opened in text mode, and data will be read &
+        written as `str` objects.
 
     :param backup: The path at which to save the file's original contents once
         editing has finished (resolved relative to the current directory at the
@@ -75,8 +63,7 @@ class InPlace(object):
         be created at a temporary location, and neither file will be moved or
         deleted until :meth:`close()` is called.
 
-    :param kwargs: Additional keyword arguments to pass to `open()` or (if
-        ``mode`` is non-`None`) `io.open()`
+    :param kwargs: Additional keyword arguments to pass to `open()`
     """
 
     UNOPENED = 0
@@ -87,7 +74,7 @@ class InPlace(object):
                  delay_open=False, move_first=False, **kwargs):
         cwd = os.getcwd()
         #: The path to the file to edit in-place
-        self.name = fsdecode(name)
+        self.name = os.fsdecode(name)
         #: Whether to operate on the file in binary or text mode
         self.mode = mode
         #: The absolute path of the file to edit in-place
@@ -100,11 +87,11 @@ class InPlace(object):
                 raise ValueError('backup and backup_ext are mutually exclusive')
             #: The absolute path of the backup file (if any) that the original
             #: contents of ``realpath`` will be moved to after editing
-            self.backuppath = os.path.join(cwd, fsdecode(backup))
+            self.backuppath = os.path.join(cwd, os.fsdecode(backup))
         elif backup_ext is not None:
             if not backup_ext:
                 raise ValueError('backup_ext cannot be empty')
-            self.backuppath = self.filepath + fsdecode(backup_ext)
+            self.backuppath = self.filepath + os.fsdecode(backup_ext)
         else:
             self.backuppath = None
         #: Whether to move the input file before opening and create the output
@@ -176,7 +163,7 @@ class InPlace(object):
                         self._tmppath = self._mktemp(self.backuppath)
                     else:
                         self._tmppath = self._mktemp(self.realpath)
-                    force_rename(self.realpath, self._tmppath)
+                    os.replace(self.realpath, self._tmppath)
                     self.output = self.open_write(self.realpath)
                     copystats(self._tmppath, self.realpath)
                 else:
@@ -194,28 +181,24 @@ class InPlace(object):
         Open the file at ``path`` for reading and return a file-like object.
         Use :attr:`mode` to determine whether to open in binary or text mode.
         """
-        if not self.mode:
+        if not self.mode or self.mode == 't':
             return open(path, 'r', **self.kwargs)
         elif self.mode == 'b':
-            return io.open(path, 'rb', **self.kwargs)
-        elif self.mode == 't':
-            return io.open(path, 'rt', **self.kwargs)
+            return open(path, 'rb', **self.kwargs)
         else:
-            raise ValueError('{!r}: invalid mode'.format(self.mode))
+            raise ValueError(f'{self.mode!r}: invalid mode')
 
     def open_write(self, path):
         """
         Open the file at ``path`` for writing and return a file-like object.
         Use :attr:`mode` to determine whether to open in binary or text mode.
         """
-        if not self.mode:
+        if not self.mode or self.mode == 't':
             return open(path, 'w', **self.kwargs)
         elif self.mode == 'b':
-            return io.open(path, 'wb', **self.kwargs)
-        elif self.mode == 't':
-            return io.open(path, 'wt', **self.kwargs)
+            return open(path, 'wb', **self.kwargs)
         else:
-            raise ValueError('{!r}: invalid mode'.format(self.mode))
+            raise ValueError(f'{self.mode!r}: invalid mode')
 
     def _close(self):
         """
@@ -247,15 +230,15 @@ class InPlace(object):
                 if self.move_first:
                     if self.backuppath is not None:
                         try:
-                            force_rename(self._tmppath, self.backuppath)
-                        except EnvironmentError:
-                            force_rename(self._tmppath, self.realpath)
+                            os.replace(self._tmppath, self.backuppath)
+                        except IOError:
+                            os.replace(self._tmppath, self.realpath)
                             self._tmppath = None
                             raise
                 else:
                     if self.backuppath is not None:
-                        force_rename(self.realpath, self.backuppath)
-                    force_rename(self._tmppath, self.realpath)
+                        os.replace(self.realpath, self.backuppath)
+                    os.replace(self._tmppath, self.realpath)
             finally:
                 if self._tmppath is not None:
                     try_unlink(self._tmppath)
@@ -277,7 +260,7 @@ class InPlace(object):
             self._close()
             if self._tmppath is not None:  # In case of error while opening
                 if self.move_first:
-                    force_rename(self._tmppath, self.realpath)
+                    os.replace(self._tmppath, self.realpath)
                 else:
                     try_unlink(self._tmppath)
                 self._tmppath = None
@@ -375,23 +358,11 @@ def copystats(from_file, to_file):
         # Based on GNU sed's behavior:
         try:
             os.chown(to_file, st.st_uid, st.st_gid)
-        except EnvironmentError:
+        except IOError:
             try:
                 os.chown(to_file, -1, st.st_gid)
-            except EnvironmentError:
+            except IOError:
                 pass
-
-def force_rename(oldpath, newpath):
-    """
-    Move the file at ``oldpath`` to ``newpath``, deleting ``newpath``
-    beforehand if necessary
-    """
-    if hasattr(os, 'replace'):  # Python 3.3+
-        os.replace(oldpath, newpath)
-    else:
-        if sys.platform.startswith('win'):
-            try_unlink(newpath)
-        os.rename(oldpath, newpath)
 
 def try_unlink(path):
     """
@@ -400,6 +371,5 @@ def try_unlink(path):
     """
     try:
         os.unlink(path)
-    except EnvironmentError as e:
-        if e.errno != ENOENT:
-            raise
+    except FileNotFoundError:
+        pass

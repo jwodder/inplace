@@ -1,6 +1,5 @@
-from   __future__         import print_function
-from   in_place           import InPlace
-from   test_in_place_util import TEXT, UNICODE, pylistdir
+from in_place           import InPlace
+from test_in_place_util import TEXT, UNICODE, pylistdir
 
 def test_print_backup(tmpdir):
     assert pylistdir(tmpdir) == []

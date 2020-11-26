@@ -1,10 +1,6 @@
-from   __future__         import print_function
-import sys
 import pytest
 from   in_place           import InPlace
 from   test_in_place_util import UNICODE, pylistdir
-
-pytestmark = pytest.mark.skipif(sys.version_info[0] < 3, reason='Python 3 only')
 
 def test_py3_textstr(tmpdir):
     """ Assert that `InPlace` works with text strings in Python 3 """
