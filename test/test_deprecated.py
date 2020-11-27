@@ -29,4 +29,4 @@ def test_deprecated_utf8_nobackup(tmpdir):
         assert txt == UNICODE
         fp.write(normalize('NFD', txt))
     assert pylistdir(tmpdir) == ['file.txt']
-    assert p.read_text('utf-8') == u'a\u030Ae\u0301i\u0302\xF8u\u0308\n'
+    assert p.read_text('utf-8') == 'a\u030Ae\u0301i\u0302\xF8u\u0308\n'
