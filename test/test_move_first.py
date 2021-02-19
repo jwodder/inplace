@@ -1,4 +1,5 @@
 import os
+import platform
 import pytest
 from   in_place           import InPlace
 from   test_in_place_util import TEXT, pylistdir
@@ -86,6 +87,10 @@ def test_move_first_pass_nobackup(tmpdir):
     assert pylistdir(tmpdir) == ['file.txt']
     assert p.read() == ''
 
+@pytest.mark.skipif(
+    platform.system() == "Windows",
+    reason="Cannot delete open file on Windows",
+)
 def test_move_first_delete_nobackup(tmpdir):
     assert pylistdir(tmpdir) == []
     p = tmpdir.join("file.txt")
@@ -97,6 +102,10 @@ def test_move_first_delete_nobackup(tmpdir):
                 p.remove()
     assert pylistdir(tmpdir) == []
 
+@pytest.mark.skipif(
+    platform.system() == "Windows",
+    reason="Cannot delete open file on Windows",
+)
 def test_move_first_delete_backup(tmpdir):
     assert pylistdir(tmpdir) == []
     p = tmpdir.join("file.txt")
