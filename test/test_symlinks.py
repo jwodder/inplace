@@ -1,4 +1,4 @@
-from os                 import symlink
+from os                 import readlink, symlink
 from os.path            import islink
 from in_place           import InPlace
 from test_in_place_util import TEXT, pylistdir
@@ -17,7 +17,7 @@ def test_symlink_nobackup(tmpdir):
     assert pylistdir(realdir) == ['realfile.txt']
     assert pylistdir(linkdir) == ['linkfile.txt']
     assert islink(str(link))
-    assert link.readlink() == '../real/realfile.txt'
+    assert readlink(str(link)) == '../real/realfile.txt'
     assert link.read() == TEXT.swapcase()
     assert real.read() == TEXT.swapcase()
 
@@ -35,7 +35,7 @@ def test_symlink_backup_ext(tmpdir):
     assert pylistdir(realdir) == ['realfile.txt']
     assert pylistdir(linkdir) == ['linkfile.txt', 'linkfile.txt~']
     assert islink(str(link))
-    assert link.readlink() == '../real/realfile.txt'
+    assert readlink(str(link)) == '../real/realfile.txt'
     assert link.new(ext='txt~').read() == TEXT
     assert link.read() == TEXT.swapcase()
     assert real.read() == TEXT.swapcase()
@@ -56,7 +56,7 @@ def test_symlink_backup(tmpdir):
     assert pylistdir(realdir) == ['realfile.txt']
     assert pylistdir(linkdir) == ['linkfile.txt']
     assert islink(str(link))
-    assert link.readlink() == '../real/realfile.txt'
+    assert readlink(str(link)) == '../real/realfile.txt'
     assert bkp.read() == TEXT
     assert link.read() == TEXT.swapcase()
     assert real.read() == TEXT.swapcase()
