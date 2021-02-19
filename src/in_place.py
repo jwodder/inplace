@@ -157,19 +157,26 @@ class InPlace:
             self._state = self.OPEN
             self.realpath = os.path.realpath(self.filepath)
             try:
-                self.input = self.open_read(self.realpath)
                 if self.move_first:
                     if self.backuppath is not None:
                         self._tmppath = self._mktemp(self.backuppath)
                     else:
                         self._tmppath = self._mktemp(self.realpath)
-                    os.replace(self.realpath, self._tmppath)
+                    try:
+                        os.replace(self.realpath, self._tmppath)
+                    except OSError:
+                        try_unlink(self._tmppath)
+                        self._tmppath = None
+                        raise
                     self.output = self.open_write(self.realpath)
                     copystats(self._tmppath, self.realpath)
+                    input_path = self._tmppath
                 else:
                     self._tmppath = self._mktemp(self.realpath)
                     self.output = self.open_write(self._tmppath)
                     copystats(self.realpath, self._tmppath)
+                    input_path = self.realpath
+                self.input = self.open_read(input_path)
             except Exception:
                 self.rollback()
                 raise
