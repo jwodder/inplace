@@ -1,62 +1,79 @@
-from os                 import readlink, symlink
-from os.path            import islink
-from in_place           import InPlace
-from test_in_place_util import TEXT, pylistdir
+from   operator           import attrgetter
+import os
+from   os.path            import relpath
+from   in_place           import InPlace
+from   test_in_place_util import TEXT
 
-def test_symlink_nobackup(tmpdir):
-    assert pylistdir(tmpdir) == []
-    realdir = tmpdir.mkdir('real')
-    real = realdir.join('realfile.txt')
-    real.write(TEXT)
-    linkdir = tmpdir.mkdir('link')
-    link = linkdir.join('linkfile.txt')
-    symlink('../real/realfile.txt', str(link))
+def test_symlink_nobackup(tmp_path):
+    assert list(tmp_path.iterdir()) == []
+    realdir = tmp_path / "real"
+    realdir.mkdir()
+    real = realdir / 'realfile.txt'
+    real.write_text(TEXT)
+    linkdir = tmp_path / "link"
+    linkdir.mkdir()
+    link = linkdir / 'linkfile.txt'
+    target = relpath(real, linkdir)
+    link.symlink_to(target)
     with InPlace(str(link)) as fp:
         for line in fp:
             fp.write(line.swapcase())
-    assert pylistdir(realdir) == ['realfile.txt']
-    assert pylistdir(linkdir) == ['linkfile.txt']
-    assert islink(str(link))
-    assert readlink(str(link)) == '../real/realfile.txt'
-    assert link.read() == TEXT.swapcase()
-    assert real.read() == TEXT.swapcase()
+    assert list(realdir.iterdir()) == [real]
+    assert list(linkdir.iterdir()) == [link]
+    assert link.is_symlink()
+    assert os.readlink(str(link)) == target
+    assert link.read_text() == TEXT.swapcase()
+    assert real.read_text() == TEXT.swapcase()
 
-def test_symlink_backup_ext(tmpdir):
-    assert pylistdir(tmpdir) == []
-    realdir = tmpdir.mkdir('real')
-    real = realdir.join('realfile.txt')
-    real.write(TEXT)
-    linkdir = tmpdir.mkdir('link')
-    link = linkdir.join('linkfile.txt')
-    symlink('../real/realfile.txt', str(link))
+def test_symlink_backup_ext(tmp_path):
+    assert list(tmp_path.iterdir()) == []
+    realdir = tmp_path / "real"
+    realdir.mkdir()
+    real = realdir / 'realfile.txt'
+    real.write_text(TEXT)
+    linkdir = tmp_path / "link"
+    linkdir.mkdir()
+    link = linkdir / 'linkfile.txt'
+    target = relpath(real, linkdir)
+    link.symlink_to(target)
     with InPlace(str(link), backup_ext='~') as fp:
         for line in fp:
             fp.write(line.swapcase())
-    assert pylistdir(realdir) == ['realfile.txt']
-    assert pylistdir(linkdir) == ['linkfile.txt', 'linkfile.txt~']
-    assert islink(str(link))
-    assert readlink(str(link)) == '../real/realfile.txt'
-    assert link.new(ext='txt~').read() == TEXT
-    assert link.read() == TEXT.swapcase()
-    assert real.read() == TEXT.swapcase()
+    assert list(realdir.iterdir()) == [real]
+    assert sorted(linkdir.iterdir(), key=attrgetter("name")) == [
+        link,
+        link.with_suffix(".txt~"),
+    ]
+    assert link.is_symlink()
+    assert os.readlink(str(link)) == target
+    assert link.with_suffix('.txt~').read_text() == TEXT
+    assert link.read_text() == TEXT.swapcase()
+    assert real.read_text() == TEXT.swapcase()
 
-def test_symlink_backup(tmpdir):
-    assert pylistdir(tmpdir) == []
-    realdir = tmpdir.mkdir('real')
-    real = realdir.join('realfile.txt')
-    real.write(TEXT)
-    linkdir = tmpdir.mkdir('link')
-    link = linkdir.join('linkfile.txt')
-    symlink('../real/realfile.txt', str(link))
-    bkp = tmpdir.join('backup.txt')
+def test_symlink_backup(tmp_path):
+    assert list(tmp_path.iterdir()) == []
+    realdir = tmp_path / "real"
+    realdir.mkdir()
+    real = realdir / 'realfile.txt'
+    real.write_text(TEXT)
+    linkdir = tmp_path / "link"
+    linkdir.mkdir()
+    link = linkdir / 'linkfile.txt'
+    target = relpath(real, linkdir)
+    link.symlink_to(target)
+    bkp = tmp_path / "backup.txt"
     with InPlace(str(link), backup=str(bkp)) as fp:
         for line in fp:
             fp.write(line.swapcase())
-    assert pylistdir(tmpdir) == ['backup.txt', 'link', 'real']
-    assert pylistdir(realdir) == ['realfile.txt']
-    assert pylistdir(linkdir) == ['linkfile.txt']
-    assert islink(str(link))
-    assert readlink(str(link)) == '../real/realfile.txt'
-    assert bkp.read() == TEXT
-    assert link.read() == TEXT.swapcase()
-    assert real.read() == TEXT.swapcase()
+    assert sorted(tmp_path.iterdir(), key=attrgetter("name")) == [
+        bkp,
+        linkdir,
+        realdir,
+    ]
+    assert list(realdir.iterdir()) == [real]
+    assert list(linkdir.iterdir()) == [link]
+    assert link.is_symlink()
+    assert os.readlink(str(link)) == target
+    assert bkp.read_text() == TEXT
+    assert link.read_text() == TEXT.swapcase()
+    assert real.read_text() == TEXT.swapcase()
