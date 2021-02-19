@@ -8,8 +8,9 @@ def test_bad_mode(tmpdir, move_first, backup):
     assert pylistdir(tmpdir) == []
     p = tmpdir.join("file.txt")
     p.write(TEXT)
+    backup_path = tmpdir.join(backup) if backup is not None else None
     with pytest.raises(ValueError, match='invalid mode'):
-        InPlace(str(p), mode='q', move_first=move_first, backup=backup)
+        InPlace(str(p), mode='q', move_first=move_first, backup=backup_path)
     assert pylistdir(tmpdir) == ['file.txt']
     assert p.read() == TEXT
 
@@ -24,7 +25,7 @@ def test_bad_mode_delay_open_with(tmpdir, move_first, backup):
         mode       = 'q',
         delay_open = True,
         move_first = move_first,
-        backup     = backup,
+        backup     = tmpdir.join(backup) if backup is not None else None,
     )
     with pytest.raises(ValueError, match='invalid mode'):
         with fp:
@@ -44,7 +45,7 @@ def test_bad_mode_delay_open_open(tmpdir, move_first, backup):
         mode       = 'q',
         delay_open = True,
         move_first = move_first,
-        backup     = backup,
+        backup     = tmpdir.join(backup) if backup is not None else None,
     )
     with pytest.raises(ValueError, match='invalid mode'):
         fp.open()
