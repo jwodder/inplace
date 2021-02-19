@@ -1,8 +1,15 @@
 from   operator           import attrgetter
 import os
 from   os.path            import relpath
+import platform
+import pytest
 from   in_place           import InPlace
 from   test_in_place_util import TEXT
+
+pytestmark = pytest.mark.xfail(
+    platform.system() == "Windows" and platform.python_implementation() == "PyPy",
+    reason='Symlinks are not implemented on PyPy on Windows as of v7.3.3',
+)
 
 def test_symlink_nobackup(tmp_path):
     assert list(tmp_path.iterdir()) == []
