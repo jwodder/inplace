@@ -1,7 +1,7 @@
 from   unicodedata        import normalize
 import pytest
 from   in_place           import InPlace
-from   test_in_place_util import UNICODE, pylistdir
+from   test_in_place_util import NLB, UNICODE, pylistdir
 
 def test_utf8_nobackup(tmpdir):
     assert pylistdir(tmpdir) == []
@@ -25,7 +25,7 @@ def test_utf8_as_latin1(tmpdir):
         assert txt == '\xc3\xa5\xc3\xa9\xc3\xae\xc3\xb8\xc3\xbc\n'
         fp.write(UNICODE)
     assert pylistdir(tmpdir) == ['file.txt']
-    assert p.read_binary() == b'\xE5\xE9\xEE\xF8\xFC\n'
+    assert p.read_binary() == b'\xE5\xE9\xEE\xF8\xFC' + NLB
 
 def test_latin1_as_utf8(tmpdir):
     assert pylistdir(tmpdir) == []

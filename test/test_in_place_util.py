@@ -1,3 +1,5 @@
+import os
+
 def pylistdir(d):
     return sorted(p.basename for p in d.listdir())
 
@@ -39,3 +41,5 @@ TEXT = (
 )
 
 UNICODE = 'åéîøü\n'
+
+NLB = os.linesep.encode()

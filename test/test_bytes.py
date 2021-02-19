@@ -1,6 +1,6 @@
 import pytest
 from   in_place           import InPlace
-from   test_in_place_util import UNICODE, pylistdir
+from   test_in_place_util import NLB, UNICODE, pylistdir
 
 def test_bytes_iconv_nobackup(tmpdir):
     assert pylistdir(tmpdir) == []
@@ -9,10 +9,10 @@ def test_bytes_iconv_nobackup(tmpdir):
     with InPlace(str(p), 'b') as fp:
         txt = fp.read()
         assert isinstance(txt, bytes)
-        assert txt == b'\xc3\xa5\xc3\xa9\xc3\xae\xc3\xb8\xc3\xbc\n'
+        assert txt == b'\xc3\xa5\xc3\xa9\xc3\xae\xc3\xb8\xc3\xbc' + NLB
         fp.write(txt.decode('utf-8').encode('latin-1'))
     assert pylistdir(tmpdir) == ['file.txt']
-    assert p.read_binary() == b'\xE5\xE9\xEE\xF8\xFC\n'
+    assert p.read_binary() == b'\xE5\xE9\xEE\xF8\xFC' + NLB
 
 def test_bytes_useless_after_close(tmpdir):
     assert pylistdir(tmpdir) == []
