@@ -17,9 +17,16 @@ __url__          = 'https://github.com/jwodder/inplace'
 
 import os
 import os.path
+import platform
 import shutil
+import sys
 import tempfile
 from   warnings import warn
+
+if platform.system() == "Windows" and sys.version_info[:2] < (3,8):
+    from jaraco.windows.filesystem import get_final_path as realpath
+else:
+    from os.path import realpath
 
 __all__ = ['InPlace', 'InPlaceBytes', 'InPlaceText']
 
@@ -155,7 +162,7 @@ class InPlace:
         """
         if self._state < self.OPEN:
             self._state = self.OPEN
-            self.realpath = os.path.realpath(self.filepath)
+            self.realpath = realpath(self.filepath)
             try:
                 if self.move_first:
                     if self.backuppath is not None:
