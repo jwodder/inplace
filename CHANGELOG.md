@@ -1,5 +1,5 @@
-0.5.0 (in development)
-----------------------
+v0.5.0 (2021-02-20)
+-------------------
 - Support Python 3.8 and 3.9
 - Drop support for Python 2.7, 3.4, and 3.5
 - Support `move_first` on Windows
