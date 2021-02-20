@@ -23,7 +23,11 @@ import sys
 import tempfile
 from   warnings import warn
 
-if platform.system() == "Windows" and sys.version_info[:2] < (3,8):
+if (
+    platform.system() == "Windows"
+    and platform.python_implementation() != "PyPy"
+    and sys.version_info[:2] < (3,8)
+):
     from jaraco.windows.filesystem import get_final_path as realpath
 else:
     from os.path import realpath
