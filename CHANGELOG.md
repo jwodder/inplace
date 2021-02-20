@@ -2,6 +2,10 @@
 ----------------------
 - Support Python 3.8 and 3.9
 - Drop support for Python 2.7, 3.4, and 3.5
+- Support `move_first` on Windows
+- Get tests to pass on Windows
+- Use [`jaraco.windows`](https://github.com/jaraco/jaraco.windows) to handle
+  symlinks on Windows on versions of Python prior to 3.8
 
 v0.4.0 (2018-10-05)
 -------------------
