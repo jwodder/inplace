@@ -129,7 +129,7 @@ class InPlace:
             self.open()
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(self, exc_type, _exc_value, _traceback):
         if self._state == self.OPEN:
             if exc_type is not None:
                 self.rollback()
