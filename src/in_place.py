@@ -9,11 +9,11 @@ temporary files for you.
 Visit <https://github.com/jwodder/inplace> for more information.
 """
 
-__version__      = '0.6.0.dev1'
-__author__       = 'John Thorvald Wodder II'
-__author_email__ = 'inplace@varonathe.org'
-__license__      = 'MIT'
-__url__          = 'https://github.com/jwodder/inplace'
+__version__ = "0.6.0.dev1"
+__author__ = "John Thorvald Wodder II"
+__author_email__ = "inplace@varonathe.org"
+__license__ = "MIT"
+__url__ = "https://github.com/jwodder/inplace"
 
 import os
 import os.path
@@ -21,18 +21,19 @@ import platform
 import shutil
 import sys
 import tempfile
-from   warnings import warn
+from warnings import warn
 
 if (
     platform.system() == "Windows"
     and platform.python_implementation() != "PyPy"
-    and sys.version_info[:2] < (3,8)
+    and sys.version_info[:2] < (3, 8)
 ):
     from jaraco.windows.filesystem import get_final_path as realpath
 else:
     from os.path import realpath
 
-__all__ = ['InPlace', 'InPlaceBytes', 'InPlaceText']
+__all__ = ["InPlace", "InPlaceBytes", "InPlaceText"]
+
 
 class InPlace:
     """
@@ -81,8 +82,16 @@ class InPlace:
     OPEN = 1
     CLOSED = 2
 
-    def __init__(self, name, mode=None, backup=None, backup_ext=None,
-                 delay_open=False, move_first=False, **kwargs):
+    def __init__(
+        self,
+        name,
+        mode=None,
+        backup=None,
+        backup_ext=None,
+        delay_open=False,
+        move_first=False,
+        **kwargs,
+    ):
         cwd = os.getcwd()
         #: The path to the file to edit in-place
         self.name = os.fsdecode(name)
@@ -95,13 +104,13 @@ class InPlace:
         self.realpath = None
         if backup is not None:
             if backup_ext is not None:
-                raise ValueError('backup and backup_ext are mutually exclusive')
+                raise ValueError("backup and backup_ext are mutually exclusive")
             #: The absolute path of the backup file (if any) that the original
             #: contents of ``realpath`` will be moved to after editing
             self.backuppath = os.path.join(cwd, os.fsdecode(backup))
         elif backup_ext is not None:
             if not backup_ext:
-                raise ValueError('backup_ext cannot be empty')
+                raise ValueError("backup_ext cannot be empty")
             self.backuppath = self.filepath + os.fsdecode(backup_ext)
         else:
             self.backuppath = None
@@ -144,7 +153,7 @@ class InPlace:
         """
         fd, tmppath = tempfile.mkstemp(
             dir=os.path.dirname(filepath),
-            prefix='._in_place-',
+            prefix="._in_place-",
         )
         os.close(fd)
         return tmppath
@@ -192,31 +201,31 @@ class InPlace:
                 self.rollback()
                 raise
         else:
-            raise ValueError('open() called twice on same filehandle')
+            raise ValueError("open() called twice on same filehandle")
 
     def open_read(self, path):
         """
         Open the file at ``path`` for reading and return a file-like object.
         Use :attr:`mode` to determine whether to open in binary or text mode.
         """
-        if not self.mode or self.mode == 't':
-            return open(path, 'r', **self.kwargs)
-        elif self.mode == 'b':
-            return open(path, 'rb', **self.kwargs)
+        if not self.mode or self.mode == "t":
+            return open(path, "r", **self.kwargs)
+        elif self.mode == "b":
+            return open(path, "rb", **self.kwargs)
         else:
-            raise ValueError(f'{self.mode!r}: invalid mode')
+            raise ValueError(f"{self.mode!r}: invalid mode")
 
     def open_write(self, path):
         """
         Open the file at ``path`` for writing and return a file-like object.
         Use :attr:`mode` to determine whether to open in binary or text mode.
         """
-        if not self.mode or self.mode == 't':
-            return open(path, 'w', **self.kwargs)
-        elif self.mode == 'b':
-            return open(path, 'wb', **self.kwargs)
+        if not self.mode or self.mode == "t":
+            return open(path, "w", **self.kwargs)
+        elif self.mode == "b":
+            return open(path, "wb", **self.kwargs)
         else:
-            raise ValueError(f'{self.mode!r}: invalid mode')
+            raise ValueError(f"{self.mode!r}: invalid mode")
 
     def _close(self):
         """
@@ -240,7 +249,7 @@ class InPlace:
         :raises ValueError: if called before opening the filehandle
         """
         if self._state == self.UNOPENED:
-            raise ValueError('Cannot close unopened file')
+            raise ValueError("Cannot close unopened file")
         elif self._state == self.OPEN:
             self._state = self.CLOSED
             self._close()
@@ -261,7 +270,7 @@ class InPlace:
                 if self._tmppath is not None:
                     try_unlink(self._tmppath)
                     self._tmppath = None
-        #elif self._state == self.CLOSED: pass
+        # elif self._state == self.CLOSED: pass
 
     def rollback(self):
         """
@@ -272,7 +281,7 @@ class InPlace:
         :raises ValueError: if called while the `InPlace` instance is not open
         """
         if self._state == self.UNOPENED:
-            raise ValueError('Cannot close unopened file')
+            raise ValueError("Cannot close unopened file")
         elif self._state == self.OPEN:
             self._state = self.CLOSED
             self._close()
@@ -284,7 +293,7 @@ class InPlace:
                 self._tmppath = None
         else:
             assert self._state == self.CLOSED
-            raise ValueError('Cannot rollback closed file')
+            raise ValueError("Cannot rollback closed file")
 
     @property
     def closed(self):
@@ -297,72 +306,72 @@ class InPlace:
 
     def read(self, size=-1):
         if self._state != self.OPEN:
-            raise ValueError('Filehandle is not currently open')
+            raise ValueError("Filehandle is not currently open")
         return self.input.read(size)
 
     def readline(self, size=-1):
         if self._state != self.OPEN:
-            raise ValueError('Filehandle is not currently open')
+            raise ValueError("Filehandle is not currently open")
         return self.input.readline(size)
 
     def readlines(self, sizehint=-1):
         if self._state != self.OPEN:
-            raise ValueError('Filehandle is not currently open')
+            raise ValueError("Filehandle is not currently open")
         return self.input.readlines(sizehint)
 
     def readinto(self, b):
         if self._state != self.OPEN:
-            raise ValueError('Filehandle is not currently open')
+            raise ValueError("Filehandle is not currently open")
         return self.input.readinto(b)
 
     def readall(self):
         if self._state != self.OPEN:
-            raise ValueError('Filehandle is not currently open')
+            raise ValueError("Filehandle is not currently open")
         return self.input.readall()
 
     def write(self, s):
         if self._state != self.OPEN:
-            raise ValueError('Filehandle is not currently open')
+            raise ValueError("Filehandle is not currently open")
         self.output.write(s)
 
     def writelines(self, seq):
         if self._state != self.OPEN:
-            raise ValueError('Filehandle is not currently open')
+            raise ValueError("Filehandle is not currently open")
         self.output.writelines(seq)
 
     def __iter__(self):
         if self._state != self.OPEN:
-            raise ValueError('Filehandle is not currently open')
+            raise ValueError("Filehandle is not currently open")
         return iter(self.input)
 
     def flush(self):
         if self._state != self.OPEN:
-            raise ValueError('Filehandle is not currently open')
+            raise ValueError("Filehandle is not currently open")
         self.output.flush()
 
 
 class InPlaceBytes(InPlace):
-    """ Deprecated.  Please use `InPlace` with ``mode='b'`` instead. """
+    """Deprecated.  Please use `InPlace` with ``mode='b'`` instead."""
 
     def __init__(self, name, **kwargs):
         warn(
-            'InPlaceBytes is deprecated.'
+            "InPlaceBytes is deprecated."
             '  Please use `InPlace(name, mode="b")` instead.',
             DeprecationWarning,
         )
-        super(InPlaceBytes, self).__init__(name, mode='b', **kwargs)
+        super(InPlaceBytes, self).__init__(name, mode="b", **kwargs)
 
 
 class InPlaceText(InPlace):
-    """ Deprecated.  Please use `InPlace` with ``mode='t'`` instead. """
+    """Deprecated.  Please use `InPlace` with ``mode='t'`` instead."""
 
     def __init__(self, name, **kwargs):
         warn(
-            'InPlaceText is deprecated.'
+            "InPlaceText is deprecated."
             '  Please use `InPlace(name, mode="t")` instead.',
             DeprecationWarning,
         )
-        super(InPlaceText, self).__init__(name, mode='t', **kwargs)
+        super(InPlaceText, self).__init__(name, mode="t", **kwargs)
 
 
 def copystats(from_file, to_file):
@@ -371,7 +380,7 @@ def copystats(from_file, to_file):
     If possible, also copy the user and/or group ownership information.
     """
     shutil.copystat(from_file, to_file)
-    if hasattr(os, 'chown'):
+    if hasattr(os, "chown"):
         st = os.stat(from_file)
         # Based on GNU sed's behavior:
         try:
@@ -381,6 +390,7 @@ def copystats(from_file, to_file):
                 os.chown(to_file, -1, st.st_gid)
             except IOError:
                 pass
+
 
 def try_unlink(path):
     """
