@@ -13,6 +13,10 @@
 .. image:: https://img.shields.io/pypi/pyversions/in_place.svg
     :target: https://pypi.org/project/in_place
 
+.. image:: https://img.shields.io/conda/vn/conda-forge/in_place.svg
+    :target: https://anaconda.org/conda-forge/in_place
+    :alt: Conda Version
+
 .. image:: https://img.shields.io/github/license/jwodder/inplace.svg?maxAge=2592000
     :target: https://opensource.org/licenses/MIT
     :alt: MIT License
