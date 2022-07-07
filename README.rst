@@ -135,7 +135,7 @@ following arguments:
 ``**kwargs``
    Any additional keyword arguments (such as ``encoding``, ``errors``, and
    ``newline``) will be forwarded to ``open()`` when opening both the input and
-   output file strems.
+   output file streams.
 
 ``name``, ``backup``, and ``backup_ext`` can be ``str``, filesystem-encoded
 ``bytes``, or path-like objects.
@@ -172,10 +172,10 @@ attributes, specifically::
 
 ``close()``
    Close filehandles and move files to their final destinations.  If called
-   after the filhandle has already been closed, ``close()`` does nothing.
+   after the filehandle has already been closed, ``close()`` does nothing.
 
    Be sure to always close your instances when you're done with them by calling
-   ``close()`` or ``rollback()`` either explicity or implicitly (i.e., via use
+   ``close()`` or ``rollback()`` either explicitly or implicitly (i.e., via use
    as a context manager).
 
 ``rollback()``
