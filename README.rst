@@ -87,7 +87,7 @@ Compared to the in-place filtering implemented by the Python standard library's
 
 Installation
 ============
-``in_place`` requires Python 3.6 or higher.  Just use `pip
+``in_place`` requires Python 3.7 or higher.  Just use `pip
 <https://pip.pypa.io>`_ for Python 3 (You have pip, right?) to install
 ``in_place`` and its dependencies::
 
