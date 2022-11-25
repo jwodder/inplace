@@ -158,7 +158,7 @@ class InPlace:
         os.close(fd)
         return tmppath
 
-    def open(self):
+    def open(self):  # noqa: A003
         """
         Open the file :attr:`name` for reading and open a temporary file for
         writing.  If :attr:`move_first` is `True`, :attr:`name` will be moved
