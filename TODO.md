@@ -19,16 +19,14 @@
     - symlinks pointing to nonexistent files
 
 - Add options for:
+    - not resolving symbolic links
     - preserving the tempfile if an error was raised
-    - Don't error if moving the input file to the backup location fails?
-    - `rollback_on_error=True`
     - `create=False`: If true and the input file doesn't exist, act as though
       it's simply empty
-    - not resolving symbolic links?
 
 - When the filename is `-`, read stdin and write to stdout?
     - Only support this when an `allow_dash=True` argument is given?
-- Copy ACLs etc.
+    - Don't do this, as standard streams can't be rolled back
 - Make `InPlace` inherit one of the ABCs in `io`?
 - How should exceptions raised by `_close` be handled?
 - Should calling `rollback` while closed be a no-op?
