@@ -38,13 +38,15 @@ For example, given the file ``somefile.txt``::
     All mimsy were the borogoves,
         And the mome raths outgrabe.
 
-and the program ``disemvowel.py``::
+and the program ``disemvowel.py``:
+
+.. code:: python
 
     import in_place
 
-    with in_place.InPlace('somefile.txt') as fp:
+    with in_place.InPlace("somefile.txt") as fp:
         for line in fp:
-            fp.write(''.join(c for c in line if c not in 'AEIOUaeiou'))
+            fp.write("".join(c for c in line if c not in "AEIOUaeiou"))
 
 after running the program, ``somefile.txt`` will have been edited in place,
 reducing it to just::
@@ -56,13 +58,17 @@ reducing it to just::
 
 and no sign of those pesky vowels remains!  If you want a sign of those pesky
 vowels to remain, you can instead save the file's original contents in, say,
-``somefile.txt~`` by constructing the filehandle with::
+``somefile.txt~`` by constructing the filehandle with:
 
-    in_place.InPlace('somefile.txt', backup_ext='~')
+.. code:: python
 
-or save to ``someotherfile.txt`` with::
+    in_place.InPlace("somefile.txt", backup_ext="~")
 
-    in_place.InPlace('somefile.txt', backup='someotherfile.txt')
+or save to ``someotherfile.txt`` with:
+
+.. code:: python
+
+    in_place.InPlace("somefile.txt", backup="someotherfile.txt")
 
 Compared to the in-place filtering implemented by the Python standard library's
 |fileinput|_ module, ``in_place`` offers the following benefits:
