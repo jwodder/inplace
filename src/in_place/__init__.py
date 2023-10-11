@@ -96,33 +96,32 @@ class InPlace(IO[AnyStr]):
         cwd = os.getcwd()
         #: The path to the file to edit in-place
         self._name = os.fsdecode(name)
-        #: The absolute path of the file to edit in-place
-        self.filepath = os.path.join(cwd, self._name)
-        #: ``filepath`` with symbolic links resolved
-        self.realpath = os.path.realpath(self.filepath)
+        #: The absolute path of the file to edit in-place, with symbolic links
+        #: resolved
+        self._path = os.path.realpath(os.path.join(cwd, self._name))
         #: The absolute path of the backup file (if any) that the original
-        #: contents of ``realpath`` will be moved to after editing
-        self.backuppath: str | None
+        #: contents of ``path`` will be moved to after editing
+        self._backuppath: str | None
         if backup is not None:
             if backup_ext is not None:
                 raise ValueError("backup and backup_ext are mutually exclusive")
             b = os.fsdecode(backup)
             if not b:
                 raise ValueError("backup cannot be empty")
-            self.backuppath = os.path.join(cwd, b)
+            self._backuppath = os.path.join(cwd, b)
         elif backup_ext is not None:
             be = os.fsdecode(backup_ext)
             if not be:
                 raise ValueError("backup_ext cannot be empty")
-            self.backuppath = self.realpath + be
+            self._backuppath = self._path + be
         else:
-            self.backuppath = None
+            self._backuppath = None
         if mode not in (None, "t", "b"):
             raise ValueError(f"{mode!r}: invalid mode")
         #: `True` iff the filehandle is closed
         self._closed = False
         #: The absolute path to the temporary file
-        self._tmppath = self._mktemp(self.realpath)
+        self._tmppath = self._mktemp(self._path)
         try:
             #: The output filehandle to which data is written
             self.output: IO[AnyStr]
@@ -134,7 +133,7 @@ class InPlace(IO[AnyStr]):
             try_unlink(self._tmppath)
             raise
         try:
-            copystats(self.realpath, self._tmppath)
+            copystats(self._path, self._tmppath)
         except Exception:
             self.output.close()
             try_unlink(self._tmppath)
@@ -143,9 +142,9 @@ class InPlace(IO[AnyStr]):
             #: The input filehandle from which data is read
             self.input: IO[AnyStr]
             if mode is None or mode == "t":
-                self.input = open(self.realpath, "r", **kwargs)
+                self.input = open(self._path, "r", **kwargs)
             else:
-                self.input = open(self.realpath, "rb", **kwargs)
+                self.input = open(self._path, "rb", **kwargs)
         except Exception:
             self.output.close()
             try_unlink(self._tmppath)
@@ -195,9 +194,9 @@ class InPlace(IO[AnyStr]):
         if not self.closed:
             self._close()
             try:
-                if self.backuppath is not None:
-                    os.replace(self.realpath, self.backuppath)
-                os.replace(self._tmppath, self.realpath)
+                if self._backuppath is not None:
+                    os.replace(self._path, self._backuppath)
+                os.replace(self._tmppath, self._path)
             finally:
                 try_unlink(self._tmppath)
 
