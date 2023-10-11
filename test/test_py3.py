@@ -1,34 +1,35 @@
-import locale
+from __future__ import annotations
+from pathlib import Path
 import pytest
 from in_place import InPlace
 from test_in_place_util import UNICODE, pylistdir
 
 
-def test_py3_textstr(tmpdir):
+def test_py3_textstr(tmp_path: Path) -> None:
     """Assert that `InPlace` works with text strings in Python 3"""
-    assert pylistdir(tmpdir) == []
-    p = tmpdir.join("file.txt")
-    p.write_text(UNICODE, locale.getpreferredencoding())
-    with InPlace(str(p)) as fp:
+    assert pylistdir(tmp_path) == []
+    p = tmp_path / "file.txt"
+    p.write_text(UNICODE, encoding="utf-8")
+    with InPlace(p) as fp:
         txt = fp.read()
         assert isinstance(txt, str)
         assert txt == UNICODE
         print(UNICODE, file=fp)
-    assert pylistdir(tmpdir) == ["file.txt"]
-    assert p.read_text(locale.getpreferredencoding()) == UNICODE + "\n"
+    assert pylistdir(tmp_path) == ["file.txt"]
+    assert p.read_text(encoding="utf-8") == UNICODE + "\n"
 
 
-def test_py3_not_bytestr(tmpdir):
+def test_py3_not_bytestr(tmp_path: Path) -> None:
     """Assert that `InPlace` does not work with byte strings in Python 3"""
-    assert pylistdir(tmpdir) == []
-    p = tmpdir.join("file.txt")
-    p.write_text(UNICODE, locale.getpreferredencoding())
-    with InPlace(str(p)) as fp:
+    assert pylistdir(tmp_path) == []
+    p = tmp_path / "file.txt"
+    p.write_text(UNICODE, encoding="utf-8")
+    with InPlace(p) as fp:
         txt = fp.read()
         assert isinstance(txt, str)
         assert txt == UNICODE
-        txt = txt.encode("utf-8")
+        bs = txt.encode("utf-16")
         with pytest.raises(TypeError):
             # `print()` would stringify `txt` to `b'...'`, which is not what we
             # want.
-            fp.write(txt)
+            fp.write(bs)

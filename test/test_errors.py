@@ -1,3 +1,5 @@
+from __future__ import annotations
+from pathlib import Path
 import pytest
 from in_place import InPlace
 from test_in_place_util import TEXT, pylistdir
@@ -5,53 +7,57 @@ from test_in_place_util import TEXT, pylistdir
 
 @pytest.mark.parametrize("move_first", [True, False])
 @pytest.mark.parametrize("backup", [None, "backup.txt"])
-def test_bad_mode(tmpdir, move_first, backup):
-    assert pylistdir(tmpdir) == []
-    p = tmpdir.join("file.txt")
-    p.write(TEXT)
-    backup_path = tmpdir.join(backup) if backup is not None else None
+def test_bad_mode(tmp_path: Path, move_first: bool, backup: str | None) -> None:
+    assert pylistdir(tmp_path) == []
+    p = tmp_path / "file.txt"
+    p.write_text(TEXT)
+    backup_path = tmp_path / backup if backup is not None else None
     with pytest.raises(ValueError, match="invalid mode"):
-        InPlace(str(p), mode="q", move_first=move_first, backup=backup_path)
-    assert pylistdir(tmpdir) == ["file.txt"]
-    assert p.read() == TEXT
+        InPlace(p, mode="q", move_first=move_first, backup=backup_path)
+    assert pylistdir(tmp_path) == ["file.txt"]
+    assert p.read_text() == TEXT
 
 
 @pytest.mark.parametrize("move_first", [True, False])
 @pytest.mark.parametrize("backup", [None, "backup.txt"])
-def test_bad_mode_delay_open_with(tmpdir, move_first, backup):
-    assert pylistdir(tmpdir) == []
-    p = tmpdir.join("file.txt")
-    p.write(TEXT)
+def test_bad_mode_delay_open_with(
+    tmp_path: Path, move_first: bool, backup: str | None
+) -> None:
+    assert pylistdir(tmp_path) == []
+    p = tmp_path / "file.txt"
+    p.write_text(TEXT)
     fp = InPlace(
-        str(p),
+        p,
         mode="q",
         delay_open=True,
         move_first=move_first,
-        backup=tmpdir.join(backup) if backup is not None else None,
+        backup=tmp_path / backup if backup is not None else None,
     )
     with pytest.raises(ValueError, match="invalid mode"):
         with fp:
             assert False
     assert fp.closed
-    assert pylistdir(tmpdir) == ["file.txt"]
-    assert p.read() == TEXT
+    assert pylistdir(tmp_path) == ["file.txt"]
+    assert p.read_text() == TEXT
 
 
 @pytest.mark.parametrize("move_first", [True, False])
 @pytest.mark.parametrize("backup", [None, "backup.txt"])
-def test_bad_mode_delay_open_open(tmpdir, move_first, backup):
-    assert pylistdir(tmpdir) == []
-    p = tmpdir.join("file.txt")
-    p.write(TEXT)
+def test_bad_mode_delay_open_open(
+    tmp_path: Path, move_first: bool, backup: str | None
+) -> None:
+    assert pylistdir(tmp_path) == []
+    p = tmp_path / "file.txt"
+    p.write_text(TEXT)
     fp = InPlace(
-        str(p),
+        p,
         mode="q",
         delay_open=True,
         move_first=move_first,
-        backup=tmpdir.join(backup) if backup is not None else None,
+        backup=tmp_path / backup if backup is not None else None,
     )
     with pytest.raises(ValueError, match="invalid mode"):
         fp.open()
     assert fp.closed
-    assert pylistdir(tmpdir) == ["file.txt"]
-    assert p.read() == TEXT
+    assert pylistdir(tmp_path) == ["file.txt"]
+    assert p.read_text() == TEXT

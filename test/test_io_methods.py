@@ -1,61 +1,63 @@
+from __future__ import annotations
+from pathlib import Path
 from in_place import InPlace
 from test_in_place_util import TEXT, UNICODE, pylistdir
 
 
-def test_print_backup(tmpdir):
-    assert pylistdir(tmpdir) == []
-    p = tmpdir.join("file.txt")
-    p.write(TEXT)
-    bkp = tmpdir.join("backup.txt")
-    with InPlace(str(p), backup=str(bkp)) as fp:
+def test_print_backup(tmp_path: Path) -> None:
+    assert pylistdir(tmp_path) == []
+    p = tmp_path / "file.txt"
+    p.write_text(TEXT)
+    bkp = tmp_path / "backup.txt"
+    with InPlace(p, backup=bkp) as fp:
         for line in fp:
             print(line.swapcase(), end="", file=fp)
-    assert pylistdir(tmpdir) == ["backup.txt", "file.txt"]
-    assert bkp.read() == TEXT
-    assert p.read() == TEXT.swapcase()
+    assert pylistdir(tmp_path) == ["backup.txt", "file.txt"]
+    assert bkp.read_text() == TEXT
+    assert p.read_text() == TEXT.swapcase()
 
 
-def test_readinto_bytearray_nobackup(tmpdir):
-    assert pylistdir(tmpdir) == []
-    p = tmpdir.join("file.txt")
-    p.write_text(UNICODE, "utf-8")
-    with InPlace(str(p), "b") as fp:
+def test_readinto_bytearray_nobackup(tmp_path: Path) -> None:
+    assert pylistdir(tmp_path) == []
+    p = tmp_path / "file.txt"
+    p.write_text(UNICODE, encoding="utf-8")
+    with InPlace(p, "b") as fp:
         ba = bytearray(5)
         assert fp.readinto(ba) == 5
         assert ba == bytearray(b"\xC3\xA5\xC3\xA9\xC3")
         fp.write(ba)
-    assert pylistdir(tmpdir) == ["file.txt"]
-    assert p.read_binary() == b"\xC3\xA5\xC3\xA9\xC3"
+    assert pylistdir(tmp_path) == ["file.txt"]
+    assert p.read_bytes() == b"\xC3\xA5\xC3\xA9\xC3"
 
 
-def test_readlines_nobackup(tmpdir):
-    assert pylistdir(tmpdir) == []
-    p = tmpdir.join("file.txt")
-    p.write(TEXT)
-    with InPlace(str(p)) as fp:
+def test_readlines_nobackup(tmp_path: Path) -> None:
+    assert pylistdir(tmp_path) == []
+    p = tmp_path / "file.txt"
+    p.write_text(TEXT)
+    with InPlace(p) as fp:
         assert fp.readlines() == TEXT.splitlines(True)
-    assert pylistdir(tmpdir) == ["file.txt"]
-    assert p.read() == ""
+    assert pylistdir(tmp_path) == ["file.txt"]
+    assert p.read_text() == ""
 
 
-def test_writelines_backup(tmpdir):
-    assert pylistdir(tmpdir) == []
-    p = tmpdir.join("file.txt")
-    p.write("")
-    bkp = tmpdir.join("backup.txt")
-    with InPlace(str(p), backup=str(bkp)) as fp:
+def test_writelines_backup(tmp_path: Path) -> None:
+    assert pylistdir(tmp_path) == []
+    p = tmp_path / "file.txt"
+    p.write_text("")
+    bkp = tmp_path / "backup.txt"
+    with InPlace(p, backup=bkp) as fp:
         fp.writelines(TEXT.splitlines(True))
-    assert pylistdir(tmpdir) == ["backup.txt", "file.txt"]
-    assert bkp.read() == ""
-    assert p.read() == TEXT
+    assert pylistdir(tmp_path) == ["backup.txt", "file.txt"]
+    assert bkp.read_text() == ""
+    assert p.read_text() == TEXT
 
 
-def test_readline_nobackup(tmpdir):
-    assert pylistdir(tmpdir) == []
-    p = tmpdir.join("file.txt")
-    p.write(TEXT)
-    with InPlace(str(p)) as fp:
+def test_readline_nobackup(tmp_path: Path) -> None:
+    assert pylistdir(tmp_path) == []
+    p = tmp_path / "file.txt"
+    p.write_text(TEXT)
+    with InPlace(p) as fp:
         for line in iter(fp.readline, ""):
             fp.write(line.swapcase())
-    assert pylistdir(tmpdir) == ["file.txt"]
-    assert p.read() == TEXT.swapcase()
+    assert pylistdir(tmp_path) == ["file.txt"]
+    assert p.read_text() == TEXT.swapcase()

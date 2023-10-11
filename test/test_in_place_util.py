@@ -1,8 +1,10 @@
+from __future__ import annotations
 import os
+from pathlib import Path
 
 
-def pylistdir(d):
-    return sorted(p.basename for p in d.listdir())
+def pylistdir(d: Path) -> list[str]:
+    return sorted(p.name for p in d.iterdir())
 
 
 TEXT = (
@@ -44,4 +46,4 @@ TEXT = (
 
 UNICODE = "åéîøü\n"
 
-NLB = os.linesep.encode()
+NLB = os.linesep.encode("us-ascii")
