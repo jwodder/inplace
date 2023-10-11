@@ -126,12 +126,6 @@ following arguments:
    this; the instance must then be opened either via the ``open()`` method or
    by using it as a context manager.
 
-``move_first=<BOOL>``
-   If ``True``, move the input file to a temporary location first and create
-   the output file in its place (à la ``fileinput``) rather than the default
-   behavior of creating the output file at a temporary location and only moving
-   things around once ``close()`` is called (à la GNU ``sed(1)``).
-
 ``**kwargs``
    Any additional keyword arguments (such as ``encoding``, ``errors``, and
    ``newline``) will be forwarded to ``open()`` when opening both the input and

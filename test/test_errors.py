@@ -5,24 +5,20 @@ from in_place import InPlace
 from test_in_place_util import TEXT, pylistdir
 
 
-@pytest.mark.parametrize("move_first", [True, False])
 @pytest.mark.parametrize("backup", [None, "backup.txt"])
-def test_bad_mode(tmp_path: Path, move_first: bool, backup: str | None) -> None:
+def test_bad_mode(tmp_path: Path, backup: str | None) -> None:
     assert pylistdir(tmp_path) == []
     p = tmp_path / "file.txt"
     p.write_text(TEXT)
     backup_path = tmp_path / backup if backup is not None else None
     with pytest.raises(ValueError, match="invalid mode"):
-        InPlace(p, mode="q", move_first=move_first, backup=backup_path)
+        InPlace(p, mode="q", backup=backup_path)
     assert pylistdir(tmp_path) == ["file.txt"]
     assert p.read_text() == TEXT
 
 
-@pytest.mark.parametrize("move_first", [True, False])
 @pytest.mark.parametrize("backup", [None, "backup.txt"])
-def test_bad_mode_delay_open_with(
-    tmp_path: Path, move_first: bool, backup: str | None
-) -> None:
+def test_bad_mode_delay_open_with(tmp_path: Path, backup: str | None) -> None:
     assert pylistdir(tmp_path) == []
     p = tmp_path / "file.txt"
     p.write_text(TEXT)
@@ -30,7 +26,6 @@ def test_bad_mode_delay_open_with(
         p,
         mode="q",
         delay_open=True,
-        move_first=move_first,
         backup=tmp_path / backup if backup is not None else None,
     )
     with pytest.raises(ValueError, match="invalid mode"):
@@ -41,11 +36,8 @@ def test_bad_mode_delay_open_with(
     assert p.read_text() == TEXT
 
 
-@pytest.mark.parametrize("move_first", [True, False])
 @pytest.mark.parametrize("backup", [None, "backup.txt"])
-def test_bad_mode_delay_open_open(
-    tmp_path: Path, move_first: bool, backup: str | None
-) -> None:
+def test_bad_mode_delay_open_open(tmp_path: Path, backup: str | None) -> None:
     assert pylistdir(tmp_path) == []
     p = tmp_path / "file.txt"
     p.write_text(TEXT)
@@ -53,7 +45,6 @@ def test_bad_mode_delay_open_open(
         p,
         mode="q",
         delay_open=True,
-        move_first=move_first,
         backup=tmp_path / backup if backup is not None else None,
     )
     with pytest.raises(ValueError, match="invalid mode"):

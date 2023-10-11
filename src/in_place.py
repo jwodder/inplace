@@ -9,7 +9,7 @@ temporary files for you.
 Visit <https://github.com/jwodder/inplace> for more information.
 """
 
-__version__ = "0.6.0.dev1"
+__version__ = "1.0.0.dev1"
 __author__ = "John Thorvald Wodder II"
 __author_email__ = "inplace@varonathe.org"
 __license__ = "MIT"
@@ -69,12 +69,6 @@ class InPlace:
         If `False` (the default), the instance will be automatically opened as
         soon as it is constructed.
 
-    :param bool move_first: If `True`, the original (input) file will be moved
-        to a temporary location before opening, and the output file will be
-        created in its place.  If `False` (the default), the output file will
-        be created at a temporary location, and neither file will be moved or
-        deleted until :meth:`close()` is called.
-
     :param kwargs: Additional keyword arguments to pass to `open()`
     """
 
@@ -89,7 +83,6 @@ class InPlace:
         backup=None,
         backup_ext=None,
         delay_open=False,
-        move_first=False,
         **kwargs,
     ):
         cwd = os.getcwd()
@@ -114,9 +107,6 @@ class InPlace:
             self.backuppath = self.filepath + os.fsdecode(backup_ext)
         else:
             self.backuppath = None
-        #: Whether to move the input file before opening and create the output
-        #: file in its place instead of moving the files after closing
-        self.move_first = move_first
         #: Additional arguments to pass to `open`
         self.kwargs = kwargs
         #: The input filehandle from which data is read; only non-`None` while
@@ -161,8 +151,7 @@ class InPlace:
     def open(self):  # noqa: A003
         """
         Open the file :attr:`name` for reading and open a temporary file for
-        writing.  If :attr:`move_first` is `True`, :attr:`name` will be moved
-        to a temporary location before opening.
+        writing.
 
         If ``delay_open=True`` was passed to the instance's constructor, this
         method must be called (either explicitly or else implicitly by using
@@ -177,25 +166,10 @@ class InPlace:
             self._state = self.OPEN
             self.realpath = realpath(self.filepath)
             try:
-                if self.move_first:
-                    if self.backuppath is not None:
-                        self._tmppath = self._mktemp(self.backuppath)
-                    else:
-                        self._tmppath = self._mktemp(self.realpath)
-                    try:
-                        os.replace(self.realpath, self._tmppath)
-                    except OSError:
-                        try_unlink(self._tmppath)
-                        self._tmppath = None
-                        raise
-                    self.output = self.open_write(self.realpath)
-                    copystats(self._tmppath, self.realpath)
-                    input_path = self._tmppath
-                else:
-                    self._tmppath = self._mktemp(self.realpath)
-                    self.output = self.open_write(self._tmppath)
-                    copystats(self.realpath, self._tmppath)
-                    input_path = self.realpath
+                self._tmppath = self._mktemp(self.realpath)
+                self.output = self.open_write(self._tmppath)
+                copystats(self.realpath, self._tmppath)
+                input_path = self.realpath
                 self.input = self.open_read(input_path)
             except Exception:
                 self.rollback()
@@ -254,18 +228,9 @@ class InPlace:
             self._state = self.CLOSED
             self._close()
             try:
-                if self.move_first:
-                    if self.backuppath is not None:
-                        try:
-                            os.replace(self._tmppath, self.backuppath)
-                        except IOError:
-                            os.replace(self._tmppath, self.realpath)
-                            self._tmppath = None
-                            raise
-                else:
-                    if self.backuppath is not None:
-                        os.replace(self.realpath, self.backuppath)
-                    os.replace(self._tmppath, self.realpath)
+                if self.backuppath is not None:
+                    os.replace(self.realpath, self.backuppath)
+                os.replace(self._tmppath, self.realpath)
             finally:
                 if self._tmppath is not None:
                     try_unlink(self._tmppath)
@@ -286,10 +251,7 @@ class InPlace:
             self._state = self.CLOSED
             self._close()
             if self._tmppath is not None:  # In case of error while opening
-                if self.move_first:
-                    os.replace(self._tmppath, self.realpath)
-                else:
-                    try_unlink(self._tmppath)
+                try_unlink(self._tmppath)
                 self._tmppath = None
         else:
             assert self._state == self.CLOSED
