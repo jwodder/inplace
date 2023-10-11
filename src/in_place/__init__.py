@@ -223,62 +223,42 @@ class InPlace(IO[AnyStr]):
         return self._closed
 
     def read(self, size: int = -1) -> AnyStr:
-        if self.closed:
-            raise ValueError("Filehandle is closed")
         return self.input.read(size)
 
     def read1(self: InPlace[bytes], size: int = -1) -> bytes:
-        if self.closed:
-            raise ValueError("Filehandle is closed")
         bs = self.input.read1(size)  # type: ignore[attr-defined]
         assert isinstance(bs, bytes)
         return bs
 
     def readline(self, size: int = -1) -> AnyStr:
-        if self.closed:
-            raise ValueError("Filehandle is closed")
         return self.input.readline(size)
 
     def readlines(self, sizehint: int = -1) -> list[AnyStr]:
-        if self.closed:
-            raise ValueError("Filehandle is closed")
         return self.input.readlines(sizehint)
 
     def readinto(self: InPlace[bytes], b: Buffer) -> int:
-        if self.closed:
-            raise ValueError("Filehandle is closed")
         r = self.input.readinto(b)  # type: ignore[attr-defined]
         assert isinstance(r, int)
         return r
 
     def readinto1(self: InPlace[bytes], b: Buffer) -> int:
-        if self.closed:
-            raise ValueError("Filehandle is closed")
         r = self.input.readinto1(b)  # type: ignore[attr-defined]
         assert isinstance(r, int)
         return r
 
     def write(self, s: AnyStr) -> int:
-        if self.closed:
-            raise ValueError("Filehandle is closed")
         return self.output.write(s)
 
     def writelines(self, seq: Iterable[AnyStr]) -> None:
-        if self.closed:
-            raise ValueError("Filehandle is closed")
         self.output.writelines(seq)
 
     def __iter__(self) -> InPlace[AnyStr]:
         return self
 
     def __next__(self) -> AnyStr:
-        if self.closed:
-            raise ValueError("Filehandle is closed")
         return next(self.input)
 
     def flush(self) -> None:
-        if self.closed:
-            raise ValueError("Filehandle is closed")
         self.output.flush()
 
     def readable(self) -> bool:
