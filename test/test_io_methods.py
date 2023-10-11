@@ -17,6 +17,16 @@ def test_print_backup(tmp_path: Path) -> None:
     assert p.read_text() == TEXT.swapcase()
 
 
+def test_read1_nobackup(tmp_path: Path) -> None:
+    assert pylistdir(tmp_path) == []
+    p = tmp_path / "file.txt"
+    p.write_text(UNICODE, encoding="utf-8")
+    with InPlace(p, "b") as fp:
+        bs = fp.read1(5)
+        assert 1 <= len(bs) <= 5
+        assert bs[0] == 0xC3
+
+
 def test_readinto_bytearray_nobackup(tmp_path: Path) -> None:
     assert pylistdir(tmp_path) == []
     p = tmp_path / "file.txt"
@@ -28,6 +38,18 @@ def test_readinto_bytearray_nobackup(tmp_path: Path) -> None:
         fp.write(ba)
     assert pylistdir(tmp_path) == ["file.txt"]
     assert p.read_bytes() == b"\xC3\xA5\xC3\xA9\xC3"
+
+
+def test_readinto1_bytearray_nobackup(tmp_path: Path) -> None:
+    assert pylistdir(tmp_path) == []
+    p = tmp_path / "file.txt"
+    p.write_text(UNICODE, encoding="utf-8")
+    with InPlace(p, "b") as fp:
+        ba = bytearray(5)
+        r = fp.readinto1(ba)
+        assert 1 <= r <= 5
+        assert len(ba) == r
+        assert ba[0] == 0xC3
 
 
 def test_readlines_nobackup(tmp_path: Path) -> None:

@@ -14,6 +14,7 @@ v1.0.0 (in development)
   than to the pre-resolved path.
 - Added type annotations
 - `InPlaceText` and `InPlaceBytes` (deprecated in v0.4.0) have been removed
+- Added `read1()` and `readinto1()` methods for binary mode
 
 v0.5.0 (2021-02-20)
 -------------------

@@ -224,6 +224,13 @@ class InPlace(IO[AnyStr]):
             raise ValueError("Filehandle is closed")
         return self.input.read(size)
 
+    def read1(self: InPlace[bytes], size: int = -1) -> bytes:
+        if self.closed:
+            raise ValueError("Filehandle is closed")
+        bs = self.input.read1(size)  # type: ignore[attr-defined]
+        assert isinstance(bs, bytes)
+        return bs
+
     def readline(self, size: int = -1) -> AnyStr:
         if self.closed:
             raise ValueError("Filehandle is closed")
@@ -238,6 +245,13 @@ class InPlace(IO[AnyStr]):
         if self.closed:
             raise ValueError("Filehandle is closed")
         r = self.input.readinto(b)  # type: ignore[attr-defined]
+        assert isinstance(r, int)
+        return r
+
+    def readinto1(self: InPlace[bytes], b: Buffer) -> int:
+        if self.closed:
+            raise ValueError("Filehandle is closed")
+        r = self.input.readinto1(b)  # type: ignore[attr-defined]
         assert isinstance(r, int)
         return r
 

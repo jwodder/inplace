@@ -138,8 +138,9 @@ attributes, specifically::
 
     __iter__()              __next__()              closed
     flush()                 name                    read()
-    readinto() *            readline()              readlines()
-    write()                 writelines()
+    read1() *               readinto() *            readinto1() *
+    readline()              readlines()             write()
+    writelines()
 
     * binary mode only
 
