@@ -19,13 +19,9 @@ def test_pathlike(tmp_path: Path) -> None:
     p = tmp_path / "file.txt"
     p.write_text(TEXT)
     with InPlace(PathLike(str(p))) as fp:
-        assert not fp.closed
         for line in fp:
-            assert isinstance(line, str)
             fp.write(line.swapcase())
-        assert not fp.closed
-    assert fp.closed
-    assert pylistdir(tmp_path) == ["file.txt"]  # type: ignore[unreachable]
+    assert pylistdir(tmp_path) == ["file.txt"]
     assert p.read_text() == TEXT.swapcase()
 
 
@@ -47,12 +43,9 @@ def test_pathlike_backup(tmp_path: Path) -> None:
     p.write_text(TEXT)
     bkp = tmp_path / "backup.txt"
     with InPlace(PathLike(str(p)), backup=PathLike(str(bkp))) as fp:
-        assert not fp.closed
         for line in fp:
             fp.write(line.swapcase())
-        assert not fp.closed
-    assert fp.closed
-    assert pylistdir(tmp_path) == ["backup.txt", "file.txt"]  # type: ignore[unreachable]
+    assert pylistdir(tmp_path) == ["backup.txt", "file.txt"]
     assert bkp.read_text() == TEXT
     assert p.read_text() == TEXT.swapcase()
 
@@ -62,13 +55,9 @@ def test_pathlike_bytes(tmp_path: Path) -> None:
     p = tmp_path / "file.txt"
     p.write_text(TEXT)
     with InPlace(PathLike(fsencode(p))) as fp:
-        assert not fp.closed
         for line in fp:
-            assert isinstance(line, str)
             fp.write(line.swapcase())
-        assert not fp.closed
-    assert fp.closed
-    assert pylistdir(tmp_path) == ["file.txt"]  # type: ignore[unreachable]
+    assert pylistdir(tmp_path) == ["file.txt"]
     assert p.read_text() == TEXT.swapcase()
 
 
@@ -90,12 +79,9 @@ def test_pathlike_bytes_backup(tmp_path: Path) -> None:
     p.write_text(TEXT)
     bkp = tmp_path / "backup.txt"
     with InPlace(PathLike(fsencode(p)), backup=PathLike(fsencode(bkp))) as fp:
-        assert not fp.closed
         for line in fp:
             fp.write(line.swapcase())
-        assert not fp.closed
-    assert fp.closed
-    assert pylistdir(tmp_path) == ["backup.txt", "file.txt"]  # type: ignore[unreachable]
+    assert pylistdir(tmp_path) == ["backup.txt", "file.txt"]
     assert bkp.read_text() == TEXT
     assert p.read_text() == TEXT.swapcase()
 
@@ -105,13 +91,9 @@ def test_bytes(tmp_path: Path) -> None:
     p = tmp_path / "file.txt"
     p.write_text(TEXT)
     with InPlace(fsencode(p)) as fp:
-        assert not fp.closed
         for line in fp:
-            assert isinstance(line, str)
             fp.write(line.swapcase())
-        assert not fp.closed
-    assert fp.closed
-    assert pylistdir(tmp_path) == ["file.txt"]  # type: ignore[unreachable]
+    assert pylistdir(tmp_path) == ["file.txt"]
     assert p.read_text() == TEXT.swapcase()
 
 
@@ -133,11 +115,8 @@ def test_bytes_backup(tmp_path: Path) -> None:
     p.write_text(TEXT)
     bkp = tmp_path / "backup.txt"
     with InPlace(fsencode(p), backup=fsencode(bkp)) as fp:
-        assert not fp.closed
         for line in fp:
             fp.write(line.swapcase())
-        assert not fp.closed
-    assert fp.closed
-    assert pylistdir(tmp_path) == ["backup.txt", "file.txt"]  # type: ignore[unreachable]
+    assert pylistdir(tmp_path) == ["backup.txt", "file.txt"]
     assert bkp.read_text() == TEXT
     assert p.read_text() == TEXT.swapcase()

@@ -15,6 +15,8 @@ v1.0.0 (in development)
 - Added type annotations
 - `InPlaceText` and `InPlaceBytes` (deprecated in v0.4.0) have been removed
 - Added `read1()` and `readinto1()` methods for binary mode
+- The `InPlace` constructor now immediately raises a `ValueError` if `backup`
+  is the empty string
 
 v0.5.0 (2021-02-20)
 -------------------

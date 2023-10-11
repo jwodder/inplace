@@ -1,7 +1,9 @@
 from __future__ import annotations
+import os.path
 from pathlib import Path
+import pytest
 from in_place import InPlace
-from test_in_place_util import TEXT, UNICODE, pylistdir
+from test_in_place_util import NLB, TEXT, UNICODE, pylistdir
 
 
 def test_print_backup(tmp_path: Path) -> None:
@@ -83,3 +85,30 @@ def test_readline_nobackup(tmp_path: Path) -> None:
             fp.write(line.swapcase())
     assert pylistdir(tmp_path) == ["file.txt"]
     assert p.read_text() == TEXT.swapcase()
+
+
+def test_misc(tmp_path: Path) -> None:
+    p = tmp_path / "file.txt"
+    p.touch()
+    with InPlace(p) as fp:
+        assert fp.name == os.path.realpath(p)
+        assert fp.readable()
+        assert fp.writable()
+        assert not fp.seekable()
+        assert not fp.isatty()
+        with pytest.raises(OSError):
+            fp.seek(0)
+        with pytest.raises(OSError):
+            fp.tell()
+        with pytest.raises(OSError):
+            fp.truncate()
+        with pytest.raises(OSError):
+            fp.fileno()
+
+
+def test_binary_iteration(tmp_path: Path) -> None:
+    p = tmp_path / "file.txt"
+    p.write_text(TEXT)
+    with InPlace(p, mode="b") as fp:
+        assert next(fp) == b"'Twas brillig, and the slithy toves" + NLB
+        assert next(fp) == b"\tDid gyre and gimble in the wabe;" + NLB

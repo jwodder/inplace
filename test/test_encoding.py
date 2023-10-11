@@ -51,3 +51,16 @@ def test_latin1_as_utf8_replace(tmp_path: Path) -> None:
         fp.write(txt)
     assert pylistdir(tmp_path) == ["file.txt"]
     assert p.read_text(encoding="utf-8") == "\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\n"
+
+
+def test_bytes_iconv_nobackup(tmp_path: Path) -> None:
+    assert pylistdir(tmp_path) == []
+    p = tmp_path / "file.txt"
+    p.write_text(UNICODE, encoding="utf-8")
+    with InPlace(p, "b") as fp:
+        txt = fp.read()
+        assert isinstance(txt, bytes)
+        assert txt == b"\xc3\xa5\xc3\xa9\xc3\xae\xc3\xb8\xc3\xbc" + NLB
+        fp.write(txt.decode("utf-8").encode("latin-1"))
+    assert pylistdir(tmp_path) == ["file.txt"]
+    assert p.read_bytes() == b"\xE5\xE9\xEE\xF8\xFC" + NLB

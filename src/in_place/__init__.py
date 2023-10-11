@@ -52,7 +52,7 @@ class InPlace(IO[AnyStr]):
     :param backup: The path at which to save the file's original contents once
         editing has finished (resolved relative to the current directory at the
         time of the instance's creation); if `None` (the default), no backup is
-        saved
+        saved.  Cannot be empty.
     :type backup: path-like
 
     :param backup_ext: A string to append to ``name`` to get the path at which
@@ -100,17 +100,21 @@ class InPlace(IO[AnyStr]):
         self.filepath = os.path.join(cwd, self._name)
         #: ``filepath`` with symbolic links resolved
         self.realpath = os.path.realpath(self.filepath)
+        #: The absolute path of the backup file (if any) that the original
+        #: contents of ``realpath`` will be moved to after editing
         self.backuppath: str | None
         if backup is not None:
             if backup_ext is not None:
                 raise ValueError("backup and backup_ext are mutually exclusive")
-            #: The absolute path of the backup file (if any) that the original
-            #: contents of ``realpath`` will be moved to after editing
-            self.backuppath = os.path.join(cwd, os.fsdecode(backup))
+            b = os.fsdecode(backup)
+            if not b:
+                raise ValueError("backup cannot be empty")
+            self.backuppath = os.path.join(cwd, b)
         elif backup_ext is not None:
-            if not backup_ext:
+            be = os.fsdecode(backup_ext)
+            if not be:
                 raise ValueError("backup_ext cannot be empty")
-            self.backuppath = self.realpath + os.fsdecode(backup_ext)
+            self.backuppath = self.realpath + be
         else:
             self.backuppath = None
         if mode not in (None, "t", "b"):

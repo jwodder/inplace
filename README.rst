@@ -116,7 +116,7 @@ following arguments:
 
 ``backup=<PATH>``
    If set, the original contents of the file will be saved to the given path
-   when the instance is closed.
+   when the instance is closed.  ``backup`` cannot be set to the empty string.
 
 ``backup_ext=<EXTENSION>``
    If set, the path to the backup file will be created by appending
