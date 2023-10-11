@@ -107,10 +107,10 @@ following arguments:
 ``name=<PATH>`` (required)
    The path to the file to open & edit in-place
 
-``mode=<'b'|'t'|None>``
+``mode=<"b"|"t"|None>``
    Whether to operate on the file in binary or text mode.  If ``mode`` is
-   ``'b'``, the file will be opened in binary mode, and data will be read &
-   written as ``bytes`` objects.  If ``mode`` is ``'t'`` or ``None`` (the
+   ``"b"``, the file will be opened in binary mode, and data will be read &
+   written as ``bytes`` objects.  If ``mode`` is ``"t"`` or ``None`` (the
    default), the file will be opened in text mode, and data will be read &
    written as ``str`` objects.
 
@@ -133,21 +133,10 @@ following arguments:
 ``name``, ``backup``, and ``backup_ext`` can be ``str``, filesystem-encoded
 ``bytes``, or path-like objects.
 
-Note:
-
-    Earlier versions of this library provided separate ``InPlaceText`` and
-    ``InPlaceBytes`` classes for operating in text and binary mode.  As of
-    version 0.4.0, these classes are deprecated and will be removed in a future
-    version.  Code written for earlier versions should be updated to use
-    ``InPlace`` with the ``mode`` argument instead::
-
-        InPlaceText(name, ...)   ->  InPlace(name, 't', ...)
-        InPlaceBytes(name, ...)  ->  InPlace(name, 'b', ...)
-
 Once open, ``InPlace`` instances act as filehandles with the usual filehandle
 attributes, specifically::
 
-    __iter__()              close()                 closed
+    __iter__()              __next__()              closed
     flush()                 name                    read()
     readinto() *            readline()              readlines()
     write()                 writelines()

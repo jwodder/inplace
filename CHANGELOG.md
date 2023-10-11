@@ -12,6 +12,8 @@ v1.0.0 (in development)
 - **Breaking**: When the input path points to a symlink and `backup_ext` is
   given, the backup extension will now be appended to the resolved path rather
   than to the pre-resolved path.
+- Added type annotations
+- `InPlaceText` and `InPlaceBytes` (deprecated in v0.4.0) have been removed
 
 v0.5.0 (2021-02-20)
 -------------------

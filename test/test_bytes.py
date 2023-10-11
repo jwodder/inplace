@@ -25,5 +25,5 @@ def test_bytes_useless_after_close(tmp_path: Path) -> None:
     with InPlace(p, "b", backup_ext="~") as fp:
         assert not fp.closed
     assert fp.closed
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError):  # type: ignore[unreachable]
         fp.readinto(bytearray(42))

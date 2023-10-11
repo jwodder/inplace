@@ -30,6 +30,6 @@ def test_py3_not_bytestr(tmp_path: Path) -> None:
         assert txt == UNICODE
         bs = txt.encode("utf-16")
         with pytest.raises(TypeError):
-            # `print()` would stringify `txt` to `b'...'`, which is not what we
+            # `print()` would stringify `bs` to `b'...'`, which is not what we
             # want.
-            fp.write(bs)
+            fp.write(bs)  # type: ignore[arg-type]

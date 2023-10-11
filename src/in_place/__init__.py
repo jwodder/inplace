@@ -9,22 +9,30 @@ temporary files for you.
 Visit <https://github.com/jwodder/inplace> for more information.
 """
 
+from __future__ import annotations
+from collections.abc import Iterable
+import os
+import os.path
+import shutil
+import tempfile
+from types import TracebackType
+from typing import IO, TYPE_CHECKING, Any, AnyStr, Literal, Union, overload
+
+if TYPE_CHECKING:
+    from typing_extensions import Buffer
+
 __version__ = "1.0.0.dev1"
 __author__ = "John Thorvald Wodder II"
 __author_email__ = "inplace@varonathe.org"
 __license__ = "MIT"
 __url__ = "https://github.com/jwodder/inplace"
 
-import os
-import os.path
-import shutil
-import tempfile
-from warnings import warn
+__all__ = ["InPlace"]
 
-__all__ = ["InPlace", "InPlaceBytes", "InPlaceText"]
+AnyPath = Union[str, bytes, "os.PathLike[str]", "os.PathLike[bytes]"]
 
 
-class InPlace:
+class InPlace(IO[AnyStr]):
     """
     A class for reading from & writing to a file "in-place" (with data that you
     write ending up at the same filepath that you read from) that takes care of
@@ -36,8 +44,8 @@ class InPlace:
     :type name: path-like
 
     :param string mode: Whether to operate on the file in binary or text mode.
-        If ``mode`` is ``'b'``, the file will be opened in binary mode, and
-        data will be read & written as `bytes` objects.  If ``mode`` is ``'t'``
+        If ``mode`` is ``"b"``, the file will be opened in binary mode, and
+        data will be read & written as `bytes` objects.  If ``mode`` is ``"t"``
         or unset, the file will be opened in text mode, and data will be read &
         written as `str` objects.
 
@@ -55,23 +63,44 @@ class InPlace:
     :param kwargs: Additional keyword arguments to pass to `open()`
     """
 
+    @overload
+    def __init__(
+        self: InPlace[str],
+        name: AnyPath,
+        mode: Literal["t", None] = None,
+        backup: AnyPath | None = None,
+        backup_ext: AnyPath | None = None,
+        **kwargs: Any,
+    ) -> None:
+        ...
+
+    @overload
+    def __init__(
+        self: InPlace[bytes],
+        name: AnyPath,
+        mode: Literal["b"],
+        backup: AnyPath | None = None,
+        backup_ext: AnyPath | None = None,
+        **kwargs: Any,
+    ) -> None:
+        ...
+
     def __init__(
         self,
-        name,
-        mode=None,
-        backup=None,
-        backup_ext=None,
-        **kwargs,
-    ):
+        name: AnyPath,
+        mode: Literal["t", "b", None] = None,
+        backup: AnyPath | None = None,
+        backup_ext: AnyPath | None = None,
+        **kwargs: Any,
+    ) -> None:
         cwd = os.getcwd()
         #: The path to the file to edit in-place
-        self.name = os.fsdecode(name)
-        #: Whether to operate on the file in binary or text mode
-        self.mode = mode
+        self._name = os.fsdecode(name)
         #: The absolute path of the file to edit in-place
-        self.filepath = os.path.join(cwd, self.name)
+        self.filepath = os.path.join(cwd, self._name)
         #: ``filepath`` with symbolic links resolved
         self.realpath = os.path.realpath(self.filepath)
+        self.backuppath: str | None
         if backup is not None:
             if backup_ext is not None:
                 raise ValueError("backup and backup_ext are mutually exclusive")
@@ -84,41 +113,52 @@ class InPlace:
             self.backuppath = self.realpath + os.fsdecode(backup_ext)
         else:
             self.backuppath = None
-        #: Additional arguments to pass to `open`
-        self.kwargs = kwargs
         #: The input filehandle from which data is read; only non-`None` while
         #: the instance is open
-        self.input = None
+        self.input: IO[AnyStr] | None = None
         #: The output filehandle to which data is written; only non-`None`
         #: while the instance is open
-        self.output = None
+        self.output: IO[AnyStr] | None = None
         #: The absolute path to the temporary file; only non-`None` while the
         #: instance is open
-        self._tmppath = None
-        #: `True` iff the filehandle is not currently open
-        self.closed = False
+        self._tmppath: str | None = None
+        #: `True` iff the filehandle is closed
+        self._closed = False
         try:
             self._tmppath = self._mktemp(self.realpath)
-            self.output = self.open_write(self._tmppath)
+            if mode is None or mode == "t":
+                self.output = open(self._tmppath, "w", **kwargs)
+            elif mode == "b":
+                self.output = open(self._tmppath, "wb", **kwargs)
+            else:
+                raise ValueError(f"{mode!r}: invalid mode")
             copystats(self.realpath, self._tmppath)
-            input_path = self.realpath
-            self.input = self.open_read(input_path)
+            if mode is None or mode == "t":
+                self.input = open(self.realpath, "r", **kwargs)
+            elif mode == "b":
+                self.input = open(self.realpath, "rb", **kwargs)
+            else:
+                raise ValueError(f"{mode!r}: invalid mode")
         except Exception:
             self.rollback()
             raise
 
-    def __enter__(self):
+    def __enter__(self) -> InPlace[AnyStr]:
         return self
 
-    def __exit__(self, exc_type, _exc_value, _traceback):
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        _exc_val: BaseException | None,
+        _exc_tb: TracebackType | None,
+    ) -> None:
         if not self.closed:
             if exc_type is not None:
                 self.rollback()
             else:
                 self.close()
-        return False
 
-    def _mktemp(self, filepath):
+    def _mktemp(self, filepath: str) -> str:
         """
         Create an empty temporary file in the same directory as ``filepath``
         and return the path to the new file
@@ -130,36 +170,9 @@ class InPlace:
         os.close(fd)
         return tmppath
 
-    def open_read(self, path):
-        """
-        Open the file at ``path`` for reading and return a file-like object.
-        Use :attr:`mode` to determine whether to open in binary or text mode.
-        """
-        if not self.mode or self.mode == "t":
-            return open(path, "r", **self.kwargs)
-        elif self.mode == "b":
-            return open(path, "rb", **self.kwargs)
-        else:
-            raise ValueError(f"{self.mode!r}: invalid mode")
-
-    def open_write(self, path):
-        """
-        Open the file at ``path`` for writing and return a file-like object.
-        Use :attr:`mode` to determine whether to open in binary or text mode.
-        """
-        if not self.mode or self.mode == "t":
-            return open(path, "w", **self.kwargs)
-        elif self.mode == "b":
-            return open(path, "wb", **self.kwargs)
-        else:
-            raise ValueError(f"{self.mode!r}: invalid mode")
-
-    def _close(self):
-        """
-        Close filehandles (if they aren't closed already) and set them to
-        `None`
-        """
-        self.closed = True
+    def _close(self) -> None:
+        """Close filehandles and set them to `None`"""
+        self._closed = True
         if self.input is not None:
             self.input.close()
             self.input = None
@@ -167,7 +180,7 @@ class InPlace:
             self.output.close()
             self.output = None
 
-    def close(self):
+    def close(self) -> None:
         """
         Close filehandles and move affected files to their final destinations.
         If called after the filehandle has already been closed (with either
@@ -177,16 +190,16 @@ class InPlace:
         """
         if not self.closed:
             self._close()
+            assert self._tmppath is not None
             try:
                 if self.backuppath is not None:
                     os.replace(self.realpath, self.backuppath)
                 os.replace(self._tmppath, self.realpath)
             finally:
-                if self._tmppath is not None:
-                    try_unlink(self._tmppath)
-                    self._tmppath = None
+                try_unlink(self._tmppath)
+                self._tmppath = None
 
-    def rollback(self):
+    def rollback(self) -> None:
         """
         Close filehandles and remove/rename temporary files so that things look
         like they did before the `InPlace` instance was opened
@@ -202,72 +215,93 @@ class InPlace:
         else:
             raise ValueError("Cannot rollback closed file")
 
-    def read(self, size=-1):
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def closed(self) -> bool:
+        return self._closed
+
+    def read(self, size: int = -1) -> AnyStr:
         if self.closed:
-            raise ValueError("Filehandle is not currently open")
+            raise ValueError("Filehandle is closed")
+        assert self.input is not None
         return self.input.read(size)
 
-    def readline(self, size=-1):
+    def readline(self, size: int = -1) -> AnyStr:
         if self.closed:
-            raise ValueError("Filehandle is not currently open")
+            raise ValueError("Filehandle is closed")
+        assert self.input is not None
         return self.input.readline(size)
 
-    def readlines(self, sizehint=-1):
+    def readlines(self, sizehint: int = -1) -> list[AnyStr]:
         if self.closed:
-            raise ValueError("Filehandle is not currently open")
+            raise ValueError("Filehandle is closed")
+        assert self.input is not None
         return self.input.readlines(sizehint)
 
-    def readinto(self, b):
+    def readinto(self: InPlace[bytes], b: Buffer) -> int:
         if self.closed:
-            raise ValueError("Filehandle is not currently open")
-        return self.input.readinto(b)
+            raise ValueError("Filehandle is closed")
+        assert self.input is not None
+        r = self.input.readinto(b)  # type: ignore[attr-defined]
+        assert isinstance(r, int)
+        return r
 
-    def write(self, s):
+    def write(self, s: AnyStr) -> int:
         if self.closed:
-            raise ValueError("Filehandle is not currently open")
-        self.output.write(s)
+            raise ValueError("Filehandle is closed")
+        assert self.output is not None
+        return self.output.write(s)
 
-    def writelines(self, seq):
+    def writelines(self, seq: Iterable[AnyStr]) -> None:
         if self.closed:
-            raise ValueError("Filehandle is not currently open")
+            raise ValueError("Filehandle is closed")
+        assert self.output is not None
         self.output.writelines(seq)
 
-    def __iter__(self):
-        if self.closed:
-            raise ValueError("Filehandle is not currently open")
-        return iter(self.input)
+    def __iter__(self) -> InPlace[AnyStr]:
+        return self
 
-    def flush(self):
+    def __next__(self) -> AnyStr:
         if self.closed:
-            raise ValueError("Filehandle is not currently open")
+            raise ValueError("Filehandle is closed")
+        assert self.input is not None
+        return next(self.input)
+
+    def flush(self) -> None:
+        if self.closed:
+            raise ValueError("Filehandle is closed")
+        assert self.output is not None
         self.output.flush()
 
+    def readable(self) -> bool:
+        return True
 
-class InPlaceBytes(InPlace):
-    """Deprecated.  Please use `InPlace` with ``mode='b'`` instead."""
+    def writable(self) -> bool:
+        return True
 
-    def __init__(self, name, **kwargs):
-        warn(
-            "InPlaceBytes is deprecated."
-            '  Please use `InPlace(name, mode="b")` instead.',
-            DeprecationWarning,
-        )
-        super(InPlaceBytes, self).__init__(name, mode="b", **kwargs)
+    def seekable(self) -> bool:
+        return False
 
+    def seek(self, _offset: int, _whence: int = 0) -> int:
+        raise OSError(f"{type(self).__name__} does not support seek()")
 
-class InPlaceText(InPlace):
-    """Deprecated.  Please use `InPlace` with ``mode='t'`` instead."""
+    def tell(self) -> int:
+        raise OSError(f"{type(self).__name__} does not support tell()")
 
-    def __init__(self, name, **kwargs):
-        warn(
-            "InPlaceText is deprecated."
-            '  Please use `InPlace(name, mode="t")` instead.',
-            DeprecationWarning,
-        )
-        super(InPlaceText, self).__init__(name, mode="t", **kwargs)
+    def truncate(self, _size: int | None = None) -> int:
+        raise OSError(f"{type(self).__name__} does not support truncate()")
+
+    def fileno(self) -> int:
+        raise OSError(f"{type(self).__name__} does not support fileno()")
+
+    def isatty(self) -> bool:
+        return False
 
 
-def copystats(from_file, to_file):
+def copystats(from_file: str, to_file: str) -> None:
     """
     Copy stat info from ``from_file`` to ``to_file`` using `shutil.copystat`.
     If possible, also copy the user and/or group ownership information.
@@ -285,7 +319,7 @@ def copystats(from_file, to_file):
                 pass
 
 
-def try_unlink(path):
+def try_unlink(path: str) -> None:
     """
     Try to delete the file at ``path``.  If the file doesn't exist, do nothing;
     any other errors are propagated to the caller.

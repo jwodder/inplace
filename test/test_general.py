@@ -18,7 +18,7 @@ def test_nobackup(tmp_path: Path) -> None:
             fp.write(line.swapcase())
         assert not fp.closed
     assert fp.closed
-    assert pylistdir(tmp_path) == ["file.txt"]
+    assert pylistdir(tmp_path) == ["file.txt"]  # type: ignore[unreachable]
     assert p.read_text() == TEXT.swapcase()
 
 
@@ -45,7 +45,7 @@ def test_backup(tmp_path: Path) -> None:
             fp.write(line.swapcase())
         assert not fp.closed
     assert fp.closed
-    assert pylistdir(tmp_path) == ["backup.txt", "file.txt"]
+    assert pylistdir(tmp_path) == ["backup.txt", "file.txt"]  # type: ignore[unreachable]
     assert bkp.read_text() == TEXT
     assert p.read_text() == TEXT.swapcase()
 
@@ -269,7 +269,7 @@ def test_rollback_overwrite_backup(tmp_path: Path) -> None:
     assert p.read_text() == TEXT
 
 
-def test_prechdir_backup(tmp_path: Path, monkeypatch: pytest.MonkeyPach) -> None:
+def test_prechdir_backup(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     assert pylistdir(tmp_path) == []
     monkeypatch.chdir(tmp_path)
     p = tmp_path / "file.txt"
@@ -453,7 +453,7 @@ def test_var_changes(tmp_path: Path) -> None:
         assert fp.output is not None
         assert fp._tmppath is not None
     assert fp.closed
-    assert fp.input is None
+    assert fp.input is None  # type: ignore[unreachable]
     assert fp.output is None
     assert fp._tmppath is None
 
@@ -465,10 +465,10 @@ def test_useless_after_close(tmp_path: Path) -> None:
     with InPlace(p, backup_ext="~") as fp:
         assert not fp.closed
     assert fp.closed
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError):  # type: ignore[unreachable]
         fp.flush()
     with pytest.raises(ValueError):
-        iter(fp)
+        next(fp)
     with pytest.raises(ValueError):
         fp.read()
     with pytest.raises(ValueError):

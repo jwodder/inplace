@@ -12,6 +12,6 @@ def test_bad_mode(tmp_path: Path, backup: str | None) -> None:
     p.write_text(TEXT)
     backup_path = tmp_path / backup if backup is not None else None
     with pytest.raises(ValueError, match="invalid mode"):
-        InPlace(p, mode="q", backup=backup_path)
+        InPlace(p, mode="q", backup=backup_path)  # type: ignore[call-overload]
     assert pylistdir(tmp_path) == ["file.txt"]
     assert p.read_text() == TEXT

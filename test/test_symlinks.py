@@ -1,5 +1,6 @@
 import os
 from os.path import relpath
+from pathlib import Path
 import platform
 import sys
 import pytest
@@ -14,7 +15,7 @@ pytestmark = pytest.mark.xfail(
 )
 
 
-def test_symlink_nobackup(tmp_path):
+def test_symlink_nobackup(tmp_path: Path) -> None:
     assert list(tmp_path.iterdir()) == []
     realdir = tmp_path / "real"
     realdir.mkdir()
@@ -36,7 +37,7 @@ def test_symlink_nobackup(tmp_path):
     assert real.read_text() == TEXT.swapcase()
 
 
-def test_symlink_backup_ext(tmp_path):
+def test_symlink_backup_ext(tmp_path: Path) -> None:
     assert list(tmp_path.iterdir()) == []
     realdir = tmp_path / "real"
     realdir.mkdir()
@@ -61,7 +62,7 @@ def test_symlink_backup_ext(tmp_path):
     assert link.read_text() == TEXT.swapcase()
 
 
-def test_symlink_backup(tmp_path):
+def test_symlink_backup(tmp_path: Path) -> None:
     assert list(tmp_path.iterdir()) == []
     realdir = tmp_path / "real"
     realdir.mkdir()
