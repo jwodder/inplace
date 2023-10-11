@@ -113,34 +113,38 @@ class InPlace(IO[AnyStr]):
             self.backuppath = self.realpath + os.fsdecode(backup_ext)
         else:
             self.backuppath = None
-        #: The input filehandle from which data is read; only non-`None` while
-        #: the instance is open
-        self.input: IO[AnyStr] | None = None
-        #: The output filehandle to which data is written; only non-`None`
-        #: while the instance is open
-        self.output: IO[AnyStr] | None = None
-        #: The absolute path to the temporary file; only non-`None` while the
-        #: instance is open
-        self._tmppath: str | None = None
+        if mode not in (None, "t", "b"):
+            raise ValueError(f"{mode!r}: invalid mode")
         #: `True` iff the filehandle is closed
         self._closed = False
+        #: The absolute path to the temporary file
+        self._tmppath = self._mktemp(self.realpath)
         try:
-            self._tmppath = self._mktemp(self.realpath)
+            #: The output filehandle to which data is written
+            self.output: IO[AnyStr]
             if mode is None or mode == "t":
                 self.output = open(self._tmppath, "w", **kwargs)
-            elif mode == "b":
-                self.output = open(self._tmppath, "wb", **kwargs)
             else:
-                raise ValueError(f"{mode!r}: invalid mode")
+                self.output = open(self._tmppath, "wb", **kwargs)
+        except Exception:
+            try_unlink(self._tmppath)
+            raise
+        try:
             copystats(self.realpath, self._tmppath)
+        except Exception:
+            self.output.close()
+            try_unlink(self._tmppath)
+            raise
+        try:
+            #: The input filehandle from which data is read
+            self.input: IO[AnyStr]
             if mode is None or mode == "t":
                 self.input = open(self.realpath, "r", **kwargs)
-            elif mode == "b":
-                self.input = open(self.realpath, "rb", **kwargs)
             else:
-                raise ValueError(f"{mode!r}: invalid mode")
+                self.input = open(self.realpath, "rb", **kwargs)
         except Exception:
-            self.rollback()
+            self.output.close()
+            try_unlink(self._tmppath)
             raise
 
     def __enter__(self) -> InPlace[AnyStr]:
@@ -173,12 +177,8 @@ class InPlace(IO[AnyStr]):
     def _close(self) -> None:
         """Close filehandles and set them to `None`"""
         self._closed = True
-        if self.input is not None:
-            self.input.close()
-            self.input = None
-        if self.output is not None:
-            self.output.close()
-            self.output = None
+        self.input.close()
+        self.output.close()
 
     def close(self) -> None:
         """
@@ -190,14 +190,12 @@ class InPlace(IO[AnyStr]):
         """
         if not self.closed:
             self._close()
-            assert self._tmppath is not None
             try:
                 if self.backuppath is not None:
                     os.replace(self.realpath, self.backuppath)
                 os.replace(self._tmppath, self.realpath)
             finally:
                 try_unlink(self._tmppath)
-                self._tmppath = None
 
     def rollback(self) -> None:
         """
@@ -209,9 +207,7 @@ class InPlace(IO[AnyStr]):
         """
         if not self.closed:
             self._close()
-            if self._tmppath is not None:  # In case of error while opening
-                try_unlink(self._tmppath)
-                self._tmppath = None
+            try_unlink(self._tmppath)
         else:
             raise ValueError("Cannot rollback closed file")
 
@@ -226,25 +222,21 @@ class InPlace(IO[AnyStr]):
     def read(self, size: int = -1) -> AnyStr:
         if self.closed:
             raise ValueError("Filehandle is closed")
-        assert self.input is not None
         return self.input.read(size)
 
     def readline(self, size: int = -1) -> AnyStr:
         if self.closed:
             raise ValueError("Filehandle is closed")
-        assert self.input is not None
         return self.input.readline(size)
 
     def readlines(self, sizehint: int = -1) -> list[AnyStr]:
         if self.closed:
             raise ValueError("Filehandle is closed")
-        assert self.input is not None
         return self.input.readlines(sizehint)
 
     def readinto(self: InPlace[bytes], b: Buffer) -> int:
         if self.closed:
             raise ValueError("Filehandle is closed")
-        assert self.input is not None
         r = self.input.readinto(b)  # type: ignore[attr-defined]
         assert isinstance(r, int)
         return r
@@ -252,13 +244,11 @@ class InPlace(IO[AnyStr]):
     def write(self, s: AnyStr) -> int:
         if self.closed:
             raise ValueError("Filehandle is closed")
-        assert self.output is not None
         return self.output.write(s)
 
     def writelines(self, seq: Iterable[AnyStr]) -> None:
         if self.closed:
             raise ValueError("Filehandle is closed")
-        assert self.output is not None
         self.output.writelines(seq)
 
     def __iter__(self) -> InPlace[AnyStr]:
@@ -267,13 +257,11 @@ class InPlace(IO[AnyStr]):
     def __next__(self) -> AnyStr:
         if self.closed:
             raise ValueError("Filehandle is closed")
-        assert self.input is not None
         return next(self.input)
 
     def flush(self) -> None:
         if self.closed:
             raise ValueError("Filehandle is closed")
-        assert self.output is not None
         self.output.flush()
 
     def readable(self) -> bool:

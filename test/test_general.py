@@ -443,21 +443,6 @@ def test_use_and_reenter_backup_ext(tmp_path: Path) -> None:
     assert p.read_text() == TEXT.swapcase()
 
 
-def test_var_changes(tmp_path: Path) -> None:
-    assert pylistdir(tmp_path) == []
-    p = tmp_path / "file.txt"
-    p.write_text(TEXT)
-    with InPlace(p, backup_ext="~") as fp:
-        assert not fp.closed
-        assert fp.input is not None
-        assert fp.output is not None
-        assert fp._tmppath is not None
-    assert fp.closed
-    assert fp.input is None  # type: ignore[unreachable]
-    assert fp.output is None
-    assert fp._tmppath is None
-
-
 def test_useless_after_close(tmp_path: Path) -> None:
     assert pylistdir(tmp_path) == []
     p = tmp_path / "file.txt"
