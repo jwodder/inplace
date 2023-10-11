@@ -26,6 +26,4 @@ def test_bytes_useless_after_close(tmp_path: Path) -> None:
         assert not fp.closed
     assert fp.closed
     with pytest.raises(ValueError):
-        fp.readall()
-    with pytest.raises(ValueError):
         fp.readinto(bytearray(42))

@@ -275,11 +275,6 @@ class InPlace:
             raise ValueError("Filehandle is not currently open")
         return self.input.readinto(b)
 
-    def readall(self):
-        if self._state != self.OPEN:
-            raise ValueError("Filehandle is not currently open")
-        return self.input.readall()
-
     def write(self, s):
         if self._state != self.OPEN:
             raise ValueError("Filehandle is not currently open")

@@ -4,6 +4,7 @@ v1.0.0 (in development)
 - Drop support for Python 3.6 and 3.7
 - **Breaking**: The `move_first` argument has been removed.  Only the
   `move_first=False` semantics are retained.
+- Removed the `readall()` method.  I don't think it ever worked.
 
 v0.5.0 (2021-02-20)
 -------------------

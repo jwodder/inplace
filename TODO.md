@@ -6,8 +6,6 @@
     - timestamp (and other file attributes?) preservation on rollback
     - newlines
     - every I/O method
-        - flush
-        - readall
     - Assert that the tempfile is created in the right directory
     - `delay_open=True`
     - nontrivial (i.e., containing `/` and/or `..`) relative filepaths
