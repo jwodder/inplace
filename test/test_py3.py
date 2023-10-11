@@ -10,7 +10,7 @@ def test_py3_textstr(tmp_path: Path) -> None:
     assert pylistdir(tmp_path) == []
     p = tmp_path / "file.txt"
     p.write_text(UNICODE, encoding="utf-8")
-    with InPlace(p) as fp:
+    with InPlace(p, encoding="utf-8") as fp:
         txt = fp.read()
         assert isinstance(txt, str)
         assert txt == UNICODE
@@ -24,7 +24,7 @@ def test_py3_not_bytestr(tmp_path: Path) -> None:
     assert pylistdir(tmp_path) == []
     p = tmp_path / "file.txt"
     p.write_text(UNICODE, encoding="utf-8")
-    with InPlace(p) as fp:
+    with InPlace(p, encoding="utf-8") as fp:
         txt = fp.read()
         assert isinstance(txt, str)
         assert txt == UNICODE
