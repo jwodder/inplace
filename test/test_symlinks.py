@@ -1,11 +1,10 @@
-from operator import attrgetter
 import os
 from os.path import relpath
 import platform
 import sys
 import pytest
 from in_place import InPlace
-from test_in_place_util import TEXT
+from test_in_place_util import TEXT, pylistdir
 
 pytestmark = pytest.mark.xfail(
     platform.system() == "Windows"
@@ -26,13 +25,13 @@ def test_symlink_nobackup(tmp_path):
     link = linkdir / "linkfile.txt"
     target = relpath(real, linkdir)
     link.symlink_to(target)
-    with InPlace(str(link)) as fp:
+    with InPlace(link) as fp:
         for line in fp:
             fp.write(line.swapcase())
     assert list(realdir.iterdir()) == [real]
     assert list(linkdir.iterdir()) == [link]
     assert link.is_symlink()
-    assert os.readlink(str(link)) == target
+    assert os.readlink(link) == target
     assert link.read_text() == TEXT.swapcase()
     assert real.read_text() == TEXT.swapcase()
 
@@ -48,19 +47,18 @@ def test_symlink_backup_ext(tmp_path):
     link = linkdir / "linkfile.txt"
     target = relpath(real, linkdir)
     link.symlink_to(target)
-    with InPlace(str(link), backup_ext="~") as fp:
+    with InPlace(link, backup_ext="~") as fp:
         for line in fp:
             fp.write(line.swapcase())
-    assert list(realdir.iterdir()) == [real]
-    assert sorted(linkdir.iterdir(), key=attrgetter("name")) == [
-        link,
-        link.with_suffix(".txt~"),
-    ]
-    assert link.is_symlink()
-    assert os.readlink(str(link)) == target
-    assert link.with_suffix(".txt~").read_text() == TEXT
-    assert link.read_text() == TEXT.swapcase()
+    assert pylistdir(realdir) == ["realfile.txt", "realfile.txt~"]
+    assert not real.is_symlink()
     assert real.read_text() == TEXT.swapcase()
+    assert not (realdir / "realfile.txt~").is_symlink()
+    assert (realdir / "realfile.txt~").read_text() == TEXT
+    assert pylistdir(linkdir) == ["linkfile.txt"]
+    assert link.is_symlink()
+    assert os.readlink(link) == target
+    assert link.read_text() == TEXT.swapcase()
 
 
 def test_symlink_backup(tmp_path):
@@ -75,18 +73,14 @@ def test_symlink_backup(tmp_path):
     target = relpath(real, linkdir)
     link.symlink_to(target)
     bkp = tmp_path / "backup.txt"
-    with InPlace(str(link), backup=str(bkp)) as fp:
+    with InPlace(link, backup=bkp) as fp:
         for line in fp:
             fp.write(line.swapcase())
-    assert sorted(tmp_path.iterdir(), key=attrgetter("name")) == [
-        bkp,
-        linkdir,
-        realdir,
-    ]
+    assert pylistdir(tmp_path) == ["backup.txt", "link", "real"]
     assert list(realdir.iterdir()) == [real]
     assert list(linkdir.iterdir()) == [link]
     assert link.is_symlink()
-    assert os.readlink(str(link)) == target
+    assert os.readlink(link) == target
     assert bkp.read_text() == TEXT
     assert link.read_text() == TEXT.swapcase()
     assert real.read_text() == TEXT.swapcase()

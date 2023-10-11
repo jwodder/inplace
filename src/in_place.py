@@ -81,7 +81,7 @@ class InPlace:
         elif backup_ext is not None:
             if not backup_ext:
                 raise ValueError("backup_ext cannot be empty")
-            self.backuppath = self.filepath + os.fsdecode(backup_ext)
+            self.backuppath = self.realpath + os.fsdecode(backup_ext)
         else:
             self.backuppath = None
         #: Additional arguments to pass to `open`

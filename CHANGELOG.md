@@ -9,6 +9,9 @@ v1.0.0 (in development)
   removed.  Filehandles will now always be created at the moment an in-place
   instance is constructed, just like when calling the standard library's
   `open()`.
+- **Breaking**: When the input path points to a symlink and `backup_ext` is
+  given, the backup extension will now be appended to the resolved path rather
+  than to the pre-resolved path.
 
 v0.5.0 (2021-02-20)
 -------------------
