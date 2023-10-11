@@ -1,7 +1,7 @@
 v1.0.0 (in development)
 -----------------------
 - Support Python 3.10, 3.11, and 3.12
-- Drop support for Python 3.6
+- Drop support for Python 3.6 and 3.7
 - **Breaking**: The `move_first` argument has been removed.  Only the
   `move_first=False` semantics are retained.
 

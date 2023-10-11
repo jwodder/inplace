@@ -17,20 +17,9 @@ __url__ = "https://github.com/jwodder/inplace"
 
 import os
 import os.path
-import platform
 import shutil
-import sys
 import tempfile
 from warnings import warn
-
-if (
-    platform.system() == "Windows"
-    and platform.python_implementation() != "PyPy"
-    and sys.version_info[:2] < (3, 8)
-):
-    from jaraco.windows.filesystem import get_final_path as realpath
-else:
-    from os.path import realpath
 
 __all__ = ["InPlace", "InPlaceBytes", "InPlaceText"]
 
@@ -164,7 +153,7 @@ class InPlace:
         """
         if self._state < self.OPEN:
             self._state = self.OPEN
-            self.realpath = realpath(self.filepath)
+            self.realpath = os.path.realpath(self.filepath)
             try:
                 self._tmppath = self._mktemp(self.realpath)
                 self.output = self.open_write(self._tmppath)
