@@ -30,7 +30,7 @@ def test_bad_mode_delay_open_with(tmp_path: Path, backup: str | None) -> None:
     )
     with pytest.raises(ValueError, match="invalid mode"):
         with fp:
-            assert False
+            raise AssertionError("Not reached")
     assert fp.closed
     assert pylistdir(tmp_path) == ["file.txt"]
     assert p.read_text() == TEXT

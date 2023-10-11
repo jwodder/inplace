@@ -440,7 +440,7 @@ def test_with_nonexistent(tmp_path: Path) -> None:
     p = tmp_path / "file.txt"
     with pytest.raises(EnvironmentError):
         with InPlace(p):
-            assert False
+            raise AssertionError("Not reached")
     assert pylistdir(tmp_path) == []
 
 
@@ -458,7 +458,7 @@ def test_with_nonexistent_backup_ext(tmp_path: Path) -> None:
     p = tmp_path / "file.txt"
     with pytest.raises(EnvironmentError):
         with InPlace(p, backup_ext="~"):
-            assert False
+            raise AssertionError("Not reached")
     assert pylistdir(tmp_path) == []
 
 
