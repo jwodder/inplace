@@ -52,18 +52,8 @@ class InPlace:
         ``backup_ext`` are mutually exclusive.
     :type backup_ext: path-like
 
-    :param bool delay_open: If `True`, the newly-constructed instance will not
-        be open, and the user must either explicitly call the :meth:`open()`
-        method or use the instance as a context manager in order to open it.
-        If `False` (the default), the instance will be automatically opened as
-        soon as it is constructed.
-
     :param kwargs: Additional keyword arguments to pass to `open()`
     """
-
-    UNOPENED = 0
-    OPEN = 1
-    CLOSED = 2
 
     def __init__(
         self,
@@ -71,7 +61,6 @@ class InPlace:
         mode=None,
         backup=None,
         backup_ext=None,
-        delay_open=False,
         **kwargs,
     ):
         cwd = os.getcwd()
@@ -81,9 +70,8 @@ class InPlace:
         self.mode = mode
         #: The absolute path of the file to edit in-place
         self.filepath = os.path.join(cwd, self.name)
-        #: ``filepath`` with symbolic links resolved.  This is set just before
-        #: opening the file.
-        self.realpath = None
+        #: ``filepath`` with symbolic links resolved
+        self.realpath = os.path.realpath(self.filepath)
         if backup is not None:
             if backup_ext is not None:
                 raise ValueError("backup and backup_ext are mutually exclusive")
@@ -107,18 +95,23 @@ class InPlace:
         #: The absolute path to the temporary file; only non-`None` while the
         #: instance is open
         self._tmppath = None
-        #: Are we not open yet, open, or closed?
-        self._state = self.UNOPENED
-        if not delay_open:
-            self.open()
+        #: `True` iff the filehandle is not currently open
+        self.closed = False
+        try:
+            self._tmppath = self._mktemp(self.realpath)
+            self.output = self.open_write(self._tmppath)
+            copystats(self.realpath, self._tmppath)
+            input_path = self.realpath
+            self.input = self.open_read(input_path)
+        except Exception:
+            self.rollback()
+            raise
 
     def __enter__(self):
-        if self._state < self.OPEN:
-            self.open()
         return self
 
     def __exit__(self, exc_type, _exc_value, _traceback):
-        if self._state == self.OPEN:
+        if not self.closed:
             if exc_type is not None:
                 self.rollback()
             else:
@@ -136,35 +129,6 @@ class InPlace:
         )
         os.close(fd)
         return tmppath
-
-    def open(self):  # noqa: A003
-        """
-        Open the file :attr:`name` for reading and open a temporary file for
-        writing.
-
-        If ``delay_open=True`` was passed to the instance's constructor, this
-        method must be called (either explicitly or else implicitly by using
-        the instance as a context manager) before the instance can be used for
-        reading or writing.  If ``delay_open`` was `False` (the default), this
-        method is called automatically by the constructor, and the user should
-        not call it again.
-
-        :raises ValueError: if called more than once on the same instance
-        """
-        if self._state < self.OPEN:
-            self._state = self.OPEN
-            self.realpath = os.path.realpath(self.filepath)
-            try:
-                self._tmppath = self._mktemp(self.realpath)
-                self.output = self.open_write(self._tmppath)
-                copystats(self.realpath, self._tmppath)
-                input_path = self.realpath
-                self.input = self.open_read(input_path)
-            except Exception:
-                self.rollback()
-                raise
-        else:
-            raise ValueError("open() called twice on same filehandle")
 
     def open_read(self, path):
         """
@@ -195,6 +159,7 @@ class InPlace:
         Close filehandles (if they aren't closed already) and set them to
         `None`
         """
+        self.closed = True
         if self.input is not None:
             self.input.close()
             self.input = None
@@ -209,12 +174,8 @@ class InPlace:
         this method or :meth:`rollback`), :meth:`close` does nothing.
 
         :return: `None`
-        :raises ValueError: if called before opening the filehandle
         """
-        if self._state == self.UNOPENED:
-            raise ValueError("Cannot close unopened file")
-        elif self._state == self.OPEN:
-            self._state = self.CLOSED
+        if not self.closed:
             self._close()
             try:
                 if self.backuppath is not None:
@@ -224,7 +185,6 @@ class InPlace:
                 if self._tmppath is not None:
                     try_unlink(self._tmppath)
                     self._tmppath = None
-        # elif self._state == self.CLOSED: pass
 
     def rollback(self):
         """
@@ -232,66 +192,53 @@ class InPlace:
         like they did before the `InPlace` instance was opened
 
         :return: `None`
-        :raises ValueError: if called while the `InPlace` instance is not open
+        :raises ValueError: if called after the `InPlace` instance is closed
         """
-        if self._state == self.UNOPENED:
-            raise ValueError("Cannot close unopened file")
-        elif self._state == self.OPEN:
-            self._state = self.CLOSED
+        if not self.closed:
             self._close()
             if self._tmppath is not None:  # In case of error while opening
                 try_unlink(self._tmppath)
                 self._tmppath = None
         else:
-            assert self._state == self.CLOSED
             raise ValueError("Cannot rollback closed file")
 
-    @property
-    def closed(self):
-        """
-        `True` iff the filehandle is not currently open.  Note that, if the
-        filehandle was initialized with ``delay_open=True``, `closed` will be
-        `True` until :meth:`open()` is called.
-        """
-        return self._state != self.OPEN
-
     def read(self, size=-1):
-        if self._state != self.OPEN:
+        if self.closed:
             raise ValueError("Filehandle is not currently open")
         return self.input.read(size)
 
     def readline(self, size=-1):
-        if self._state != self.OPEN:
+        if self.closed:
             raise ValueError("Filehandle is not currently open")
         return self.input.readline(size)
 
     def readlines(self, sizehint=-1):
-        if self._state != self.OPEN:
+        if self.closed:
             raise ValueError("Filehandle is not currently open")
         return self.input.readlines(sizehint)
 
     def readinto(self, b):
-        if self._state != self.OPEN:
+        if self.closed:
             raise ValueError("Filehandle is not currently open")
         return self.input.readinto(b)
 
     def write(self, s):
-        if self._state != self.OPEN:
+        if self.closed:
             raise ValueError("Filehandle is not currently open")
         self.output.write(s)
 
     def writelines(self, seq):
-        if self._state != self.OPEN:
+        if self.closed:
             raise ValueError("Filehandle is not currently open")
         self.output.writelines(seq)
 
     def __iter__(self):
-        if self._state != self.OPEN:
+        if self.closed:
             raise ValueError("Filehandle is not currently open")
         return iter(self.input)
 
     def flush(self):
-        if self._state != self.OPEN:
+        if self.closed:
             raise ValueError("Filehandle is not currently open")
         self.output.flush()
 

@@ -7,7 +7,6 @@
     - newlines
     - every I/O method
     - Assert that the tempfile is created in the right directory
-    - `delay_open=True`
     - nontrivial (i.e., containing `/` and/or `..`) relative filepaths
     - `backup_ext` containing a directory separator?
     - `backup_ext` when the filepath contains a directory separator

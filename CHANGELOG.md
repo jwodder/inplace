@@ -5,6 +5,10 @@ v1.0.0 (in development)
 - **Breaking**: The `move_first` argument has been removed.  Only the
   `move_first=False` semantics are retained.
 - Removed the `readall()` method.  I don't think it ever worked.
+- **Breaking**: The `delay_open` argument and `open()` method have been
+  removed.  Filehandles will now always be created at the moment an in-place
+  instance is constructed, just like when calling the standard library's
+  `open()`.
 
 v0.5.0 (2021-02-20)
 -------------------

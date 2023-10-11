@@ -282,34 +282,6 @@ def test_prechdir_backup(tmp_path: Path, monkeypatch: pytest.MonkeyPach) -> None
     assert p.read_text() == TEXT.swapcase()
 
 
-def test_midchdir_backup(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    """
-    Assert that changing directory between creating an InPlace object and
-    opening it works
-    """
-    filedir = tmp_path / "filedir"
-    filedir.mkdir()
-    wrongdir = tmp_path / "wrongdir"
-    wrongdir.mkdir()
-    p = filedir / "file.txt"
-    p.write_text(TEXT)
-    monkeypatch.chdir(filedir)
-    fp = InPlace("file.txt", backup="backup.txt", delay_open=True)
-    monkeypatch.chdir(wrongdir)
-    assert fp.closed
-    with fp:
-        assert not fp.closed
-        for line in fp:
-            fp.write(line.swapcase())
-        assert not fp.closed
-    assert fp.closed
-    assert os.getcwd() == str(wrongdir)
-    assert pylistdir(wrongdir) == []
-    assert pylistdir(filedir) == ["backup.txt", "file.txt"]
-    assert (filedir / "backup.txt").read_text() == TEXT
-    assert p.read_text() == TEXT.swapcase()
-
-
 def test_postchdir_backup(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     """Assert that changing directory after opening an InPlace object works"""
     filedir = tmp_path / "filedir"
@@ -387,7 +359,7 @@ def test_backup_dirpath(tmp_path: Path) -> None:
     assert pylistdir(not_a_file) == []
     fp = InPlace(p, backup=not_a_file)
     fp.write("This will be discarded.\n")
-    with pytest.raises(EnvironmentError):
+    with pytest.raises(OSError):
         fp.close()
     assert pylistdir(tmp_path) == ["file.txt", "not-a-file"]
     assert p.read_text() == TEXT
@@ -404,41 +376,24 @@ def test_backup_nosuchdir(tmp_path: Path) -> None:
     p.write_text(TEXT)
     fp = InPlace(p, backup=tmp_path / "nonexistent" / "backup.txt")
     fp.write("This will be discarded.\n")
-    with pytest.raises(EnvironmentError):
+    with pytest.raises(OSError):
         fp.close()
     assert pylistdir(tmp_path) == ["file.txt"]
     assert p.read_text() == TEXT
 
 
-def test_double_open_nobackup(tmp_path: Path) -> None:
-    assert pylistdir(tmp_path) == []
-    p = tmp_path / "file.txt"
-    p.write_text(TEXT)
-    with InPlace(p) as fp:
-        with pytest.raises(ValueError):
-            fp.open()
-        assert not fp.closed
-        for line in fp:
-            fp.write(line.swapcase())
-        assert not fp.closed
-    assert fp.closed
-    assert pylistdir(tmp_path) == ["file.txt"]
-    assert p.read_text() == TEXT.swapcase()
-
-
 def test_nonexistent(tmp_path: Path) -> None:
     assert pylistdir(tmp_path) == []
     p = tmp_path / "file.txt"
-    fp = InPlace(p, delay_open=True)
-    with pytest.raises(EnvironmentError):
-        fp.open()
+    with pytest.raises(FileNotFoundError):
+        InPlace(p)
     assert pylistdir(tmp_path) == []
 
 
 def test_with_nonexistent(tmp_path: Path) -> None:
     assert pylistdir(tmp_path) == []
     p = tmp_path / "file.txt"
-    with pytest.raises(EnvironmentError):
+    with pytest.raises(FileNotFoundError):
         with InPlace(p):
             raise AssertionError("Not reached")
     assert pylistdir(tmp_path) == []
@@ -447,16 +402,15 @@ def test_with_nonexistent(tmp_path: Path) -> None:
 def test_nonexistent_backup_ext(tmp_path: Path) -> None:
     assert pylistdir(tmp_path) == []
     p = tmp_path / "file.txt"
-    fp = InPlace(p, backup_ext="~", delay_open=True)
-    with pytest.raises(EnvironmentError):
-        fp.open()
+    with pytest.raises(FileNotFoundError):
+        InPlace(p, backup_ext="~")
     assert pylistdir(tmp_path) == []
 
 
 def test_with_nonexistent_backup_ext(tmp_path: Path) -> None:
     assert pylistdir(tmp_path) == []
     p = tmp_path / "file.txt"
-    with pytest.raises(EnvironmentError):
+    with pytest.raises(FileNotFoundError):
         with InPlace(p, backup_ext="~"):
             raise AssertionError("Not reached")
     assert pylistdir(tmp_path) == []
@@ -498,12 +452,10 @@ def test_var_changes(tmp_path: Path) -> None:
         assert fp.input is not None
         assert fp.output is not None
         assert fp._tmppath is not None
-        assert fp._state == fp.OPEN
     assert fp.closed
     assert fp.input is None
     assert fp.output is None
     assert fp._tmppath is None
-    assert fp._state == fp.CLOSED
 
 
 def test_useless_after_close(tmp_path: Path) -> None:
@@ -538,24 +490,6 @@ def test_rollback_too_late(tmp_path: Path) -> None:
             fp.write(line.swapcase())
     with pytest.raises(ValueError):
         fp.rollback()
-    assert pylistdir(tmp_path) == ["file.txt", "file.txt~"]
-    assert p.with_suffix(".txt~").read_text() == TEXT
-    assert p.read_text() == TEXT.swapcase()
-
-
-def test_rollback_too_early(tmp_path: Path) -> None:
-    assert pylistdir(tmp_path) == []
-    p = tmp_path / "file.txt"
-    p.write_text(TEXT)
-    fp = InPlace(p, backup_ext="~", delay_open=True)
-    with pytest.raises(ValueError):
-        fp.rollback()
-    assert fp.closed
-    assert pylistdir(tmp_path) == ["file.txt"]
-    assert p.read_text() == TEXT
-    with fp:
-        for line in fp:
-            fp.write(line.swapcase())
     assert pylistdir(tmp_path) == ["file.txt", "file.txt~"]
     assert p.with_suffix(".txt~").read_text() == TEXT
     assert p.read_text() == TEXT.swapcase()

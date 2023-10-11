@@ -119,12 +119,6 @@ following arguments:
    ``backup`` and ``backup_ext`` are mutually exclusive.  ``backup_ext`` cannot
    be set to the empty string.
 
-``delay_open=<BOOL>``
-   By default, the instance is opened (including creating temporary files and
-   so forth) as soon as it's created.  Setting ``delay_open=True`` disables
-   this; the instance must then be opened either via the ``open()`` method or
-   by using it as a context manager.
-
 ``**kwargs``
    Any additional keyword arguments (such as ``encoding``, ``errors``, and
    ``newline``) will be forwarded to ``open()`` when opening both the input and
@@ -156,13 +150,6 @@ attributes, specifically::
 
 ``InPlace`` instances also feature the following new or modified attributes:
 
-``open()``
-   Open the instance, creating filehandles for reading & writing.  This method
-   must be called first before any of the other I/O methods can be used.  It is
-   normally called automatically upon instance initialization unless
-   ``delay_open`` was set to ``True``.  A ``ValueError`` is raised if this
-   method is called more than once in an instance's lifetime.
-
 ``close()``
    Close filehandles and move files to their final destinations.  If called
    after the filehandle has already been closed, ``close()`` does nothing.
@@ -176,11 +163,11 @@ attributes, specifically::
    intact) instead of replacing the original file with it
 
 ``__enter__()``, ``__exit__()``
-   When an ``InPlace`` instance is used as a context manager, it will be opened
-   (if not open already) on entering and either closed (if all went well) or
-   rolled back (if an exception occurred) on exiting.  ``InPlace`` context
-   managers are not `reusable`_ but are `reentrant`_ (as long as no further
-   operations are performed after the innermost context ends).
+   When an ``InPlace`` instance is used as a context manager, on exiting the
+   context, the instance will be either closed (if all went well) or rolled
+   back (if an exception occurred).  ``InPlace`` context managers are not
+   reusable_ but are reentrant_ (as long as no further operations are performed
+   after the innermost context ends).
 
 ``input``
    The actual filehandle that data is read from, in case you need to access it
