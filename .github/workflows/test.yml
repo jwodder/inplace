@@ -36,6 +36,9 @@ jobs:
           - python-version: '3.8'
             toxenv: lint
             os: ubuntu-latest
+          - python-version: '3.8'
+            toxenv: typing
+            os: ubuntu-latest
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
