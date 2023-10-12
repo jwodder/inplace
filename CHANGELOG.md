@@ -1,5 +1,5 @@
-v1.0.0 (in development)
------------------------
+v1.0.0 (2023-10-12)
+-------------------
 - Support Python 3.10, 3.11, and 3.12
 - Drop support for Python 3.6 and 3.7
 - **Breaking**: The `move_first` argument has been removed.  Only the
