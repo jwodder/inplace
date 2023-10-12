@@ -133,7 +133,7 @@ following arguments:
 ``name``, ``backup``, and ``backup_ext`` can be ``str``, filesystem-encoded
 ``bytes``, or path-like objects.
 
-Once open, ``InPlace`` instances act as filehandles with the usual filehandle
+``InPlace`` instances act as read-write filehandles with the usual filehandle
 attributes, specifically::
 
     __iter__()              __next__()              closed
