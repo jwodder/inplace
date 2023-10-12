@@ -1,7 +1,22 @@
-v0.6.0 (in development)
+v1.0.0 (in development)
 -----------------------
 - Support Python 3.10, 3.11, and 3.12
-- Drop support for Python 3.6
+- Drop support for Python 3.6 and 3.7
+- **Breaking**: The `move_first` argument has been removed.  Only the
+  `move_first=False` semantics are retained.
+- Removed the `readall()` method.  I don't think it ever worked.
+- **Breaking**: The `delay_open` argument and `open()` method have been
+  removed.  Filehandles will now always be created at the moment an in-place
+  instance is constructed, just like when calling the standard library's
+  `open()`.
+- **Breaking**: When the input path points to a symlink and `backup_ext` is
+  given, the backup extension will now be appended to the resolved path rather
+  than to the pre-resolved path.
+- Added type annotations
+- `InPlaceText` and `InPlaceBytes` (deprecated in v0.4.0) have been removed
+- Added `read1()` and `readinto1()` methods for binary mode
+- The `InPlace` constructor now immediately raises a `ValueError` if `backup`
+  is the empty string
 
 v0.5.0 (2021-02-20)
 -------------------
