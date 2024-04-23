@@ -1,23 +1,25 @@
-.. image:: https://www.repostatus.org/badges/latest/active.svg
+|repostatus| |ci-status| |coverage| |pyversions| |conda| |license|
+
+.. |repostatus| image:: https://www.repostatus.org/badges/latest/active.svg
     :target: https://www.repostatus.org/#active
     :alt: Project Status: Active - The project has reached a stable, usable
           state and is being actively developed.
 
-.. image:: https://github.com/jwodder/inplace/actions/workflows/test.yml/badge.svg
+.. |ci-status| image:: https://github.com/jwodder/inplace/actions/workflows/test.yml/badge.svg
     :target: https://github.com/jwodder/inplace/actions/workflows/test.yml
     :alt: CI Status
 
-.. image:: https://codecov.io/gh/jwodder/inplace/branch/master/graph/badge.svg
+.. |coverage| image:: https://codecov.io/gh/jwodder/inplace/branch/master/graph/badge.svg
     :target: https://codecov.io/gh/jwodder/inplace
 
-.. image:: https://img.shields.io/pypi/pyversions/in_place.svg
+.. |pyversions| image:: https://img.shields.io/pypi/pyversions/in_place.svg
     :target: https://pypi.org/project/in_place
 
-.. image:: https://img.shields.io/conda/vn/conda-forge/in_place.svg
+.. |conda| image:: https://img.shields.io/conda/vn/conda-forge/in_place.svg
     :target: https://anaconda.org/conda-forge/in_place
     :alt: Conda Version
 
-.. image:: https://img.shields.io/github/license/jwodder/inplace.svg?maxAge=2592000
+.. |license| image:: https://img.shields.io/github/license/jwodder/inplace.svg?maxAge=2592000
     :target: https://opensource.org/licenses/MIT
     :alt: MIT License
 
