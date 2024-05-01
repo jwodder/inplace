@@ -71,8 +71,7 @@ class InPlace(IO[AnyStr]):
         backup: AnyPath | None = None,
         backup_ext: AnyPath | None = None,
         **kwargs: Any,
-    ) -> None:
-        ...
+    ) -> None: ...
 
     @overload
     def __init__(
@@ -82,8 +81,7 @@ class InPlace(IO[AnyStr]):
         backup: AnyPath | None = None,
         backup_ext: AnyPath | None = None,
         **kwargs: Any,
-    ) -> None:
-        ...
+    ) -> None: ...
 
     def __init__(
         self,
