@@ -21,7 +21,7 @@ from typing import IO, TYPE_CHECKING, Any, AnyStr, Literal, Union, overload
 if TYPE_CHECKING:
     from typing_extensions import Buffer
 
-__version__ = "1.1.0.dev1"
+__version__ = "1.0.1"
 __author__ = "John Thorvald Wodder II"
 __author_email__ = "inplace@varonathe.org"
 __license__ = "MIT"
