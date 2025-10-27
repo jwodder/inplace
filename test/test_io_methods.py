@@ -36,10 +36,10 @@ def test_readinto_bytearray_nobackup(tmp_path: Path) -> None:
     with InPlace(p, "b") as fp:
         ba = bytearray(5)
         assert fp.readinto(ba) == 5
-        assert ba == bytearray(b"\xC3\xA5\xC3\xA9\xC3")
+        assert ba == bytearray(b"\xc3\xa5\xc3\xa9\xc3")
         fp.write(ba)
     assert pylistdir(tmp_path) == ["file.txt"]
-    assert p.read_bytes() == b"\xC3\xA5\xC3\xA9\xC3"
+    assert p.read_bytes() == b"\xc3\xa5\xc3\xa9\xc3"
 
 
 def test_readinto1_bytearray_nobackup(tmp_path: Path) -> None:

@@ -16,7 +16,7 @@ def test_utf8_nobackup(tmp_path: Path) -> None:
         assert txt == UNICODE
         fp.write(normalize("NFD", txt))
     assert pylistdir(tmp_path) == ["file.txt"]
-    assert p.read_text(encoding="utf-8") == "a\u030Ae\u0301i\u0302\xF8u\u0308\n"
+    assert p.read_text(encoding="utf-8") == "a\u030ae\u0301i\u0302\xf8u\u0308\n"
 
 
 def test_utf8_as_latin1(tmp_path: Path) -> None:
@@ -29,7 +29,7 @@ def test_utf8_as_latin1(tmp_path: Path) -> None:
         assert txt == "\xc3\xa5\xc3\xa9\xc3\xae\xc3\xb8\xc3\xbc\n"
         fp.write(UNICODE)
     assert pylistdir(tmp_path) == ["file.txt"]
-    assert p.read_bytes() == b"\xE5\xE9\xEE\xF8\xFC" + NLB
+    assert p.read_bytes() == b"\xe5\xe9\xee\xf8\xfc" + NLB
 
 
 def test_latin1_as_utf8(tmp_path: Path) -> None:
@@ -47,10 +47,10 @@ def test_latin1_as_utf8_replace(tmp_path: Path) -> None:
     with InPlace(p, "t", encoding="utf-8", errors="replace") as fp:
         txt = fp.read()
         assert isinstance(txt, str)
-        assert txt == "\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\n"
+        assert txt == "\ufffd\ufffd\ufffd\ufffd\ufffd\n"
         fp.write(txt)
     assert pylistdir(tmp_path) == ["file.txt"]
-    assert p.read_text(encoding="utf-8") == "\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\n"
+    assert p.read_text(encoding="utf-8") == "\ufffd\ufffd\ufffd\ufffd\ufffd\n"
 
 
 def test_bytes_iconv_nobackup(tmp_path: Path) -> None:
@@ -63,4 +63,4 @@ def test_bytes_iconv_nobackup(tmp_path: Path) -> None:
         assert txt == b"\xc3\xa5\xc3\xa9\xc3\xae\xc3\xb8\xc3\xbc" + NLB
         fp.write(txt.decode("utf-8").encode("latin-1"))
     assert pylistdir(tmp_path) == ["file.txt"]
-    assert p.read_bytes() == b"\xE5\xE9\xEE\xF8\xFC" + NLB
+    assert p.read_bytes() == b"\xe5\xe9\xee\xf8\xfc" + NLB
