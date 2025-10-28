@@ -295,10 +295,10 @@ def copystats(from_file: str, to_file: str) -> None:
         # Based on GNU sed's behavior:
         try:
             os.chown(to_file, st.st_uid, st.st_gid)
-        except IOError:
+        except OSError:
             try:
                 os.chown(to_file, -1, st.st_gid)
-            except IOError:
+            except OSError:
                 pass
 
 
