@@ -1,3 +1,8 @@
+v1.1.0 (in development)
+-----------------------
+- Support Python 3.14
+- Drop support for Python 3.8 and 3.9
+
 v1.0.1 (2024-12-01)
 -------------------
 - Migrated from setuptools to hatch
