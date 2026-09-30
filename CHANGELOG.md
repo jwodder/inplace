@@ -1,7 +1,8 @@
-v1.1.0 (in development)
+v1.0.2 (in development)
 -----------------------
 - Support Python 3.14
 - Drop support for Python 3.8 and 3.9
+- **Bug Fix**: Copy uid & gid before copying permission bits
 
 v1.0.1 (2024-12-01)
 -------------------
